@@ -1,0 +1,11 @@
+*.tmproj
+.DS_Store
+.tmtags
+build
+*.xcodeproj/*.pbxuser
+*.xcodeproj/*.mode*
+*.projection
+*.tickets
+*.trace
+.classes.TM_Completions.txt.gz
+.methods.TM_Completions.txt.gz

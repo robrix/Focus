@@ -1,0 +1,59 @@
+#COMPILATION
+
+hammerc uses a two-step bootstrapping mechanism to compile Hammer grammars:
+
+1. Compile the in-memory AST representation of the grammar for defining grammars.
+2. Use that to compile the input grammar.
+
+Can the same bootstrapping process be used to compile Focus? Compile something specific, and use that to compile something general?
+
+1. Compile the in-memory AST representation of the source for the language.
+2. Use that to compile the input source.
+
+Specific components of this would include:
+
+1. AST classes for the language, representing language expressions of various types (objects, numbers, assignments, arrays, etc). These are distinct from the native objects of the system, and can be written in Objective-C.
+2. A hierarchical visitor pattern compiler class for the AST nodes.
+3. A parser and builder which assemble AST nodes given the grammar.
+4. A compiler program which leverages the above to build binaries.
+5. Source (in the language) which implements the parser, AST, builder, and core frameworks for the language.
+
+
+#MESSAGING
+
+1. Look up the selector in the receiver.
+2. Load the parameters into registers as necessary. This includes the hidden parameters (self, selector).
+3. Jump to the block in question.
+
+
+#MEMORY LAYOUT
+
+At a minimum, an object consists of:
+
+1. A reference to its prototype (possibly null?).
+2. A hash table of ivars.
+3. A hash table of methods.
+
+Arrays will add to this an unsigned integer *n* followed by *n* references.
+
+
+#COLLECTIONS
+
+Hash tables can be implemented (efficiently enough) within the language, given arrays.
+
+Proper contiguous arrays require language support.
+
+
+#CONTROL FLOW
+
+Pattern matching via a match method:
+
+	result = (expression) match: [
+		1 => {…},
+		2..3 => {…},
+		{implements: …} => {}
+	] else: {
+		…
+	}.
+
+

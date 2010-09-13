@@ -1,0 +1,46 @@
+Interfaces are potentially composed of other interfaces.
+
+Map:
+	#at:
+
+Mutable map:
+	Map
+	#at:put:
+
+Enumeration:
+	#detect:
+	#select:
+	#reject:
+	#fold:
+	#map:
+	#each:
+	#reversed
+
+Implementations of the Map interface include vectors and hash tables. Sets don’t implement Map, but vectors, hash tables, and sets all implement Enumeration.
+
+
+Map = Interface composedOf: [
+	#at:
+].
+
+MutableMap = Interface composedOf: [
+	Map,
+	#at:put:
+].
+
+
+HashTable = Object new: {
+	implements: Map.
+	
+	#at: = (key) {
+		…
+	}.
+}.
+
+MutableHashTable = Object new: {
+	implements: MutableMap.
+	
+	#at:put: = (key) {
+		…
+	}.
+}.

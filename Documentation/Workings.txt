@@ -1,0 +1,91 @@
+	Object define: #description as: {
+		"Object!".
+	}.
+	
+	Point = Object new: {
+		// receiver is Point
+		accessorsFor: "x", "y".
+		/*
+			→
+			define: #x as: {
+				self.x.
+			}.
+			define #x: as: (_x) {
+				self.x = _x.
+			}.
+			etc.
+		*/
+		
+		define: #atX:Y: as: (_x, _y) {
+			// receiver is Point
+			new: {
+				// receiver is the new object
+				x: _x.
+				y: _y.
+			}.
+		}.
+	}.
+
+	// …later, e.g. in another file…
+	
+	Point do: {
+		// receiver is Point
+		define: #wtf as: {
+			"wtf" print.
+		}.
+	}.
+	
+	origin = Point atX: 0 Y: 0.
+	origin description. // → “Object!”
+	// this looks up origin in the method table in the method table, searching for a method called description; it doesn’t find it, so it looks at origin’s prototype
+
+
+Exception handling:
+
+	{
+		…
+	}
+	catch: {
+		…
+	}
+	finally: {
+		…
+	}.
+
+
+If statements:
+
+	(condition) ifTrue: {
+		…
+	}.
+	
+	(condition) ifFalse: {
+		…
+	}.
+	
+	(condition) ifTrue: {
+		…
+	}
+	ifFalse: {
+		…
+	}.
+	
+	object ifNil: {
+		…
+	}.
+
+	// or alternatively…	
+	(condition) then: {
+		…
+	}.
+	
+	(condition) else: {
+		…
+	}.
+	
+	(condition) then: {
+		…
+	}
+	else: {
+		…
+	}.
