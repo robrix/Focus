@@ -23,3 +23,7 @@ desc "Builds all targets."
 task :"build-all" => BUILD_TARGETS
 task :build => [:"build-all"]
 task :default => :build
+
+desc "Tests all targets."
+task :"test-all" => TEST_TARGETS
+task :test => [:"test-all"]

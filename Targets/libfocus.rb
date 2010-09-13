@@ -9,7 +9,7 @@ task :build => [
 	"Core/FSymbol.o",
 ]
 
-
+desc "Tests libfocus."
 task :test => [
 	
 ]
