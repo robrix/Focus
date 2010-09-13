@@ -8,11 +8,17 @@
 typedef struct FPair {
 	void *key;
 	void *value;
+	struct FPair *nextPair;
 } FPair;
 
 typedef struct FHashTable {
 	unsigned int bucketCount;
-	FPair **buckets;
+	FPair *buckets;
 } FHashTable;
+
+FHashTable *FHashTableCreate();
+
+void *FHashTableGetValueForKey(FHashTable *self, void *key);
+void FHashTableSetValueForKey(FHashTable *self, void *key, void *value);
 
 #endif // F_HASH_TABLE
