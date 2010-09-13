@@ -15,8 +15,6 @@ typedef struct FObject {
 	struct FHashTable *methods;
 } FObject;
 
-#define FObjectNull ((FObject*)0)
-
 typedef FObject *(*FMethod)(FObject *receiver, struct FSymbol *selector, ...);
 
 FObject *FObjectCreate(FObject *prototype, size_t size);

@@ -7,7 +7,7 @@
 #include "FSymbol.h"
 
 FObject *FObjectCreate(FObject *prototype, size_t size) {
-	return FObjectNull;
+	return NULL;
 }
 
 
@@ -16,7 +16,7 @@ FMethod FObjectGetMethod(FObject *self, struct FSymbol *selector) {
 }
 
 void FObjectSetMethod(FObject *self, struct FSymbol *selector, FMethod method) {
-	if(self->methods == FObjectNull) {
+	if(self->methods == NULL) {
 		self->methods = FHashTableCreate();
 	}
 	FHashTableSetValueForKey(self->methods, selector, method);
@@ -28,7 +28,7 @@ FObject *FObjectGetVariable(FObject *self, struct FSymbol *name) {
 }
 
 void FObjectSetVariable(FObject *self, struct FSymbol *name, FObject *variable) {
-	if(self->variables == FObjectNull) {
+	if(self->variables == NULL) {
 		self->variables = FHashTableCreate();
 	}
 	FHashTableSetValueForKey(self->variables, name, variable);
