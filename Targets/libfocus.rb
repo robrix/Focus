@@ -11,5 +11,5 @@ task :build => [
 
 desc "Tests libfocus."
 task :test => [
-	
+	"Tests/FHashTableTests.o",
 ]

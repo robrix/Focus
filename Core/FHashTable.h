@@ -6,7 +6,7 @@
 #define F_HASH_TABLE
 
 typedef struct FPair {
-	void *key;
+	struct FSymbol *key;
 	void *value;
 	struct FPair *nextPair;
 } FPair;
@@ -18,7 +18,7 @@ typedef struct FHashTable {
 
 FHashTable *FHashTableCreate();
 
-void *FHashTableGetValueForKey(FHashTable *self, void *key);
-void FHashTableSetValueForKey(FHashTable *self, void *key, void *value);
+void *FHashTableGetValueForKey(FHashTable *self, struct FSymbol *key);
+void FHashTableSetValueForKey(FHashTable *self, struct FSymbol *key, void *value);
 
 #endif // F_HASH_TABLE
