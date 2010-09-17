@@ -7,7 +7,7 @@ directory "build/products"
 directory "build/generated"
 
 def compile(source, object)
-	%x{cc -Wall "#{source}" -I ./* -c -o "build/objects/#{object}"}
+	%x{cc -Wall "#{source}" -I "#{File.dirname source}" -c -o "build/objects/#{object}"}
 end
 
 def link(program, objects)
@@ -28,21 +28,12 @@ Dir["Targets/*.rb"].each do |target|
 		end
 		
 		task :build => ["build/products"] do |t|
-			link(name, t.prerequisites)
+			link(name, t.prerequisites.select{ |obj| obj[/\.o$/] }.collect{ |obj| "build/objects/#{name}/#{File.basename(obj)}" })
 		end
 		
-		task :test => ["build/generated/test-#{name}.o", "build/products"] do |t|
+		task :test => ["build/products"] do |t|
 			link("test-#{name}", t.prerequisites.select{ |obj| obj[/\.o$/] }.collect{ |obj| "build/objects/#{name}/#{File.basename(obj)}" })
 			sh %Q{build/products/test-#{name}}
-		end
-		file "build/generated/test-#{name}.c" => ["build/generated"] do |t|
-			File.open(t.name, "w") do |file|
-				file << <<-END_C
-int main(int argc, const char *argv[]) {
-	return 0;
-}
-				END_C
-			end
 		end
 	end
 	BUILD_TARGETS << "#{name}:build"

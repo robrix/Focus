@@ -3,9 +3,29 @@
 // Copyright 2010 Monochrome Industries
 
 #include "FHashTable.h"
+#include "FTestSuite.h"
 #include <stdio.h>
+
+static FHashTable *hashTable = NULL;
+
+static void setUp() {
+	hashTable = FHashTableCreate();
+}
+
+
+static void testCreation() {
+	FAssert(hashTable != NULL);
+}
+
+static void testStoresObjectsByKeys() {
+	
+}
 
 __attribute__((constructor))
 static void FTestHashTable() {
-	printf("FTestHashTable()\n");
+	FRunTestSuite("FHashTable", setUp, NULL, {
+		testCreation,
+		testStoresObjectsByKeys,
+		NULL,
+	});
 }
