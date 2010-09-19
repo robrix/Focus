@@ -13,5 +13,11 @@ void FRunTestSuite(const char *name, FTestSuiteSetUpFunction setUp, FTestSuiteTe
 		(*test)();
 		tearDown();
 		test++;
+		FTestSuiteTestsRun++;
 	} while(*test);
+}
+
+int main(int argc, const char *argv[]) {
+	printf("%u tests, %u assertions, %u failures\n", FTestSuiteTestsRun, FTestSuiteAssertionsRun, FTestSuiteAssertionsFailed);
+	return 0;
 }

@@ -9,17 +9,22 @@ typedef void (*FTestSuiteSetUpFunction)();
 typedef void (*FTestSuiteTearDownFunction)();
 typedef void (*FTestSuiteTestFunction)();
 
+unsigned int FTestSuiteAssertionsRun = 0;
+unsigned int FTestSuiteAssertionsFailed = 0;
+unsigned int FTestSuiteTestsRun = 0;
+
 void FRunTestSuite(const char *name, FTestSuiteSetUpFunction setUp, FTestSuiteTearDownFunction tearDown, FTestSuiteTestFunction *tests);
 
-#define FFailWithOptionalMessageString(ignored, format, ...) printf((format), ## __VA_ARGS__)
+#define FFailWithOptionalMessageString(ignored, format, ...) { printf((format), ## __VA_ARGS__); FTestSuiteAssertionsFailed++; }
 
 #define FAssert(_expression, ...) {\
 	__typeof__(_expression) __condition = (_expression);\
+	FTestSuiteAssertionsRun++;\
 	if(!__condition)\
 		FFailWithOptionalMessageString(, ## __VA_ARGS__, "error: %s was unexpectedly false.", #_expression);\
 }
 
-#define FFail(format, ...) FFailWithOptionalMessageString(, format, ## __VA_ARGS__)
+#define FFail(format, ...) { FTestSuiteAssertionsRun++; FFailWithOptionalMessageString(, format, ## __VA_ARGS__); }
 
 
 #ifdef __clang__
