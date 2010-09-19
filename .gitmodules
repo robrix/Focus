@@ -1,0 +1,3 @@
+[submodule "External/hax"]
+	path = External/hax
+	url = git://github.com/robrix/hax.git

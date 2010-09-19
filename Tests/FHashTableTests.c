@@ -2,7 +2,7 @@
 // Created by Rob Rix on 2010-09-14
 // Copyright 2010 Monochrome Industries
 
-#include "FHashTable.h"
+#include "Core/FHashTable.h"
 #include "FTestSuite.h"
 #include <stdio.h>
 
@@ -23,7 +23,7 @@ static void testStoresObjectsByKeys() {
 
 __attribute__((constructor))
 static void FTestHashTable() {
-	FRunTestSuite("FHashTable", setUp, NULL, {
+	FRunTestSuite("FHashTable", setUp, NULL, (FTestSuiteTestFunction *){
 		testCreation,
 		testStoresObjectsByKeys,
 		NULL,

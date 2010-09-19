@@ -11,15 +11,15 @@ typedef void (*FTestSuiteTestFunction)();
 
 void FRunTestSuite(const char *name, FTestSuiteSetUpFunction setUp, FTestSuiteTearDownFunction tearDown, FTestSuiteTestFunction *tests);
 
-#define FOptionalMessageString(ignored, format, ...) printf((format), ## __VA_ARGS__)
+#define FFailWithOptionalMessageString(ignored, format, ...) printf((format), ## __VA_ARGS__)
 
 #define FAssert(_expression, ...) {\
 	__typeof__(_expression) __condition = (_expression);\
 	if(!__condition)\
-		FFail(FOptionalMessageString(, ## __VA_ARGS__, "%s was unexpectedly false.", #_expression));\
+		FFailWithOptionalMessageString(, ## __VA_ARGS__, "error: %s was unexpectedly false.", #_expression);\
 }
 
-#define FFail(format, ...) printf(format, ## __VA_ARGS__)
+#define FFail(format, ...) FFailWithOptionalMessageString(, format, ## __VA_ARGS__)
 
 
 #ifdef __clang__
