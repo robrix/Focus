@@ -6,6 +6,7 @@
 #define F_SYMBOL
 
 #include "FObject.h"
+#include <stdbool.h>
 
 typedef struct FSymbol {
 	FObject super;
@@ -14,5 +15,7 @@ typedef struct FSymbol {
 } FSymbol;
 
 FSymbol *FSymbolCreate();
+
+bool FSymbolIsEqual(FSymbol *a, FSymbol *b);
 
 #endif // F_SYMBOL

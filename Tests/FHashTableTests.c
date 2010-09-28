@@ -21,9 +21,8 @@ static void testStoresObjectsByKeys() {
 	
 }
 
-__attribute__((constructor))
-static void FTestHashTable() {
-	FRunTestSuite("FHashTable", setUp, NULL, (FTestSuiteTestFunction *){
+void FTestHashTable() {
+	FRunTestSuite("FHashTable", setUp, NULL, (FTestSuiteTestFunction[]){
 		testCreation,
 		testStoresObjectsByKeys,
 		NULL,
