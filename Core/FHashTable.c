@@ -2,14 +2,13 @@
 // Created by Rob Rix on 2010-09-11
 // Copyright 2010 Monochrome Industries
 
-#include "FGarbageCollector.h"
+#include "FAllocator.h"
 #include "FHashTable.h"
 #include "FSymbol.h"
 #include <stdlib.h>
 
 FHashTable *FHashTableCreate() {
-	
-	return NULL;
+	return FAllocatorAllocate(NULL, sizeof(FHashTable));
 }
 
 void *FHashTableGetValueForKey(FHashTable *self, FSymbol *key) {

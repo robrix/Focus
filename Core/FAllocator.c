@@ -5,5 +5,5 @@
 #include "FAllocator.h"
 
 void *FAllocatorAllocate(FAllocator *allocator, size_t bytes) {
-	return NULL;
+	return calloc(1, bytes);
 }
