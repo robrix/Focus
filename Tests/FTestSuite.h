@@ -5,6 +5,8 @@
 #ifndef F_TEST_SUITE
 #define F_TEST_SUITE
 
+#include <stdio.h>
+
 typedef void (*FTestSuiteSetUpFunction)();
 typedef void (*FTestSuiteTearDownFunction)();
 typedef void (*FTestSuiteTestFunction)();

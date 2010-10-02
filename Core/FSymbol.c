@@ -2,12 +2,27 @@
 // Created by Rob Rix on 2010-09-11
 // Copyright 2010 Monochrome Industries
 
+#include "FAllocator.h"
 #include "FSymbol.h"
 #include <stdlib.h>
 #include <string.h>
 
-FSymbol *FSymbolCreate() {
-	return NULL;
+unsigned long FSymbolCalculateHashForString(const char *str) {
+	unsigned long hash = 5381;
+	int c;
+	
+	while((c = *str++))
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+	
+	return hash;
+}
+
+
+FSymbol *FSymbolCreate(const char *symbol) {
+	FSymbol *instance = FAllocatorAllocate(NULL, sizeof(FSymbol));
+	instance->symbol = symbol;
+	instance->hash = FSymbolCalculateHashForString(instance->symbol);
+	return instance;
 }
 
 

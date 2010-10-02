@@ -10,11 +10,11 @@
 
 typedef struct FSymbol {
 	FObject super;
-	unsigned int hash;
+	unsigned long hash;
 	const char *symbol;
 } FSymbol;
 
-FSymbol *FSymbolCreate();
+FSymbol *FSymbolCreate(const char *symbol);
 
 bool FSymbolIsEqual(FSymbol *a, FSymbol *b);
 

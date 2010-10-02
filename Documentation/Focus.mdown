@@ -2,21 +2,15 @@
 
 hammerc uses a two-step bootstrapping mechanism to compile Hammer grammars:
 
-1. Compile the in-memory AST representation of the grammar for defining grammars.
-2. Use that to compile the input grammar.
+1. Compile the C functions that implement the language mechanisms (rules, in Hammer’s case) to LLVM bitcode.
+2. Optimize, lowering the dynamic dispatch mechanisms to static dispatch based on the grammar (or its AST representation), i.e. which specific rule types are involved.
 
-Can the same bootstrapping process be used to compile Focus? Compile something specific, and use that to compile something general?
+This can be used in Focus as well for dynamic (re)compilation and (re)optimization:
 
-1. Compile the in-memory AST representation of the source for the language.
-2. Use that to compile the input source.
+1. Write the AST in (presumably) C. Write functions implementing the language mechanisms.
+2. At optimization time, use the source code to lower dynamic dispatch to static dispatch where possible.
 
-Specific components of this would include:
 
-1. AST classes for the language, representing language expressions of various types (objects, numbers, assignments, arrays, etc). These are distinct from the native objects of the system, and can be written in Objective-C.
-2. A hierarchical visitor pattern compiler class for the AST nodes.
-3. A parser and builder which assemble AST nodes given the grammar.
-4. A compiler program which leverages the above to build binaries.
-5. Source (in the language) which implements the parser, AST, builder, and core frameworks for the language.
 
 
 #MESSAGING

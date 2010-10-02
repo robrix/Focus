@@ -4,7 +4,7 @@
 
 #include "Core/FHashTable.h"
 #include "FTestSuite.h"
-#include <stdio.h>
+#include <stdlib.h>
 
 static FHashTable *hashTable = NULL;
 
@@ -18,10 +18,11 @@ static void testCreation() {
 }
 
 static void testStoresObjectsByKeys() {
-	
+	// FHashTableGetValueForKey(hashTable, )
+	// FAssert
 }
 
-void FTestHashTable() {
+void FRunHashTableTests() {
 	FRunTestSuite("FHashTable", setUp, NULL, (FTestSuiteTestFunction[]){
 		testCreation,
 		testStoresObjectsByKeys,

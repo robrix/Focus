@@ -5,10 +5,12 @@
 #include <stdio.h>
 #include "FTestSuite.h"
 
-extern void FTestHashTable();
+extern void FRunHashTableTests();
+extern void FRunSymbolTests();
 
 int main(int argc, const char *argv[]) {
-	FTestHashTable();
+	FRunHashTableTests();
+	FRunSymbolTests();
 	printf("%u suites, %u cases, %u assertions, %u failures\n", FTestSuiteTestSuitesRun, FTestSuiteTestCasesRun, FTestSuiteAssertionsRun, FTestSuiteAssertionsFailed);
 	return FTestSuiteAssertionsFailed;
 }
