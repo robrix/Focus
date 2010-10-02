@@ -7,10 +7,12 @@
 
 extern void FRunHashTableTests();
 extern void FRunSymbolTests();
+extern void FRunObjectTests();
 
 int main(int argc, const char *argv[]) {
 	FRunHashTableTests();
 	FRunSymbolTests();
+	FRunObjectTests();
 	printf("%u suites, %u cases, %u assertions, %u failures\n", FTestSuiteTestSuitesRun, FTestSuiteTestCasesRun, FTestSuiteAssertionsRun, FTestSuiteAssertionsFailed);
 	return FTestSuiteAssertionsFailed;
 }

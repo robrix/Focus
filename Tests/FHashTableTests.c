@@ -5,7 +5,6 @@
 #include "Core/FHashTable.h"
 #include "Core/FSymbol.h"
 #include "FTestSuite.h"
-#include <stdlib.h>
 
 static FHashTable *hashTable = NULL;
 

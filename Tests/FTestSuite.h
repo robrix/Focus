@@ -6,6 +6,7 @@
 #define F_TEST_SUITE
 
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef void (*FTestSuiteSetUpFunction)();
 typedef void (*FTestSuiteTearDownFunction)();
