@@ -15,6 +15,8 @@ tests = Hax::Target.new("tests") do |t|
 	
 	t.build_phase("Run tests") do |target|
 		puts "Running tests"
-		puts %x{#{target.product_path}}
+		puts %x{#{target.product_path} || echo "Tests failed."}
 	end
 end
+
+task :default => :tests

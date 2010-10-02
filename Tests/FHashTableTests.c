@@ -3,6 +3,7 @@
 // Copyright 2010 Monochrome Industries
 
 #include "Core/FHashTable.h"
+#include "Core/FSymbol.h"
 #include "FTestSuite.h"
 #include <stdlib.h>
 
@@ -18,8 +19,11 @@ static void testCreation() {
 }
 
 static void testStoresObjectsByKeys() {
-	// FHashTableGetValueForKey(hashTable, )
-	// FAssert
+	FSymbol *key = FSymbolCreate("key");
+	void *value = testCreation;
+	FHashTableSetValueForKey(hashTable, key, value);
+	void *result = FHashTableGetValueForKey(hashTable, key);
+	FAssert(result == value);
 }
 
 void FRunHashTableTests() {

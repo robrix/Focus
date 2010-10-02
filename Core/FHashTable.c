@@ -4,26 +4,58 @@
 
 #include "FAllocator.h"
 #include "FHashTable.h"
-#include "FSymbol.h"
 #include <stdlib.h>
 
+typedef struct FPair {
+	struct FSymbol *key;
+	void *value;
+	struct FPair *nextPair;
+} FPair;
+
+
 FHashTable *FHashTableCreate() {
-	return FAllocatorAllocate(NULL, sizeof(FHashTable));
+	FHashTable *instance = FAllocatorAllocate(NULL, sizeof(FHashTable));
+	instance->bucketCount = 19;
+	instance->buckets = FAllocatorAllocate(NULL, instance->bucketCount * sizeof(FPair));
+	// for(unsigned int i = 0; i < instance->bucketCount; i++) {
+	// 	instance->buckets[i] = (FPair){ NULL, NULL, NULL };
+	// }
+	return instance;
+}
+
+FPair *FHashTableGetBucketForHash(FHashTable *self, unsigned int hash) {
+	return (self->buckets + (hash % self->bucketCount));
+}
+
+FPair *FPairGetTail(FPair *pair) {
+	while(pair->nextPair != NULL) {
+		pair = pair->nextPair;
+	}
+	return pair;
+}
+
+FPair *FHashTableGetPairForKey(FHashTable *self, FSymbol *key) {
+	FPair *pair = FHashTableGetBucketForHash(self, key->hash);
+	while(pair != NULL) {
+		if(FSymbolIsEqual(pair->key, key)) {
+			break;
+		} else {
+			pair = pair->nextPair;
+		}
+	}
+	return pair;
 }
 
 void *FHashTableGetValueForKey(FHashTable *self, FSymbol *key) {
-	unsigned int hash = key->hash; // get the symbol’s hash
-	FPair *pair = &self->buckets[hash % self->bucketCount];
-	void *value = NULL;
-	do {
-		if(FSymbolIsEqual(pair->key, key)) {
-			value = pair->value;
-			break;
-		}
-	} while((pair = pair->nextPair));
-	return value;
+	FPair *pair = FHashTableGetPairForKey(self, key);
+	return (pair != NULL)
+	?	pair->value
+	:	NULL;
 }
 
 void FHashTableSetValueForKey(FHashTable *self, FSymbol *key, void *value) {
-	
+	FPair *pair = FPairGetTail(FHashTableGetBucketForHash(self, key->hash));
+	pair->key = key;
+	pair->value = value;
+	pair->nextPair = FAllocatorAllocate(NULL, sizeof(FPair));
 }

@@ -5,20 +5,16 @@
 #ifndef F_HASH_TABLE
 #define F_HASH_TABLE
 
-typedef struct FPair {
-	struct FSymbol *key;
-	void *value;
-	struct FPair *nextPair;
-} FPair;
+#include "FSymbol.h"
 
 typedef struct FHashTable {
 	unsigned int bucketCount;
-	FPair *buckets;
+	struct FPair *buckets;
 } FHashTable;
 
 FHashTable *FHashTableCreate();
 
 void *FHashTableGetValueForKey(FHashTable *self, struct FSymbol *key);
-void FHashTableSetValueForKey(FHashTable *self, struct FSymbol *key, void *value);
+void FHashTableSetValueForKey(FHashTable *self, struct FSymbol *key, void *value); // assumes you aren’t inserting a duplicate entry for the given key
 
 #endif // F_HASH_TABLE
