@@ -9,18 +9,23 @@
 
 static FObject *FObjectPrototype = NULL;
 
-FObject *FObjectPrototypeGetSelf(FObject *receiver, FSymbol *selector) {
-	return receiver;
+FObject *FObjectPrototypeGetSelf(FObject *self, FSymbol *selector) {
+	return self;
 }
 
-FObject *FObjectPrototypeClone(FObject *receiver, FSymbol *selector) {
-	return FObjectCreate(receiver);
+FObject *FObjectPrototypeGetPrototype(FObject *self, FSymbol *selector) {
+	return self->prototype;
+}
+
+FObject *FObjectPrototypeClone(FObject *self, FSymbol *selector) {
+	return FObjectCreate(self);
 }
 
 
 FObject *FObjectPrototypeCreate() {
 	FObject *prototype = FObjectCreate(NULL);
 	FObjectSetMethod(prototype, FSymbolCreate("self"), (FMethod)FObjectPrototypeGetSelf);
+	FObjectSetMethod(prototype, FSymbolCreate("prototype"), (FMethod)FObjectPrototypeGetPrototype);
 	FObjectSetMethod(prototype, FSymbolCreate("new"), (FMethod)FObjectPrototypeClone);
 	return prototype;
 }

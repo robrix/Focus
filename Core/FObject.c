@@ -15,7 +15,7 @@ FObject *FObjectCreate(FObject *prototype) {
 
 
 FMethod FObjectGetMethod(FObject *self, struct FSymbol *selector) {
-	return FHashTableGetValueForKey(self->methods, selector);
+	return (FMethod)(self->methods ? FHashTableGetValueForKey(self->methods, selector) : NULL) ?: (self->prototype ? FObjectGetMethod(self->prototype, selector) : NULL);
 }
 
 void FObjectSetMethod(FObject *self, struct FSymbol *selector, FMethod method) {
