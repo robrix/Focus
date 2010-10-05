@@ -3,7 +3,7 @@ $: << "External/hax/lib"
 require "hax"
 
 libfocus = Hax::Target.new("libfocus") do |t|
-	t.compile_sources Dir["Core/*.c"]
+	t.compile_sources Dir["Core/**/*.c"]
 	t.link_phase.product_type = Hax::StaticArchiveProductType.new
 end
 

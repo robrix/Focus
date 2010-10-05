@@ -17,6 +17,9 @@ static void testCreation() {
 }
 
 
+// inheritance
+
+
 void FRunObjectTests() {
 	FRunTestSuite("FObject", setUp, NULL, (FTestSuiteTestFunction[]){
 		testCreation,
