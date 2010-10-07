@@ -12,7 +12,6 @@ extern struct FSymbol *FSymbolCreate(const char *);
 
 typedef struct FObject {
 	struct FObject *prototype;
-	// struct FHashTable *variables;
 	struct FHashTable *methods;
 } FObject;
 
@@ -24,8 +23,5 @@ FObject *FObjectCreate(FObject *prototype);
 
 FMethod FObjectGetMethod(FObject *self, struct FSymbol *selector);
 void FObjectSetMethod(FObject *self, struct FSymbol *selector, FMethod method);
-
-// FObject *FObjectGetVariable(FObject *self, struct FSymbol *name);
-// void FObjectSetVariable(FObject *self, struct FSymbol *name, FObject *variable);
 
 #endif // F_OBJECT

@@ -24,15 +24,3 @@ void FObjectSetMethod(FObject *self, struct FSymbol *selector, FMethod method) {
 	}
 	FHashTableSetValueForKey(self->methods, selector, method);
 }
-
-
-// FObject *FObjectGetVariable(FObject *self, struct FSymbol *name) {
-// 	return FHashTableGetValueForKey(self->variables, name);
-// }
-// 
-// void FObjectSetVariable(FObject *self, struct FSymbol *name, FObject *variable) {
-// 	if(self->variables == NULL) {
-// 		self->variables = FHashTableCreate();
-// 	}
-// 	FHashTableSetValueForKey(self->variables, name, variable);
-// }
