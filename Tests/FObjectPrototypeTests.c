@@ -25,11 +25,11 @@ static void testReturnsItsPrototype() {
 }
 
 void FRunObjectPrototypeTests() {
-	FRunTestSuite("FObjectPrototype", NULL, NULL, (FTestSuiteTestFunction[]){
-		testCreatesASingletonPrototype,
-		testImplementsTheIdentityMethod,
-		testCanBeCloned,
-		testReturnsItsPrototype,
-		NULL,
+	FRunTestSuite("FObjectPrototype", NULL, NULL, (FTestSuiteTestCase[]){
+		FTestCase(testCreatesASingletonPrototype),
+		FTestCase(testImplementsTheIdentityMethod),
+		FTestCase(testCanBeCloned),
+		FTestCase(testReturnsItsPrototype),
+		{0},
 	});
 }

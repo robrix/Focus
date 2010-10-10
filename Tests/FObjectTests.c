@@ -30,9 +30,9 @@ static void testInheritance() {
 
 
 void FRunObjectTests() {
-	FRunTestSuite("FObject", setUp, NULL, (FTestSuiteTestFunction[]){
-		testCreation,
-		testInheritance,
+	FRunTestSuite("FObject", setUp, NULL, (FTestSuiteTestCase[]){
+		FTestCase(testCreation),
+		FTestCase(testInheritance),
 		NULL,
 	});
 }

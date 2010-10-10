@@ -30,10 +30,10 @@ static void testHashesItsSymbol() {
 }
 
 void FRunSymbolTests() {
-	FRunTestSuite("FSymbol", setUp, NULL, (FTestSuiteTestFunction[]){
-		testCreation,
-		testCanBeCompared,
-		testHashesItsSymbol,
-		NULL,
+	FRunTestSuite("FSymbol", setUp, NULL, (FTestSuiteTestCase[]){
+		FTestCase(testCreation),
+		FTestCase(testCanBeCompared),
+		FTestCase(testHashesItsSymbol),
+		{0},
 	});
 }

@@ -42,11 +42,36 @@ bool FParseWhitespaceAndNewlines(const char *source, size_t index, size_t *outLe
 }
 
 
-bool FParseSelectorFragment(const char *source, size_t index, size_t *outLength) {
+bool FParseKeyword(const char *source, size_t index, size_t *outLength) {
 	size_t wordLength = 0;
 	bool result =
 		(FParseWord(source, index, &wordLength) || 1)
 	&&	FParseToken(source, index + wordLength, ":");
 	if(outLength && result) *outLength = wordLength + 1;
+	return result;
+}
+
+
+bool FParseMessage(const char *source, size_t index, size_t *outLength, void **messageNode) {
+	// size_t length = 0;
+	// while()
+	// return length > 0;
+	return FParseWord(source, index, outLength);
+	// return 0;
+}
+
+bool FParseExpression(const char *source, size_t index, size_t *outLength, void **expressionNode) {
+	return FParseParenthesizedExpression(source, index, outLength, expressionNode) || FParseMessage(source, index, outLength, expressionNode);
+}
+
+bool FParseParenthesizedExpression(const char *source, size_t index, size_t *outLength, void **expressionNode) {
+	size_t expressionLength = 0, openingWhitespaceLength = 0, closingWhitespaceLength = 0;
+	bool result =
+		FParseToken(source, index, "(")
+	&&	(FParseWhitespaceAndNewlines(source, index + 1, &openingWhitespaceLength) || 1)
+	&&	FParseExpression(source, index + 1 + openingWhitespaceLength, &expressionLength, expressionNode)
+	&&	(FParseWhitespaceAndNewlines(source, index + 1 + openingWhitespaceLength + expressionLength, &closingWhitespaceLength) || 1)
+	&&	FParseToken(source, index + 1 + openingWhitespaceLength + expressionLength + closingWhitespaceLength, ")");
+	if(outLength && result) *outLength = 1 + openingWhitespaceLength + expressionLength + closingWhitespaceLength + 1;
 	return result;
 }

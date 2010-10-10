@@ -69,37 +69,73 @@ static void testParsesWhitespaceAndNewlines() {
 	FAssert((FParseWhitespaceAndNewlines(" \n\r\t1", 4, &length) == 0) && length == 0);
 }
 
-static void testParsesSelectorFragments() {
+static void testParsesKeywords() {
 	size_t length = 0;
-	FAssert(FParseSelectorFragment("foo:", 0, &length) && length == 4);
+	FAssert(FParseKeyword("foo:", 0, &length) && length == 4);
 	
 	length = 0;
-	FAssert(FParseSelectorFragment("foo:4", 0, &length) && length == 4);
+	FAssert(FParseKeyword("foo:4", 0, &length) && length == 4);
 	
 	length = 0;
-	FAssert(FParseSelectorFragment(":1", 0, &length) && length == 1);
+	FAssert(FParseKeyword(":1", 0, &length) && length == 1);
 	
 	
 	length = 0;
-	FAssert(FParseSelectorFragment("foo", 0, &length) == 0 && length == 0);
+	FAssert(FParseKeyword("foo", 0, &length) == 0 && length == 0);
 	
 	length = 0;
-	FAssert((FParseSelectorFragment("", 0, &length) == 0) && length == 0);
+	FAssert((FParseKeyword("", 0, &length) == 0) && length == 0);
 	
 	length = 0;
-	FAssert((FParseSelectorFragment("1", 0, &length) == 0) && length == 0);
+	FAssert((FParseKeyword("1", 0, &length) == 0) && length == 0);
+}
+
+static void testParsesUnaryMessages() {
+	size_t length = 0;
+	FAssert(FParseMessage("foo", 0, &length, NULL) && length == 3);
+	
+	// length = 0;
+	// FAssert(FParseMessage("foo: bar", 0, &length, NULL) && length == 8);
+	// 
+	// length = 0;
+	// FAssert(FParseMessage("foo:", 0, &length, NULL) == 0 && length == 0);
+}
+
+static void testParsesParenthesizedExpressions() {
+	size_t length = 0;
+	FAssert(FParseParenthesizedExpression("(foo)", 0, &length, NULL) && length == 5);
+	
+	length = 0;
+	FAssert(FParseParenthesizedExpression("( foo ) ", 0, &length, NULL) && length == 7);
+	
+	length = 0;
+	FAssert(FParseParenthesizedExpression("(\nfoo\n) ", 0, &length, NULL) && length == 7);
+}
+
+static void testParsesExpressions() {
+	size_t length = 0;
+	FAssert(FParseExpression("(\nfoo\n)", 0, &length, NULL) && length == 7);
+	
+	length = 0;
+	FAssert(FParseExpression("foo", 0, &length, NULL) && length == 3);
 }
 
 void FRunParserTests() {
-	FRunTestSuite("FParser", NULL, NULL, (FTestSuiteTestFunction[]){
-		testParsesCharacterSets,
-		testParsesTokens,
+	FRunTestSuite("FParser", NULL, NULL, (FTestSuiteTestCase[]){
+		FTestCase(testParsesCharacterSets),
+		FTestCase(testParsesTokens),
 		
-		testParsesWords,
-		testParsesWhitespace,
-		testParsesWhitespaceAndNewlines,
+		FTestCase(testParsesWords),
+		FTestCase(testParsesWhitespace),
+		FTestCase(testParsesWhitespaceAndNewlines),
 		
-		testParsesSelectorFragments,
-		NULL,
+		FTestCase(testParsesKeywords),
+		
+		FTestCase(testParsesUnaryMessages),
+		
+		FTestCase(testParsesParenthesizedExpressions),
+		FTestCase(testParsesExpressions),
+		
+		{0},
 	});
 }

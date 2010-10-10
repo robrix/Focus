@@ -15,7 +15,12 @@ bool FParseWord(const char *source, size_t index, size_t *outLength);
 bool FParseWhitespace(const char *source, size_t index, size_t *outLength);
 bool FParseWhitespaceAndNewlines(const char *source, size_t index, size_t *outLength);
 
-bool FParseSelectorFragment(const char *source, size_t index, size_t *outLength);
+bool FParseKeyword(const char *source, size_t index, size_t *outLength);
+
+#warning fixme: these nodes should be typed
+bool FParseMessage(const char *source, size_t index, size_t *outLength, void **messageNode);
+bool FParseExpression(const char *source, size_t index, size_t *outLength, void **expressionNode);
+bool FParseParenthesizedExpression(const char *source, size_t index, size_t *outLength, void **expressionNode);
 
 void *FParse(const char *source);
 

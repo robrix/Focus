@@ -14,7 +14,7 @@ tests = Hax::Target.new("tests") do |t|
 	t.link_with_target libfocus
 	
 	t.build_phase("Run tests") do |target|
-		puts "Running tests"
+		puts "Running tests\n\n"
 		puts %x{#{target.product_path} || echo "Tests failed."}
 	end
 end

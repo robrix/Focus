@@ -26,9 +26,9 @@ static void testStoresObjectsByKeys() {
 }
 
 void FRunHashTableTests() {
-	FRunTestSuite("FHashTable", setUp, NULL, (FTestSuiteTestFunction[]){
-		testCreation,
-		testStoresObjectsByKeys,
-		NULL,
+	FRunTestSuite("FHashTable", setUp, NULL, (FTestSuiteTestCase[]){
+		FTestCase(testCreation),
+		FTestCase(testStoresObjectsByKeys),
+		{0},
 	});
 }

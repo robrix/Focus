@@ -19,10 +19,10 @@ static void testExposesObjectPrototype() {
 }
 
 void FRunContextPrototypeTests() {
-	FRunTestSuite("FContextPrototype", NULL, NULL, (FTestSuiteTestFunction[]){
-		testCreatesASingletonPrototype,
-		testInheritsFromObject,
-		testExposesObjectPrototype,
-		NULL,
+	FRunTestSuite("FContextPrototype", NULL, NULL, (FTestSuiteTestCase[]){
+		FTestCase(testCreatesASingletonPrototype),
+		FTestCase(testInheritsFromObject),
+		FTestCase(testExposesObjectPrototype),
+		{0},
 	});
 }

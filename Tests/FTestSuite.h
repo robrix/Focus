@@ -12,12 +12,17 @@ typedef void (*FTestSuiteSetUpFunction)();
 typedef void (*FTestSuiteTearDownFunction)();
 typedef void (*FTestSuiteTestFunction)();
 
+typedef struct FTestSuiteTestCase {
+	FTestSuiteTestFunction test;
+	const char *name;
+} FTestSuiteTestCase;
+
 extern unsigned int FTestSuiteAssertionsRun;
 extern unsigned int FTestSuiteAssertionsFailed;
 extern unsigned int FTestSuiteTestCasesRun;
 extern unsigned int FTestSuiteTestSuitesRun;
 
-void FRunTestSuite(const char *name, FTestSuiteSetUpFunction setUp, FTestSuiteTearDownFunction tearDown, FTestSuiteTestFunction *tests);
+void FRunTestSuite(const char *name, FTestSuiteSetUpFunction setUp, FTestSuiteTearDownFunction tearDown, FTestSuiteTestCase *tests);
 
 #define FFailWithOptionalMessageString(ignored, format, ...) { printf((format), ## __VA_ARGS__); FTestSuiteAssertionsFailed++; }
 
@@ -29,6 +34,9 @@ void FRunTestSuite(const char *name, FTestSuiteSetUpFunction setUp, FTestSuiteTe
 }
 
 #define FFail(format, ...) { FTestSuiteAssertionsRun++; FFailWithOptionalMessageString(, format, ## __VA_ARGS__); }
+
+
+#define FTestCase(testCase) (FTestSuiteTestCase){testCase, #testCase}
 
 
 #ifdef __clang__

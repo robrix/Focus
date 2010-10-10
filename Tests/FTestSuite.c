@@ -10,16 +10,22 @@ unsigned int FTestSuiteAssertionsFailed = 0;
 unsigned int FTestSuiteTestCasesRun = 0;
 unsigned int FTestSuiteTestSuitesRun = 0;
 
-void FRunTestSuite(const char *name, FTestSuiteSetUpFunction setUp, FTestSuiteTearDownFunction tearDown, FTestSuiteTestFunction *tests) {
+void FRunTestSuite(const char *name, FTestSuiteSetUpFunction setUp, FTestSuiteTearDownFunction tearDown, FTestSuiteTestCase *tests) {
 	printf("Running suite %s\n", name);
-	FTestSuiteTestFunction *test = tests;
+	FTestSuiteTestCase *testCase = tests;
 	do {
-		if(setUp) setUp();
-		if(*test) (*test)();
-		if(tearDown) tearDown();
+		if(testCase->test) {
+			printf("%s\n", testCase->name);
+			fflush(stdout);
+			
+			if(setUp) setUp();
+			(testCase->test)();
+			if(tearDown) tearDown();
+		}
 		fflush(stdout);
-		test++;
+		testCase++;
 		FTestSuiteTestCasesRun++;
-	} while(*test);
+	} while(testCase->test);
+	printf("\n");
 	FTestSuiteTestSuitesRun++;
 }
