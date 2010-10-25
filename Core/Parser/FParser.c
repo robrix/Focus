@@ -52,13 +52,43 @@ bool FParseKeyword(const char *source, size_t index, size_t *outLength) {
 }
 
 
-bool FParseMessage(const char *source, size_t index, size_t *outLength, void **messageNode) {
-	// size_t length = 0;
-	// while()
-	// return length > 0;
+bool FParseNullaryMessage(const char *source, size_t index, size_t *outLength, void **messageNode) {
 	return FParseWord(source, index, outLength);
-	// return 0;
 }
+
+bool FParseKeywordArgument(const char *source, size_t index, size_t *outLength, size_t *outKeywordLength, void **argumentNode) {
+	size_t keywordLength = 0, whitespaceLength = 0, argumentLength = 0;
+	bool result =
+		FParseKeyword(source, index, &keywordLength)
+	&&	(FParseWhitespaceAndNewlines(source, index + keywordLength, &whitespaceLength) || 1)
+	&&	FParseExpression(source, index + keywordLength + whitespaceLength, &argumentLength, argumentNode);
+	if(outKeywordLength && result) *outKeywordLength = keywordLength;
+	if(outLength && result) *outLength = keywordLength + whitespaceLength + argumentLength;
+	return result;
+}
+
+bool FParseNAryMessage(const char *source, size_t index, size_t *outLength, void **messageNode) {
+	size_t totalLength = 0;
+	void *argument = NULL;
+	bool result = 0;
+	do {
+		size_t keywordLength = 0, keywordArgumentLength = 0, whitespaceLength = 0;
+		result =
+			FParseKeywordArgument(source, index + totalLength, &keywordArgumentLength, &keywordLength, &argument)
+		&&	(FParseWhitespaceAndNewlines(source, index + totalLength + keywordArgumentLength, &whitespaceLength) || 1);
+		totalLength += keywordArgumentLength + whitespaceLength;
+	} while(result == 1);
+	if(outLength && totalLength) *outLength = totalLength;
+	return (totalLength > 0);
+}
+
+bool FParseMessage(const char *source, size_t index, size_t *outLength, void **messageNode) {
+	return
+		FParseNAryMessage(source, index, outLength, messageNode)
+	||	FParseNullaryMessage(source, index, outLength, messageNode)
+	;
+}
+
 
 bool FParseExpression(const char *source, size_t index, size_t *outLength, void **expressionNode) {
 	return FParseParenthesizedExpression(source, index, outLength, expressionNode) || FParseMessage(source, index, outLength, expressionNode);

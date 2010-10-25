@@ -33,6 +33,6 @@ void FRunObjectTests() {
 	FRunTestSuite("FObject", setUp, NULL, (FTestSuiteTestCase[]){
 		FTestCase(testCreation),
 		FTestCase(testInheritance),
-		NULL,
+		{0},
 	});
 }

@@ -18,6 +18,8 @@ bool FParseWhitespaceAndNewlines(const char *source, size_t index, size_t *outLe
 bool FParseKeyword(const char *source, size_t index, size_t *outLength);
 
 #warning fixme: these nodes should be typed
+bool FParseNullaryMessage(const char *source, size_t index, size_t *outLength, void **messageNode);
+bool FParseNAryMessage(const char *source, size_t index, size_t *outLength, void **messageNode);
 bool FParseMessage(const char *source, size_t index, size_t *outLength, void **messageNode);
 bool FParseExpression(const char *source, size_t index, size_t *outLength, void **expressionNode);
 bool FParseParenthesizedExpression(const char *source, size_t index, size_t *outLength, void **expressionNode);

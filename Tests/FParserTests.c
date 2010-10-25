@@ -79,6 +79,9 @@ static void testParsesKeywords() {
 	length = 0;
 	FAssert(FParseKeyword(":1", 0, &length) && length == 1);
 	
+	length = 0;
+	FAssert(FParseKeyword(":", 0, &length) && length == 1);
+	
 	
 	length = 0;
 	FAssert(FParseKeyword("foo", 0, &length) == 0 && length == 0);
@@ -90,16 +93,22 @@ static void testParsesKeywords() {
 	FAssert((FParseKeyword("1", 0, &length) == 0) && length == 0);
 }
 
-static void testParsesUnaryMessages() {
+
+static void testParsesNullaryMessages() {
 	size_t length = 0;
 	FAssert(FParseMessage("foo", 0, &length, NULL) && length == 3);
-	
-	// length = 0;
-	// FAssert(FParseMessage("foo: bar", 0, &length, NULL) && length == 8);
-	// 
-	// length = 0;
-	// FAssert(FParseMessage("foo:", 0, &length, NULL) == 0 && length == 0);
 }
+
+static void testParsesUnaryMessages() {
+	size_t length = 0;
+	FAssert(FParseNAryMessage("foo: bar", 0, &length, NULL) && length == 8);
+}
+
+static void testParsesBinaryMessages() {
+	size_t length = 0;
+	FAssert(FParseNAryMessage("foo: bar quux: thing", 0, &length, NULL) && length == 20);
+}
+
 
 static void testParsesParenthesizedExpressions() {
 	size_t length = 0;
@@ -131,7 +140,9 @@ void FRunParserTests() {
 		
 		FTestCase(testParsesKeywords),
 		
+		FTestCase(testParsesNullaryMessages),
 		FTestCase(testParsesUnaryMessages),
+		FTestCase(testParsesBinaryMessages),
 		
 		FTestCase(testParsesParenthesizedExpressions),
 		FTestCase(testParsesExpressions),
