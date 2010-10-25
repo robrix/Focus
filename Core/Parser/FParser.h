@@ -21,6 +21,9 @@ bool FParseKeyword(const char *source, size_t index, size_t *outLength);
 bool FParseNullaryMessage(const char *source, size_t index, size_t *outLength, void **messageNode);
 bool FParseNAryMessage(const char *source, size_t index, size_t *outLength, void **messageNode);
 bool FParseMessage(const char *source, size_t index, size_t *outLength, void **messageNode);
+
+bool FParseMessageChain(const char *source, size_t index, size_t *outLength, void **messageNode);
+
 bool FParseExpression(const char *source, size_t index, size_t *outLength, void **expressionNode);
 bool FParseParenthesizedExpression(const char *source, size_t index, size_t *outLength, void **expressionNode);
 

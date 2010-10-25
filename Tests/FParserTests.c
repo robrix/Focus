@@ -101,12 +101,31 @@ static void testParsesNullaryMessages() {
 
 static void testParsesUnaryMessages() {
 	size_t length = 0;
-	FAssert(FParseNAryMessage("foo: bar", 0, &length, NULL) && length == 8);
+	FAssert(FParseMessage("foo: bar", 0, &length, NULL) && length == 8);
 }
 
 static void testParsesBinaryMessages() {
 	size_t length = 0;
-	FAssert(FParseNAryMessage("foo: bar quux: thing", 0, &length, NULL) && length == 20);
+	FAssert(FParseMessage("foo: bar quux: (thing)", 0, &length, NULL) && length == 22);
+}
+
+
+static void testParsesMessageChains() {
+	size_t length = 0;
+	FAssert(FParseMessageChain("foo bar quux", 0, &length, NULL) && length == 12);
+	// fixme: test that it’s equivalent to ((foo) bar) quux
+	
+	length = 0;
+	FAssert(FParseMessageChain("foo bar: quux", 0, &length, NULL) && length == 13);
+	// fixme: test that it’s equivalent to (foo) bar: (quux)
+	
+	length = 0;
+	FAssert(FParseMessageChain("foo bar: quux thing", 0, &length, NULL) && length == 19);
+	// fixme: test that it’s equivalent to (foo) bar: (quux thing)
+	
+	length = 0;
+	FAssert(FParseMessageChain("foo bar quux: thing", 0, &length, NULL) && length == 19);
+	// fixme: test that it’s equivalent to ((foo) bar) quux: (thing)
 }
 
 
@@ -143,6 +162,8 @@ void FRunParserTests() {
 		FTestCase(testParsesNullaryMessages),
 		FTestCase(testParsesUnaryMessages),
 		FTestCase(testParsesBinaryMessages),
+		
+		FTestCase(testParsesMessageChains),
 		
 		FTestCase(testParsesParenthesizedExpressions),
 		FTestCase(testParsesExpressions),

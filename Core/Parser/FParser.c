@@ -90,6 +90,11 @@ bool FParseMessage(const char *source, size_t index, size_t *outLength, void **m
 }
 
 
+bool FParseMessageChain(const char *source, size_t index, size_t *outLength, void **messageNode) {
+	return 0;
+}
+
+
 bool FParseExpression(const char *source, size_t index, size_t *outLength, void **expressionNode) {
 	return FParseParenthesizedExpression(source, index, outLength, expressionNode) || FParseMessage(source, index, outLength, expressionNode);
 }

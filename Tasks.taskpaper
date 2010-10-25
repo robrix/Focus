@@ -1,6 +1,7 @@
 Parser:
 	- parse messages
 		<optional receiver expression> selectorFragment: <argumentExpression> nextFragment: <argumentExpression>
+		- parse message chains
 	- parse assignments?
 		<optional receiver expression> name = <expression>
 	- write the parser as a Focus object so it can be inherited from and overridden.
