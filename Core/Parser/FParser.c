@@ -52,8 +52,15 @@ bool FParseKeyword(const char *source, size_t index, size_t *outLength) {
 }
 
 
+#warning fixme: messages should take a receiver node
 bool FParseNullaryMessage(const char *source, size_t index, size_t *outLength, void **messageNode) {
 	return FParseWord(source, index, outLength);
+}
+
+bool FParseArgument(const char *source, size_t index, size_t *outLength, void **argumentNode) {
+	return
+		FParseParenthesizedExpression(source, index, outLength, argumentNode)
+	||	FParseNullaryMessage(source, index, outLength, argumentNode);
 }
 
 bool FParseKeywordArgument(const char *source, size_t index, size_t *outLength, size_t *outKeywordLength, void **argumentNode) {
@@ -61,7 +68,7 @@ bool FParseKeywordArgument(const char *source, size_t index, size_t *outLength, 
 	bool result =
 		FParseKeyword(source, index, &keywordLength)
 	&&	(FParseWhitespaceAndNewlines(source, index + keywordLength, &whitespaceLength) || 1)
-	&&	FParseExpression(source, index + keywordLength + whitespaceLength, &argumentLength, argumentNode);
+	&&	FParseArgument(source, index + keywordLength + whitespaceLength, &argumentLength, argumentNode);
 	if(outKeywordLength && result) *outKeywordLength = keywordLength;
 	if(outLength && result) *outLength = keywordLength + whitespaceLength + argumentLength;
 	return result;
@@ -85,18 +92,32 @@ bool FParseNAryMessage(const char *source, size_t index, size_t *outLength, void
 bool FParseMessage(const char *source, size_t index, size_t *outLength, void **messageNode) {
 	return
 		FParseNAryMessage(source, index, outLength, messageNode)
-	||	FParseNullaryMessage(source, index, outLength, messageNode)
-	;
-}
-
-
-bool FParseMessageChain(const char *source, size_t index, size_t *outLength, void **messageNode) {
-	return 0;
+	||	FParseNullaryMessage(source, index, outLength, messageNode);
 }
 
 
 bool FParseExpression(const char *source, size_t index, size_t *outLength, void **expressionNode) {
-	return FParseParenthesizedExpression(source, index, outLength, expressionNode) || FParseMessage(source, index, outLength, expressionNode);
+	size_t totalLength = 0;
+	void *receiver = NULL;
+	bool
+		result = FParseParenthesizedExpression(source, index, &totalLength, &receiver) || FParseMessage(source, index, &totalLength, &receiver),
+		chain = 0;
+	
+	do {
+		size_t whitespaceLength = 0, messageLength = 0;
+		chain =
+			(FParseWhitespace(source, index + totalLength, &whitespaceLength) || 1)
+		&&	FParseMessage(source, index + totalLength + whitespaceLength, &messageLength, &receiver);
+		if(chain) {
+			totalLength += whitespaceLength + messageLength;
+		}
+	} while(chain == 1);
+	
+	if(result) {
+		if(outLength) *outLength = totalLength;
+		if(expressionNode) *expressionNode = receiver;
+	}
+	return result;
 }
 
 bool FParseParenthesizedExpression(const char *source, size_t index, size_t *outLength, void **expressionNode) {

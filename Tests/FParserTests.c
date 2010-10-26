@@ -106,26 +106,38 @@ static void testParsesUnaryMessages() {
 
 static void testParsesBinaryMessages() {
 	size_t length = 0;
-	FAssert(FParseMessage("foo: bar quux: (thing)", 0, &length, NULL) && length == 22);
+	FAssert(FParseMessage("foo: (bar) quux: (thing)", 0, &length, NULL) && length == 24);
 }
 
 
 static void testParsesMessageChains() {
 	size_t length = 0;
-	FAssert(FParseMessageChain("foo bar quux", 0, &length, NULL) && length == 12);
+	FAssert(FParseExpression("foo bar quux", 0, &length, NULL) && length == 12);
 	// fixme: test that it’s equivalent to ((foo) bar) quux
 	
 	length = 0;
-	FAssert(FParseMessageChain("foo bar: quux", 0, &length, NULL) && length == 13);
+	FAssert(FParseExpression("((foo) bar) quux", 0, &length, NULL) && length == 16);
+	
+	length = 0;
+	FAssert(FParseExpression("foo bar: quux", 0, &length, NULL) && length == 13);
 	// fixme: test that it’s equivalent to (foo) bar: (quux)
 	
 	length = 0;
-	FAssert(FParseMessageChain("foo bar: quux thing", 0, &length, NULL) && length == 19);
+	FAssert(FParseExpression("(foo) bar: (quux)", 0, &length, NULL) && length == 17);
+	
+	length = 0;
+	FAssert(FParseExpression("foo bar: quux thing", 0, &length, NULL) && length == 19);
 	// fixme: test that it’s equivalent to (foo) bar: (quux thing)
 	
 	length = 0;
-	FAssert(FParseMessageChain("foo bar quux: thing", 0, &length, NULL) && length == 19);
+	FAssert(FParseExpression("(foo) bar: (quux thing)", 0, &length, NULL) && length == 23);
+	
+	length = 0;
+	FAssert(FParseExpression("foo bar quux: thing", 0, &length, NULL) && length == 19);
 	// fixme: test that it’s equivalent to ((foo) bar) quux: (thing)
+	
+	length = 0;
+	FAssert(FParseExpression("((foo) bar) quux: (thing)", 0, &length, NULL) && length == 25);
 }
 
 
