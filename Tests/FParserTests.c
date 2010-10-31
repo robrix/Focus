@@ -2,7 +2,7 @@
 // Created by Rob Rix on 2010-10-05
 // Copyright 2010 Monochrome Industries
 
-#include "Core/Parser/FParser.h"
+#include "Core/FParser.h"
 #include "FTestSuite.h"
 
 static void testParsesWords() {

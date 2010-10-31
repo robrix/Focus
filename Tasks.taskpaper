@@ -5,12 +5,15 @@ Parser:
 	- parse assignments?
 		<optional receiver expression> name = <expression>
 	- write the parser as a Focus object so it can be inherited from and overridden.
-	- test overall parsing (including trailing whitespace, and no trailing garbage)
+	- test overall parsing (including trailing whitespace, and no trailing garbage).
+	- accept chains of nullary messages as arguments.
+	- parse blocks.
 
 Hash table:
 	- use FArray internally.
 
 AST:
-	
+	- decide what to do about blocks.
+
 Evaluator:
 	- each source file gets its own context

@@ -9,10 +9,11 @@ typedef struct FMessage {
 	struct FObject *context;
 	struct FMessage *receiver;
 	struct FSymbol *selector;
-	struct FArray *arguments;
+	struct FMessage *arguments;
+	struct FMessage *nextMessage;
 } FMessage;
 
-FMessage *FMessageCreate(FMessage *receiver, struct FSymbol *selector, struct FArray *arguments);
+FMessage *FMessageCreate(FMessage *receiver, struct FSymbol *selector, FMessage *arguments);
 
 // FObject *FMessageEvaluate(FMessage *self);
 

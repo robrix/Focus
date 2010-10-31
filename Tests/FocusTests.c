@@ -11,6 +11,7 @@ extern void FRunObjectTests();
 extern void FRunObjectPrototypeTests();
 extern void FRunContextPrototypeTests();
 extern void FRunParserTests();
+extern void FRunCompilerTests();
 
 int main(int argc, const char *argv[]) {
 	FRunHashTableTests();
@@ -19,6 +20,7 @@ int main(int argc, const char *argv[]) {
 	FRunObjectPrototypeTests();
 	FRunContextPrototypeTests();
 	FRunParserTests();
+	FRunCompilerTests();
 	printf("%u suites, %u cases, %u assertions, %u failures\n", FTestSuiteTestSuitesRun, FTestSuiteTestCasesRun, FTestSuiteAssertionsRun, FTestSuiteAssertionsFailed);
 	return FTestSuiteAssertionsFailed;
 }

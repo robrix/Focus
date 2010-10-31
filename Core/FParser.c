@@ -2,6 +2,7 @@
 // Created by Rob Rix on 2010-10-04
 // Copyright 2010 Monochrome Industries
 
+#include "FMessage.h"
 #include "FParser.h"
 #include <ctype.h>
 #include <string.h>
@@ -53,17 +54,17 @@ bool FParseKeyword(const char *source, size_t index, size_t *outLength) {
 
 
 #warning fixme: messages should take a receiver node
-bool FParseNullaryMessage(const char *source, size_t index, size_t *outLength, void **messageNode) {
+bool FParseNullaryMessage(const char *source, size_t index, size_t *outLength, struct FMessage **messageNode) {
 	return FParseWord(source, index, outLength);
 }
 
-bool FParseArgument(const char *source, size_t index, size_t *outLength, void **argumentNode) {
+bool FParseArgument(const char *source, size_t index, size_t *outLength, struct FMessage **argumentNode) {
 	return
 		FParseParenthesizedExpression(source, index, outLength, argumentNode)
 	||	FParseNullaryMessage(source, index, outLength, argumentNode);
 }
 
-bool FParseKeywordArgument(const char *source, size_t index, size_t *outLength, size_t *outKeywordLength, void **argumentNode) {
+bool FParseKeywordArgument(const char *source, size_t index, size_t *outLength, size_t *outKeywordLength, struct FMessage **argumentNode) {
 	size_t keywordLength = 0, whitespaceLength = 0, argumentLength = 0;
 	bool result =
 		FParseKeyword(source, index, &keywordLength)
@@ -74,9 +75,9 @@ bool FParseKeywordArgument(const char *source, size_t index, size_t *outLength, 
 	return result;
 }
 
-bool FParseNAryMessage(const char *source, size_t index, size_t *outLength, void **messageNode) {
+bool FParseNAryMessage(const char *source, size_t index, size_t *outLength, struct FMessage **messageNode) {
 	size_t totalLength = 0;
-	void *argument = NULL;
+	struct FMessage *argument = NULL;
 	bool result = 0;
 	do {
 		size_t keywordLength = 0, keywordArgumentLength = 0, whitespaceLength = 0;
@@ -89,16 +90,16 @@ bool FParseNAryMessage(const char *source, size_t index, size_t *outLength, void
 	return (totalLength > 0);
 }
 
-bool FParseMessage(const char *source, size_t index, size_t *outLength, void **messageNode) {
+bool FParseMessage(const char *source, size_t index, size_t *outLength, struct FMessage **messageNode) {
 	return
 		FParseNAryMessage(source, index, outLength, messageNode)
 	||	FParseNullaryMessage(source, index, outLength, messageNode);
 }
 
 
-bool FParseExpression(const char *source, size_t index, size_t *outLength, void **expressionNode) {
+bool FParseExpression(const char *source, size_t index, size_t *outLength, struct FMessage **expressionNode) {
 	size_t totalLength = 0;
-	void *receiver = NULL;
+	struct FMessage *receiver = NULL;
 	bool
 		result = FParseParenthesizedExpression(source, index, &totalLength, &receiver) || FParseMessage(source, index, &totalLength, &receiver),
 		chain = 0;
@@ -120,7 +121,7 @@ bool FParseExpression(const char *source, size_t index, size_t *outLength, void 
 	return result;
 }
 
-bool FParseParenthesizedExpression(const char *source, size_t index, size_t *outLength, void **expressionNode) {
+bool FParseParenthesizedExpression(const char *source, size_t index, size_t *outLength, struct FMessage **expressionNode) {
 	size_t expressionLength = 0, openingWhitespaceLength = 0, closingWhitespaceLength = 0;
 	bool result =
 		FParseToken(source, index, "(")

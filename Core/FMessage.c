@@ -6,7 +6,7 @@
 #include "FMessage.h"
 #include "FObject.h"
 
-FMessage *FMessageCreate(FMessage *receiver, struct FSymbol *selector, struct FArray *arguments) {
+FMessage *FMessageCreate(FMessage *receiver, struct FSymbol *selector, FMessage *arguments) {
 	FMessage *instance = FAllocatorAllocate(NULL, sizeof(FMessage));
 	instance->receiver = receiver;
 	instance->selector = selector;
