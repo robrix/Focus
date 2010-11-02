@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 typedef void (*FTestSuiteSetUpFunction)();
 typedef void (*FTestSuiteTearDownFunction)();
@@ -32,11 +33,16 @@ void FRunTestSuite(const char *name, FTestSuiteSetUpFunction setUp, FTestSuiteTe
 	if(!__condition)\
 		FFailWithOptionalMessageString(, ## __VA_ARGS__, "%s:%u: error: %s was unexpectedly false.\n", __FILE__, __LINE__, #_expression);\
 }
+#undef FAssert
+#define FAssert(_expression, ...) FAssertConditionWithMessage((bool)(_expression), ## __VA_ARGS__, "%s:%u: error: %s was unexpectedly false.\n", __FILE__, __LINE__, #_expression)
 
 #define FFail(format, ...) { FTestSuiteAssertionsRun++; FFailWithOptionalMessageString(, format, ## __VA_ARGS__); }
 
 
 #define FTestCase(testCase) (FTestSuiteTestCase){testCase, #testCase}
+
+
+bool FAssertConditionWithMessage(bool condition, const char *format, ...);
 
 
 #ifdef __clang__

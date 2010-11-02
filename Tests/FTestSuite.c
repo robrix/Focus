@@ -3,12 +3,25 @@
 // Copyright 2010 Monochrome Industries
 
 #include "FTestSuite.h"
-#include <stdio.h>
+#include <stdarg.h>
 
 unsigned int FTestSuiteAssertionsRun = 0;
 unsigned int FTestSuiteAssertionsFailed = 0;
 unsigned int FTestSuiteTestCasesRun = 0;
 unsigned int FTestSuiteTestSuitesRun = 0;
+
+
+bool FAssertConditionWithMessage(bool condition, const char *format, ...) {
+	FTestSuiteAssertionsRun++;
+	if(!condition) {
+		va_list arguments;
+		va_start(arguments, format);
+		vprintf(format, arguments);
+		FTestSuiteAssertionsFailed++;
+	}
+	return condition;
+}
+
 
 void FRunTestSuite(const char *name, FTestSuiteSetUpFunction setUp, FTestSuiteTearDownFunction tearDown, FTestSuiteTestCase *tests) {
 	printf("Running suite %s\n", name);
