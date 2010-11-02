@@ -16,7 +16,7 @@ FObject *FContextPrototypeGetObjectPrototype(FObject *self, FSymbol *selector) {
 
 FObject *FContextPrototypeCreate() {
 	FObject *prototype = FObjectCreate(FObjectPrototypeGet());
-	FObjectSetMethod(prototype, FSymbolCreate("Object"), (FMethod)FContextPrototypeGetObjectPrototype);
+	FObjectSetMethod(prototype, FSymbolCreateWithString("Object"), (FMethod)FContextPrototypeGetObjectPrototype);
 	return prototype;
 }
 

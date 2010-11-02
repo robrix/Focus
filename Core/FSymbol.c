@@ -18,11 +18,15 @@ unsigned long FSymbolCalculateHashForString(const char *str) {
 }
 
 
-FSymbol *FSymbolCreate(const char *symbol) {
+FSymbol *FSymbolCreateWithString(const char *symbol) {
 	FSymbol *instance = FAllocatorAllocate(NULL, sizeof(FSymbol));
 	instance->symbol = symbol;
 	instance->hash = FSymbolCalculateHashForString(instance->symbol);
 	return instance;
+}
+
+FSymbol *FSymbolCreateWithSubstring(const char *symbol, size_t length) {
+	return FSymbolCreateWithString(strncpy(FAllocatorAllocate(NULL, length), symbol, length));
 }
 
 

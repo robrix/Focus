@@ -5,6 +5,8 @@
 #ifndef F_MESSAGE
 #define F_MESSAGE
 
+#include <string.h>
+
 typedef struct FMessage {
 	struct FObject *context;
 	struct FMessage *receiver;
@@ -13,7 +15,8 @@ typedef struct FMessage {
 	struct FMessage *nextMessage;
 } FMessage;
 
-FMessage *FMessageCreate(FMessage *receiver, struct FSymbol *selector, FMessage *arguments);
+FMessage *FMessageCreate(struct FObject *context, FMessage *receiver, struct FSymbol *selector, FMessage *arguments);
+FMessage *FMessageCreateNullaryWithSubstring(struct FObject *context, FMessage *receiver, const char *string, size_t length);
 
 // FObject *FMessageEvaluate(FMessage *self);
 

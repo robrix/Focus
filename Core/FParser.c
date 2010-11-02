@@ -53,9 +53,19 @@ bool FParseKeyword(const char *source, size_t index, size_t *outLength) {
 }
 
 
-#warning fixme: messages should take a receiver node
+#warning fixme: messages should take a receiver node and a context object
 bool FParseNullaryMessage(const char *source, size_t index, size_t *outLength, struct FMessage **messageNode) {
-	return FParseWord(source, index, outLength);
+	size_t length = 0;
+	bool result = FParseWord(source, index, &length);
+	if(result) {
+		if(messageNode) {
+			*messageNode = FMessageCreateNullaryWithSubstring(NULL, NULL, source + index, length);
+		}
+		if(outLength) {
+			*outLength = length;
+		}
+	}
+	return result;
 }
 
 bool FParseArgument(const char *source, size_t index, size_t *outLength, struct FMessage **argumentNode) {

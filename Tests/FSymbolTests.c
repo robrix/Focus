@@ -8,7 +8,7 @@
 static FSymbol *symbol = NULL;
 
 static void setUp() {
-	symbol = FSymbolCreate("symbol:");
+	symbol = FSymbolCreateWithString("symbol:");
 }
 
 
@@ -17,13 +17,13 @@ static void testCreation() {
 }
 
 static void testCanBeCompared() {
-	FSymbol *same = FSymbolCreate("symbol:"), *different = FSymbolCreate("fishstick");
+	FSymbol *same = FSymbolCreateWithString("symbol:"), *different = FSymbolCreateWithString("fishstick");
 	FAssert(FSymbolIsEqual(symbol, same));
 	FAssert(!FSymbolIsEqual(symbol, different));
 }
 
 static void testHashesItsSymbol() {
-	FSymbol *same = FSymbolCreate("symbol:"), *different = FSymbolCreate("fishstick");
+	FSymbol *same = FSymbolCreateWithString("symbol:"), *different = FSymbolCreateWithString("fishstick");
 	FAssert(symbol->hash != 0);
 	FAssert(symbol->hash == same->hash);
 	FAssert(symbol->hash != different->hash);

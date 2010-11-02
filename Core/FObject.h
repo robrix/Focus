@@ -8,7 +8,7 @@
 #include <stdlib.h>
 
 typedef struct FSymbol * FSymbolRef;
-extern struct FSymbol *FSymbolCreate(const char *);
+extern struct FSymbol *FSymbolCreateWithString(const char *);
 
 typedef struct FObject {
 	struct FObject *prototype;
@@ -17,7 +17,7 @@ typedef struct FObject {
 
 typedef FObject *(*FMethod)(FObject *receiver, struct FSymbol *selector, ...);
 
-#define FSend(receiver, selector, ...) FObjectGetMethod(receiver, FSymbolCreate(#selector))(receiver, FSymbolCreate(#selector), ## __VA_ARGS__)
+#define FSend(receiver, selector, ...) FObjectGetMethod(receiver, FSymbolCreateWithString(#selector))(receiver, FSymbolCreateWithString(#selector), ## __VA_ARGS__)
 
 FObject *FObjectCreate(FObject *prototype);
 

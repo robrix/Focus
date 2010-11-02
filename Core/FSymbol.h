@@ -7,6 +7,7 @@
 
 #include "FObject.h"
 #include <stdbool.h>
+#include <string.h>
 
 typedef struct FSymbol {
 	FObject super;
@@ -14,7 +15,8 @@ typedef struct FSymbol {
 	const char *symbol;
 } FSymbol;
 
-FSymbol *FSymbolCreate(const char *symbol);
+FSymbol *FSymbolCreateWithString(const char *symbol);
+FSymbol *FSymbolCreateWithSubstring(const char *symbol, size_t length);
 
 bool FSymbolIsEqual(FSymbol *a, FSymbol *b);
 
