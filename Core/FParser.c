@@ -53,13 +53,12 @@ bool FParseKeyword(const char *source, size_t index, size_t *outLength) {
 }
 
 
-#warning fixme: messages should take a receiver node and a context object
-bool FParseNullaryMessage(const char *source, size_t index, size_t *outLength, struct FMessage **messageNode) {
+bool FParseNullaryMessage(struct FMessage *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FMessage **messageNode) {
 	size_t length = 0;
 	bool result = FParseWord(source, index, &length);
 	if(result) {
 		if(messageNode) {
-			*messageNode = FMessageCreateNullaryWithSubstring(NULL, NULL, source + index, length);
+			*messageNode = FMessageCreateNullaryWithSubstring(context, receiver, source + index, length);
 		}
 		if(outLength) {
 			*outLength = length;
@@ -68,31 +67,31 @@ bool FParseNullaryMessage(const char *source, size_t index, size_t *outLength, s
 	return result;
 }
 
-bool FParseArgument(const char *source, size_t index, size_t *outLength, struct FMessage **argumentNode) {
+bool FParseArgument(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FMessage **argumentNode) {
 	return
-		FParseParenthesizedExpression(source, index, outLength, argumentNode)
-	||	FParseNullaryMessage(source, index, outLength, argumentNode);
+		FParseParenthesizedExpression(context, source, index, outLength, argumentNode)
+	||	FParseNullaryMessage(NULL, context, source, index, outLength, argumentNode);
 }
 
-bool FParseKeywordArgument(const char *source, size_t index, size_t *outLength, size_t *outKeywordLength, struct FMessage **argumentNode) {
+bool FParseKeywordArgument(struct FMessage *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, size_t *outKeywordLength, struct FMessage **argumentNode) {
 	size_t keywordLength = 0, whitespaceLength = 0, argumentLength = 0;
 	bool result =
 		FParseKeyword(source, index, &keywordLength)
 	&&	(FParseWhitespaceAndNewlines(source, index + keywordLength, &whitespaceLength) || 1)
-	&&	FParseArgument(source, index + keywordLength + whitespaceLength, &argumentLength, argumentNode);
+	&&	FParseArgument(context, source, index + keywordLength + whitespaceLength, &argumentLength, argumentNode);
 	if(outKeywordLength && result) *outKeywordLength = keywordLength;
 	if(outLength && result) *outLength = keywordLength + whitespaceLength + argumentLength;
 	return result;
 }
 
-bool FParseNAryMessage(const char *source, size_t index, size_t *outLength, struct FMessage **messageNode) {
+bool FParseNAryMessage(struct FMessage *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FMessage **messageNode) {
 	size_t totalLength = 0;
 	struct FMessage *argument = NULL;
 	bool result = 0;
 	do {
 		size_t keywordLength = 0, keywordArgumentLength = 0, whitespaceLength = 0;
 		result =
-			FParseKeywordArgument(source, index + totalLength, &keywordArgumentLength, &keywordLength, &argument)
+			FParseKeywordArgument(receiver, context, source, index + totalLength, &keywordArgumentLength, &keywordLength, &argument)
 		&&	(FParseWhitespaceAndNewlines(source, index + totalLength + keywordArgumentLength, &whitespaceLength) || 1);
 		totalLength += keywordArgumentLength + whitespaceLength;
 	} while(result == 1);
@@ -100,25 +99,25 @@ bool FParseNAryMessage(const char *source, size_t index, size_t *outLength, stru
 	return (totalLength > 0);
 }
 
-bool FParseMessage(const char *source, size_t index, size_t *outLength, struct FMessage **messageNode) {
+bool FParseMessage(struct FMessage *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FMessage **messageNode) {
 	return
-		FParseNAryMessage(source, index, outLength, messageNode)
-	||	FParseNullaryMessage(source, index, outLength, messageNode);
+		FParseNAryMessage(receiver, context, source, index, outLength, messageNode)
+	||	FParseNullaryMessage(receiver, context, source, index, outLength, messageNode);
 }
 
 
-bool FParseExpression(const char *source, size_t index, size_t *outLength, struct FMessage **expressionNode) {
+bool FParseExpression(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FMessage **expressionNode) {
 	size_t totalLength = 0;
 	struct FMessage *receiver = NULL;
 	bool
-		result = FParseParenthesizedExpression(source, index, &totalLength, &receiver) || FParseMessage(source, index, &totalLength, &receiver),
+		result = FParseParenthesizedExpression(context, source, index, &totalLength, &receiver) || FParseMessage(NULL, context, source, index, &totalLength, &receiver),
 		chain = 0;
 	
 	do {
 		size_t whitespaceLength = 0, messageLength = 0;
 		chain =
 			(FParseWhitespace(source, index + totalLength, &whitespaceLength) || 1)
-		&&	FParseMessage(source, index + totalLength + whitespaceLength, &messageLength, &receiver);
+		&&	FParseMessage(receiver, context, source, index + totalLength + whitespaceLength, &messageLength, &receiver);
 		if(chain) {
 			totalLength += whitespaceLength + messageLength;
 		}
@@ -131,12 +130,12 @@ bool FParseExpression(const char *source, size_t index, size_t *outLength, struc
 	return result;
 }
 
-bool FParseParenthesizedExpression(const char *source, size_t index, size_t *outLength, struct FMessage **expressionNode) {
+bool FParseParenthesizedExpression(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FMessage **expressionNode) {
 	size_t expressionLength = 0, openingWhitespaceLength = 0, closingWhitespaceLength = 0;
 	bool result =
 		FParseToken(source, index, "(")
 	&&	(FParseWhitespaceAndNewlines(source, index + 1, &openingWhitespaceLength) || 1)
-	&&	FParseExpression(source, index + 1 + openingWhitespaceLength, &expressionLength, expressionNode)
+	&&	FParseExpression(context, source, index + 1 + openingWhitespaceLength, &expressionLength, expressionNode)
 	&&	(FParseWhitespaceAndNewlines(source, index + 1 + openingWhitespaceLength + expressionLength, &closingWhitespaceLength) || 1)
 	&&	FParseToken(source, index + 1 + openingWhitespaceLength + expressionLength + closingWhitespaceLength, ")");
 	if(outLength && result) *outLength = 1 + openingWhitespaceLength + expressionLength + closingWhitespaceLength + 1;

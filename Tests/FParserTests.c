@@ -2,9 +2,18 @@
 // Created by Rob Rix on 2010-10-05
 // Copyright 2010 Monochrome Industries
 
+#include "Core/FObject.h"
+#include "Core/Prototypes/FContextPrototype.h"
 #include "Core/FMessage.h"
 #include "Core/FParser.h"
+#include "Core/FSymbol.h"
 #include "FTestSuite.h"
+
+static FObject *FParserTestsContext = NULL;
+
+static void setUp() {
+	FParserTestsContext = FObjectCreate(FContextPrototypeGet());
+}
 
 static void testParsesWords() {
 	size_t length = 0;
@@ -97,72 +106,91 @@ static void testParsesKeywords() {
 
 static void testParsesNullaryMessages() {
 	size_t length = 0;
-	FAssert(FParseMessage("foo", 0, &length, NULL) && length == 3);
+	FMessage *message = NULL;
+	FAssert(FParseMessage(NULL, FParserTestsContext, "foo", 0, &length, &message) && length == 3);
+	if(FAssert(message != NULL)) {
+		FAssert(FSymbolIsEqual(message->selector, FSymbolCreateWithString("foo")));
+		FAssert(message->receiver == NULL);
+		FAssert(message->context == FParserTestsContext);
+	}
 }
 
 static void testParsesUnaryMessages() {
 	size_t length = 0;
-	FAssert(FParseMessage("foo: bar", 0, &length, NULL) && length == 8);
+	FMessage *message = NULL;
+	FAssert(FParseMessage(NULL, FParserTestsContext, "foo: bar", 0, &length, &message) && length == 8);
+	
+	if(FAssert(message != NULL)) {
+		FAssert(FSymbolIsEqual(message->selector, FSymbolCreateWithString("foo:")));
+		FAssert(message->context == FParserTestsContext);
+		FMessage *argument = message->arguments;
+		if(FAssert(argument != NULL)) {
+			FAssert(FSymbolIsEqual(argument->selector, FSymbolCreateWithString("bar")));
+			FAssert(argument->arguments == NULL);
+			FAssert(argument->context == message->context);
+			FAssert(argument->receiver == message->receiver);
+		}
+	}
 }
 
 static void testParsesBinaryMessages() {
 	size_t length = 0;
-	FAssert(FParseMessage("foo: (bar) quux: (thing)", 0, &length, NULL) && length == 24);
+	FAssert(FParseMessage(NULL, FParserTestsContext, "foo: (bar) quux: (thing)", 0, &length, NULL) && length == 24);
 }
 
 
 static void testParsesMessageChains() {
 	size_t length = 0;
-	FAssert(FParseExpression("foo bar quux", 0, &length, NULL) && length == 12);
+	FAssert(FParseExpression(FParserTestsContext, "foo bar quux", 0, &length, NULL) && length == 12);
 	// fixme: test that it’s equivalent to ((foo) bar) quux
 	
 	length = 0;
-	FAssert(FParseExpression("((foo) bar) quux", 0, &length, NULL) && length == 16);
+	FAssert(FParseExpression(FParserTestsContext, "((foo) bar) quux", 0, &length, NULL) && length == 16);
 	
 	length = 0;
-	FAssert(FParseExpression("foo bar: quux", 0, &length, NULL) && length == 13);
+	FAssert(FParseExpression(FParserTestsContext, "foo bar: quux", 0, &length, NULL) && length == 13);
 	// fixme: test that it’s equivalent to (foo) bar: (quux)
 	
 	length = 0;
-	FAssert(FParseExpression("(foo) bar: (quux)", 0, &length, NULL) && length == 17);
+	FAssert(FParseExpression(FParserTestsContext, "(foo) bar: (quux)", 0, &length, NULL) && length == 17);
 	
 	length = 0;
-	FAssert(FParseExpression("foo bar: quux thing", 0, &length, NULL) && length == 19);
+	FAssert(FParseExpression(FParserTestsContext, "foo bar: quux thing", 0, &length, NULL) && length == 19);
 	// fixme: test that it’s equivalent to (foo) bar: (quux thing)
 	
 	length = 0;
-	FAssert(FParseExpression("(foo) bar: (quux thing)", 0, &length, NULL) && length == 23);
+	FAssert(FParseExpression(FParserTestsContext, "(foo) bar: (quux thing)", 0, &length, NULL) && length == 23);
 	
 	length = 0;
-	FAssert(FParseExpression("foo bar quux: thing", 0, &length, NULL) && length == 19);
+	FAssert(FParseExpression(FParserTestsContext, "foo bar quux: thing", 0, &length, NULL) && length == 19);
 	// fixme: test that it’s equivalent to ((foo) bar) quux: (thing)
 	
 	length = 0;
-	FAssert(FParseExpression("((foo) bar) quux: (thing)", 0, &length, NULL) && length == 25);
+	FAssert(FParseExpression(FParserTestsContext, "((foo) bar) quux: (thing)", 0, &length, NULL) && length == 25);
 }
 
 
 static void testParsesParenthesizedExpressions() {
 	size_t length = 0;
-	FAssert(FParseParenthesizedExpression("(foo)", 0, &length, NULL) && length == 5);
+	FAssert(FParseParenthesizedExpression(FParserTestsContext, "(foo)", 0, &length, NULL) && length == 5);
 	
 	length = 0;
-	FAssert(FParseParenthesizedExpression("( foo ) ", 0, &length, NULL) && length == 7);
+	FAssert(FParseParenthesizedExpression(FParserTestsContext, "( foo ) ", 0, &length, NULL) && length == 7);
 	
 	length = 0;
-	FAssert(FParseParenthesizedExpression("(\nfoo\n) ", 0, &length, NULL) && length == 7);
+	FAssert(FParseParenthesizedExpression(FParserTestsContext, "(\nfoo\n) ", 0, &length, NULL) && length == 7);
 }
 
 static void testParsesExpressions() {
 	size_t length = 0;
-	FAssert(FParseExpression("(\nfoo\n)", 0, &length, NULL) && length == 7);
+	FAssert(FParseExpression(FParserTestsContext, "(\nfoo\n)", 0, &length, NULL) && length == 7);
 	
 	length = 0;
-	FAssert(FParseExpression("foo", 0, &length, NULL) && length == 3);
+	FAssert(FParseExpression(FParserTestsContext, "foo", 0, &length, NULL) && length == 3);
 }
 
 void FRunParserTests() {
-	FRunTestSuite("FParser", NULL, NULL, (FTestSuiteTestCase[]){
+	FRunTestSuite("FParser", setUp, NULL, (FTestSuiteTestCase[]){
 		FTestCase(testParsesCharacterSets),
 		FTestCase(testParsesTokens),
 		
