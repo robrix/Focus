@@ -4,8 +4,10 @@
 
 #include "FMessage.h"
 #include "FParser.h"
+#include "FSymbol.h"
 #include <ctype.h>
 #include <string.h>
+#include <stdlib.h>
 
 bool FParseCharacterSet(const char *source, size_t index, const char *characters, size_t *outLength) {
 	size_t length = 0;
@@ -85,17 +87,32 @@ bool FParseKeywordArgument(struct FMessage *receiver, struct FObject *context, c
 }
 
 bool FParseNAryMessage(struct FMessage *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FMessage **messageNode) {
-	size_t totalLength = 0;
-	struct FMessage *argument = NULL;
+	size_t totalLength = 0, selectorLength = 0;
+	char *selector = NULL;
+	FMessage *message = FMessageCreate(context, receiver, NULL, NULL);
 	bool result = 0;
 	do {
-		size_t keywordLength = 0, keywordArgumentLength = 0, whitespaceLength = 0;
+		size_t keywordLength = 0, keywordArgumentLength = 0, whitespaceLength = 0, start = index + totalLength;
+		FMessage *argument = NULL;
 		result =
-			FParseKeywordArgument(receiver, context, source, index + totalLength, &keywordArgumentLength, &keywordLength, &argument)
-		&&	(FParseWhitespaceAndNewlines(source, index + totalLength + keywordArgumentLength, &whitespaceLength) || 1);
+			(FParseWhitespace(source, start, &whitespaceLength) || 1)
+		&&	FParseKeywordArgument(receiver, context, source, start + whitespaceLength, &keywordArgumentLength, &keywordLength, &argument);
 		totalLength += keywordArgumentLength + whitespaceLength;
+		selectorLength += keywordLength;
+		if(totalLength) {
+			// add to the selector
+			selector = realloc(selector, selectorLength);
+			memcpy(selector + selectorLength - keywordLength, source + start, keywordLength);
+			
+			// set the argument
+			
+		}
 	} while(result == 1);
-	if(outLength && totalLength) *outLength = totalLength;
+	if(totalLength && outLength) *outLength = totalLength;
+	if(totalLength && messageNode) {
+		message->selector = FSymbolCreateWithSubstring(selector, selectorLength);
+		*messageNode = message;
+	}
 	return (totalLength > 0);
 }
 
@@ -108,7 +125,7 @@ bool FParseMessage(struct FMessage *receiver, struct FObject *context, const cha
 
 bool FParseExpression(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FMessage **expressionNode) {
 	size_t totalLength = 0;
-	struct FMessage *receiver = NULL;
+	FMessage *receiver = NULL;
 	bool
 		result = FParseParenthesizedExpression(context, source, index, &totalLength, &receiver) || FParseMessage(NULL, context, source, index, &totalLength, &receiver),
 		chain = 0;
