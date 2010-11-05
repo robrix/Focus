@@ -103,7 +103,7 @@ bool FParseNAryMessage(struct FMessage *receiver, struct FObject *context, const
 		if(totalLength) {
 			// add to the selector
 			selector = realloc(selector, selectorLength);
-			memcpy(selector + selectorLength - keywordLength, source + start, keywordLength);
+			memcpy(selector + selectorLength - keywordLength, source + start + whitespaceLength, keywordLength);
 			
 			// set the argument
 			if(message->arguments) {

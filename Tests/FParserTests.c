@@ -135,7 +135,28 @@ static void testParsesUnaryMessages() {
 
 static void testParsesBinaryMessages() {
 	size_t length = 0;
-	FAssert(FParseMessage(NULL, FParserTestsContext, "foo: (bar) quux: (thing)", 0, &length, NULL) && length == 24);
+	FMessage *message = NULL;
+	FAssert(FParseMessage(NULL, FParserTestsContext, "foo: (bar) quux: (thing)", 0, &length, &message) && length == 24);
+	
+	if(FAssert(message != NULL)) {
+		FAssert(FSymbolIsEqual(message->selector, FSymbolCreateWithString("foo:quux:")));
+		FAssert(message->context == FParserTestsContext);
+		FAssert(message->receiver == NULL);
+		
+		FMessage
+			*fooArgument = message->arguments->message,
+			*quuxArgument = message->arguments->nextNode->message;
+		
+		FAssert(FSymbolIsEqual(fooArgument->selector, FSymbolCreateWithString("bar")));
+		FAssert(fooArgument->arguments == NULL);
+		FAssert(fooArgument->context == FParserTestsContext);
+		FAssert(fooArgument->receiver == NULL);
+		
+		FAssert(FSymbolIsEqual(quuxArgument->selector, FSymbolCreateWithString("thing")));
+		FAssert(quuxArgument->arguments == NULL);
+		FAssert(quuxArgument->context == FParserTestsContext);
+		FAssert(quuxArgument->receiver == NULL);
+	}
 }
 
 
