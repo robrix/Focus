@@ -89,11 +89,12 @@ bool FParseKeywordArgument(struct FMessage *receiver, struct FObject *context, c
 bool FParseNAryMessage(struct FMessage *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FMessage **messageNode) {
 	size_t totalLength = 0, selectorLength = 0;
 	char *selector = NULL;
-	FMessage *message = FMessageCreate(context, receiver, NULL, NULL);
+	FMessage
+		*message = FMessageCreate(context, receiver, NULL, NULL),
+		*argument = NULL;
 	bool result = 0;
 	do {
 		size_t keywordLength = 0, keywordArgumentLength = 0, whitespaceLength = 0, start = index + totalLength;
-		FMessage *argument = NULL;
 		result =
 			(FParseWhitespace(source, start, &whitespaceLength) || 1)
 		&&	FParseKeywordArgument(receiver, context, source, start + whitespaceLength, &keywordArgumentLength, &keywordLength, &argument);
@@ -105,7 +106,11 @@ bool FParseNAryMessage(struct FMessage *receiver, struct FObject *context, const
 			memcpy(selector + selectorLength - keywordLength, source + start, keywordLength);
 			
 			// set the argument
-			
+			if(message->arguments) {
+				FMessageNodeSetNextNode(FMessageNodeGetLastNode(message->arguments), FMessageNodeCreate(argument));
+			} else {
+				message->arguments = FMessageNodeCreate(argument);
+			}
 		}
 	} while(result == 1);
 	if(totalLength && outLength) *outLength = totalLength;

@@ -7,7 +7,7 @@
 #include "FObject.h"
 #include "FSymbol.h"
 
-FMessage *FMessageCreate(FObject *context, FMessage *receiver, struct FSymbol *selector, FMessage *arguments) {
+FMessage *FMessageCreate(struct FObject *context, FMessage *receiver, struct FSymbol *selector, FMessageNode *arguments) {
 	FMessage *instance = FAllocatorAllocate(NULL, sizeof(FMessage));
 	instance->context = context;
 	instance->receiver = receiver;
@@ -22,8 +22,20 @@ FMessage *FMessageCreateNullaryWithSubstring(FObject *context, FMessage *receive
 }
 
 
-// FObject *FMessageEvaluate(FMessage *self) {
-// 	FObject *receiver = self->receiver ? FMessageEvaluate(self->receiver) : self->context;
-// 	// return FSend(receiver, self->selector, )
-// 	
-// }
+FMessageNode *FMessageNodeCreate(FMessage *message) {
+	FMessageNode *node = FAllocatorAllocate(NULL, sizeof(FMessageNode));
+	node->message = message;
+	return node;
+}
+
+void FMessageNodeSetNextNode(FMessageNode *self, FMessageNode *nextNode) {
+	self->nextNode = nextNode;
+}
+
+FMessageNode *FMessageNodeGetLastNode(FMessageNode *self) {
+	FMessageNode *node = self;
+	while(node->nextNode != NULL) {
+		node = node->nextNode;
+	}
+	return node;
+}

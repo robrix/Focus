@@ -11,13 +11,19 @@ typedef struct FMessage {
 	struct FObject *context;
 	struct FMessage *receiver;
 	struct FSymbol *selector;
-	struct FMessage *arguments;
-	struct FMessage *nextMessage;
+	struct FMessageNode *arguments;
 } FMessage;
 
-FMessage *FMessageCreate(struct FObject *context, FMessage *receiver, struct FSymbol *selector, FMessage *arguments);
+typedef struct FMessageNode {
+	struct FMessage *message;
+	struct FMessageNode *nextNode;
+} FMessageNode;
+
+FMessage *FMessageCreate(struct FObject *context, FMessage *receiver, struct FSymbol *selector, FMessageNode *arguments);
 FMessage *FMessageCreateNullaryWithSubstring(struct FObject *context, FMessage *receiver, const char *string, size_t length);
 
-// FObject *FMessageEvaluate(FMessage *self);
+FMessageNode *FMessageNodeCreate(FMessage *message);
+void FMessageNodeSetNextNode(FMessageNode *self, FMessageNode *nextNode);
+FMessageNode *FMessageNodeGetLastNode(FMessageNode *self);
 
 #endif // F_MESSAGE

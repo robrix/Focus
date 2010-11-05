@@ -123,12 +123,12 @@ static void testParsesUnaryMessages() {
 	if(FAssert(message != NULL)) {
 		FAssert(FSymbolIsEqual(message->selector, FSymbolCreateWithString("foo:")));
 		FAssert(message->context == FParserTestsContext);
-		FMessage *argument = message->arguments;
+		FMessage *argument = message->arguments->message;
 		if(FAssert(argument != NULL)) {
 			FAssert(FSymbolIsEqual(argument->selector, FSymbolCreateWithString("bar")));
 			FAssert(argument->arguments == NULL);
 			FAssert(argument->context == message->context);
-			FAssert(argument->receiver == message->receiver);
+			FAssert(argument->receiver == NULL);
 		}
 	}
 }
