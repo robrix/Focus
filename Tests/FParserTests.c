@@ -162,31 +162,105 @@ static void testParsesBinaryMessages() {
 
 static void testParsesMessageChains() {
 	size_t length = 0;
-	FAssert(FParseExpression(FParserTestsContext, "foo bar quux", 0, &length, NULL) && length == 12);
-	// fixme: test that it’s equivalent to ((foo) bar) quux
+	FMessage *message = NULL;
+	FAssert(FParseExpression(FParserTestsContext, "foo bar quux", 0, &length, &message) && length == 12);
+	if(FAssert(message != NULL)) {
+		FAssert(FSymbolIsEqual(message->selector, FSymbolCreateWithString("quux")));
+		FAssert(message->arguments == NULL);
+		FAssert(message->context == FParserTestsContext);
+		if(FAssert((message = message->receiver) != NULL)) {
+			FAssert(FSymbolIsEqual(message->selector, FSymbolCreateWithString("bar")));
+			FAssert(message->arguments == NULL);
+			FAssert(message->context == FParserTestsContext);
+			if(FAssert((message = message->receiver) != NULL)) {
+				FAssert(FSymbolIsEqual(message->selector, FSymbolCreateWithString("foo")));
+				FAssert(message->arguments == NULL);
+				FAssert(message->context == FParserTestsContext);
+				FAssert(message->receiver == NULL);
+			}
+		}
+	}
 	
 	length = 0;
-	FAssert(FParseExpression(FParserTestsContext, "((foo) bar) quux", 0, &length, NULL) && length == 16);
+	message = NULL;
+	FAssert(FParseExpression(FParserTestsContext, "((foo) bar) quux", 0, &length, &message) && length == 16);
+	if(FAssert(message != NULL)) {
+		FAssert(FSymbolIsEqual(message->selector, FSymbolCreateWithString("quux")));
+		FAssert(message->arguments == NULL);
+		FAssert(message->context == FParserTestsContext);
+		if(FAssert((message = message->receiver) != NULL)) {
+			FAssert(FSymbolIsEqual(message->selector, FSymbolCreateWithString("bar")));
+			FAssert(message->arguments == NULL);
+			FAssert(message->context == FParserTestsContext);
+			if(FAssert((message = message->receiver) != NULL)) {
+				FAssert(FSymbolIsEqual(message->selector, FSymbolCreateWithString("foo")));
+				FAssert(message->arguments == NULL);
+				FAssert(message->context == FParserTestsContext);
+				FAssert(message->receiver == NULL);
+			}
+		}
+	}
 	
 	length = 0;
-	FAssert(FParseExpression(FParserTestsContext, "foo bar: quux", 0, &length, NULL) && length == 13);
-	// fixme: test that it’s equivalent to (foo) bar: (quux)
+	message = NULL;
+	FAssert(FParseExpression(FParserTestsContext, "foo bar: quux", 0, &length, &message) && length == 13);
+	if(FAssert(message != NULL)) {
+		FAssert(FSymbolIsEqual(message->selector, FSymbolCreateWithString("bar:")));
+		FAssert(message->context == FParserTestsContext);
+		if(FAssert(message->receiver != NULL)) {
+			FAssert(FSymbolIsEqual(message->receiver->selector, FSymbolCreateWithString("foo")));
+			FAssert(message->receiver->arguments == NULL);
+			FAssert(message->receiver->context == FParserTestsContext);
+			FAssert(message->receiver->receiver == NULL);
+		}
+		if(FAssert(message->arguments != NULL)) {
+			if(FAssert(message->arguments->message != NULL)) {
+				FAssert(FSymbolIsEqual(message->arguments->message->selector, FSymbolCreateWithString("quux")));
+				FAssert(message->arguments->message->context == FParserTestsContext);
+				FAssert(message->arguments->message->receiver == NULL);
+				FAssert(message->arguments->message->arguments == NULL);
+			}
+		}
+	}
 	
 	length = 0;
-	FAssert(FParseExpression(FParserTestsContext, "(foo) bar: (quux)", 0, &length, NULL) && length == 17);
+	message = NULL;
+	FAssert(FParseExpression(FParserTestsContext, "(foo) bar: (quux)", 0, &length, &message) && length == 17);
+	if(FAssert(message != NULL)) {
+		FAssert(FSymbolIsEqual(message->selector, FSymbolCreateWithString("bar:")));
+		FAssert(message->context == FParserTestsContext);
+		if(FAssert(message->receiver != NULL)) {
+			FAssert(FSymbolIsEqual(message->receiver->selector, FSymbolCreateWithString("foo")));
+			FAssert(message->receiver->arguments == NULL);
+			FAssert(message->receiver->context == FParserTestsContext);
+			FAssert(message->receiver->receiver == NULL);
+		}
+		if(FAssert(message->arguments != NULL)) {
+			if(FAssert(message->arguments->message != NULL)) {
+				FAssert(FSymbolIsEqual(message->arguments->message->selector, FSymbolCreateWithString("quux")));
+				FAssert(message->arguments->message->context == FParserTestsContext);
+				FAssert(message->arguments->message->receiver == NULL);
+				FAssert(message->arguments->message->arguments == NULL);
+			}
+		}
+	}
 	
 	length = 0;
+	message = NULL;
 	FAssert(FParseExpression(FParserTestsContext, "foo bar: quux thing", 0, &length, NULL) && length == 19);
 	// fixme: test that it’s equivalent to (foo) bar: (quux thing)
 	
 	length = 0;
+	message = NULL;
 	FAssert(FParseExpression(FParserTestsContext, "(foo) bar: (quux thing)", 0, &length, NULL) && length == 23);
 	
 	length = 0;
+	message = NULL;
 	FAssert(FParseExpression(FParserTestsContext, "foo bar quux: thing", 0, &length, NULL) && length == 19);
 	// fixme: test that it’s equivalent to ((foo) bar) quux: (thing)
 	
 	length = 0;
+	message = NULL;
 	FAssert(FParseExpression(FParserTestsContext, "((foo) bar) quux: (thing)", 0, &length, NULL) && length == 25);
 }
 
@@ -209,6 +283,7 @@ static void testParsesExpressions() {
 	length = 0;
 	FAssert(FParseExpression(FParserTestsContext, "foo", 0, &length, NULL) && length == 3);
 }
+
 
 void FRunParserTests() {
 	FRunTestSuite("FParser", setUp, NULL, (FTestSuiteTestCase[]){

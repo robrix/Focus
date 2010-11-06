@@ -92,33 +92,39 @@ bool FParseNAryMessage(struct FMessage *receiver, struct FObject *context, const
 	FMessage
 		*message = FMessageCreate(context, receiver, NULL, NULL),
 		*argument = NULL;
-	bool result = 0;
-	do {
-		size_t keywordLength = 0, keywordArgumentLength = 0, whitespaceLength = 0, start = index + totalLength;
-		result =
-			(FParseWhitespace(source, start, &whitespaceLength) || 1)
-		&&	FParseKeywordArgument(receiver, context, source, start + whitespaceLength, &keywordArgumentLength, &keywordLength, &argument);
+	FMessageNode *arguments = NULL;
+	size_t keywordLength = 0, keywordArgumentLength = 0, whitespaceLength = 0;
+	unsigned count = 0;
+	while(
+		(FParseWhitespace(source, index + totalLength, &whitespaceLength) || 1)
+	&&	FParseKeywordArgument(receiver, context, source, index + totalLength + whitespaceLength, &keywordArgumentLength, &keywordLength, &argument)
+	) {
+		size_t start = index + totalLength;
 		totalLength += keywordArgumentLength + whitespaceLength;
 		selectorLength += keywordLength;
-		if(totalLength) {
-			// add to the selector
-			selector = realloc(selector, selectorLength);
-			memcpy(selector + selectorLength - keywordLength, source + start + whitespaceLength, keywordLength);
-			
-			// set the argument
-			if(message->arguments) {
-				FMessageNodeSetNextNode(FMessageNodeGetLastNode(message->arguments), FMessageNodeCreate(argument));
-			} else {
-				message->arguments = FMessageNodeCreate(argument);
-			}
+		count++;
+		
+		// add to the selector
+		selector = realloc(selector, selectorLength);
+		memcpy(selector + selectorLength - keywordLength, source + start + whitespaceLength, keywordLength);
+		
+		// set the argument
+		if(arguments == NULL) {
+			message->arguments = arguments = FMessageNodeCreate(argument);
+		} else {
+			FMessageNodeSetNextNode(arguments, FMessageNodeCreate(argument));
+			arguments = arguments->nextNode;
 		}
-	} while(result == 1);
-	if(totalLength && outLength) *outLength = totalLength;
-	if(totalLength && messageNode) {
+		
+		keywordLength = keywordArgumentLength = whitespaceLength = 0;
+	}
+	bool result = (count > 0);
+	if(result && outLength) *outLength = totalLength;
+	if(result && messageNode) {
 		message->selector = FSymbolCreateWithSubstring(selector, selectorLength);
 		*messageNode = message;
 	}
-	return (totalLength > 0);
+	return result;
 }
 
 bool FParseMessage(struct FMessage *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FMessage **messageNode) {
