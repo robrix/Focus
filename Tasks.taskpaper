@@ -1,12 +1,8 @@
 Parser:
-	- parse messages @done(2010-10-26)
-		<optional receiver expression> selectorFragment: <argumentExpression> nextFragment: <argumentExpression>
-		- parse message chains @done(2010-10-26)
 	- parse assignments?
 		<optional receiver expression> name = <expression>
 	- write the parser as a Focus object so it can be inherited from and overridden.
 	- test overall parsing (including trailing whitespace, and no trailing garbage).
-	- accept chains of nullary messages as arguments. @done(2010-11-06)
 	- parse blocks.
 
 Hash table:
