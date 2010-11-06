@@ -162,16 +162,14 @@ static void testParsesBinaryMessages() {
 }
 
 
-static void testParsesMessageChains() {
-	size_t length = 0;
-	FMessage *message = NULL;
-	FMessageFixture *fixtures = (FMessageFixture[]){
+static void testParsesNullaryMessageChains() {
+	FMessageFixture fixtures[] = {
 		{"foo bar quux", 12},
 		{"((foo) bar) quux", 16},
 	};
 	for(unsigned i = 0; i < 2; i++) {
-		length = 0;
-		message = NULL;
+		size_t length = 0;
+		FMessage *message = NULL;
 		printf("\t%s\n", fixtures[i].source);
 		FAssert(FParseExpression(FParserTestsContext, fixtures[i].source, 0, &length, &message) && length == fixtures[i].length);
 		if(FAssert(message != NULL)) {
@@ -191,16 +189,16 @@ static void testParsesMessageChains() {
 			}
 		}
 	}
-	
-	length = 0;
-	message = NULL;
-	fixtures = (FMessageFixture[]){
+}
+
+static void testParsesUnaryMessagesAfterNullaryMessageChains() {
+	FMessageFixture fixtures[] = {
 		{"foo bar: quux", 13},
 		{"(foo) bar: (quux)", 17},
 	};
 	for(unsigned i = 0; i < 2; i++) {
-		length = 0;
-		message = NULL;
+		size_t length = 0;
+		FMessage *message = NULL;
 		printf("\t%s\n", fixtures[i].source);
 		FAssert(FParseExpression(FParserTestsContext, fixtures[i].source, 0, &length, &message) && length == fixtures[i].length);
 		if(FAssert(message != NULL)) {
@@ -222,16 +220,16 @@ static void testParsesMessageChains() {
 			}
 		}
 	}
-	
-	length = 0;
-	message = NULL;
-	fixtures = (FMessageFixture[]){
+}
+
+static void testParsesNullaryMessageChainsAsArguments() {
+	FMessageFixture fixtures[] = {
 		{"foo bar: quux thing", 19},
 		{"(foo) bar: (quux thing)", 23},
 	};
 	for(unsigned i = 0; i < 2; i++) {
-		length = 0;
-		message = NULL;
+		size_t length = 0;
+		FMessage *message = NULL;
 		printf("\t%s\n", fixtures[i].source);
 		FAssert(FParseExpression(FParserTestsContext, fixtures[i].source, 0, &length, &message) && length == fixtures[i].length);
 		if(FAssert(message != NULL)) {
@@ -261,16 +259,16 @@ static void testParsesMessageChains() {
 			}
 		}
 	}
-	
-	length = 0;
-	message = NULL;
-	fixtures = (FMessageFixture[]){
+}
+
+static void testParsesMessagesChainedOntoNullaryMessageChains() {
+	FMessageFixture fixtures[] = {
 		{"foo bar quux: thing", 19},
 		{"((foo) bar) quux: (thing)", 25},
 	};
 	for(unsigned i = 0; i < 2; i++) {
-		length = 0;
-		message = NULL;
+		size_t length = 0;
+		FMessage *message = NULL;
 		printf("\t%s\n", fixtures[i].source);
 		FAssert(FParseExpression(FParserTestsContext, fixtures[i].source, 0, &length, &message) && length == fixtures[i].length);
 		if(FAssert(message != NULL)) {
@@ -338,7 +336,10 @@ void FRunParserTests() {
 		FTestCase(testParsesUnaryMessages),
 		FTestCase(testParsesBinaryMessages),
 		
-		FTestCase(testParsesMessageChains),
+		FTestCase(testParsesNullaryMessageChains),
+		FTestCase(testParsesUnaryMessagesAfterNullaryMessageChains),
+		FTestCase(testParsesNullaryMessageChainsAsArguments),
+		FTestCase(testParsesMessagesChainedOntoNullaryMessageChains),
 		
 		FTestCase(testParsesParenthesizedExpressions),
 		FTestCase(testParsesExpressions),
