@@ -6,7 +6,7 @@ Parser:
 		<optional receiver expression> name = <expression>
 	- write the parser as a Focus object so it can be inherited from and overridden.
 	- test overall parsing (including trailing whitespace, and no trailing garbage).
-	- accept chains of nullary messages as arguments.
+	- accept chains of nullary messages as arguments. @done(2010-11-06)
 	- parse blocks.
 
 Hash table:
