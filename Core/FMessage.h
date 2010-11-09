@@ -25,5 +25,6 @@ FMessage *FMessageCreateNullaryWithSubstring(struct FObject *context, FMessage *
 FMessageNode *FMessageNodeCreate(FMessage *message);
 void FMessageNodeSetNextNode(FMessageNode *self, FMessageNode *nextNode);
 FMessageNode *FMessageNodeGetLastNode(FMessageNode *self);
+size_t FMessageNodeGetNodeCount(FMessageNode *self);
 
 #endif // F_MESSAGE
