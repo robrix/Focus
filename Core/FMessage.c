@@ -41,10 +41,9 @@ FMessageNode *FMessageNodeGetLastNode(FMessageNode *self) {
 }
 
 size_t FMessageNodeGetNodeCount(FMessageNode *self) {
-	size_t count = 1;
-	while(node->nextNode != NULL) {
-		count++
-	}
+	size_t count = 0;
+	do {
+		count++;
+	} while((self = self->nextNode));
 	return count;
-	
 }
