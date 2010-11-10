@@ -9,7 +9,9 @@ Hash table:
 	- use FArray internally.
 
 AST:
-	- decide what to do about blocks.
+	- implement functions (a list of arguments and a list of messages).
+	- messages should be objects.
+	- message nodes should be objects.
 
 Evaluator:
 	- each source file gets its own context
