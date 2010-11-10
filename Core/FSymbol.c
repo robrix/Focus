@@ -7,6 +7,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+struct FSymbol {
+	unsigned long hash;
+	const char *symbol;
+};
+
+
 unsigned long FSymbolCalculateHashForString(const char *str) {
 	unsigned long hash = 5381;
 	int c;
@@ -37,4 +43,13 @@ bool FSymbolIsEqual(FSymbol *a, FSymbol *b) {
 		(a->hash == b->hash)
 	&&	(strcmp(a->symbol, b->symbol) == 0)
 	);
+}
+
+
+const char *FSymbolGetString(FSymbol *self) {
+	return self->symbol;
+}
+
+unsigned long FSymbolGetHash(FSymbol *self) {
+	return self->hash;
 }

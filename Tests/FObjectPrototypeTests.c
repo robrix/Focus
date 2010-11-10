@@ -14,7 +14,7 @@ static void testImplementsTheIdentityMethod() {
 }
 
 static void testCanBeCloned() {
-	FAssert(FSend(FObjectPrototypeGet(), new)->prototype == FObjectPrototypeGet());
+	FAssert(FObjectGetPrototype(FSend(FObjectPrototypeGet(), new)) == FObjectPrototypeGet());
 }
 
 static void testReturnsItsPrototype() {

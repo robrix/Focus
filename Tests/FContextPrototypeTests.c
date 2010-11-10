@@ -11,7 +11,7 @@ static void testCreatesASingletonPrototype() {
 }
 
 static void testInheritsFromObject() {
-	FAssert(FContextPrototypeGet()->prototype == FObjectPrototypeGet());
+	FAssert(FObjectGetPrototype(FContextPrototypeGet()) == FObjectPrototypeGet());
 }
 
 static void testExposesObjectPrototype() {

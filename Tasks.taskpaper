@@ -5,6 +5,9 @@ Parser:
 	- test overall parsing (including trailing whitespace, and no trailing garbage).
 	- parse blocks.
 
+Core:
+	- objects should be a set of slots.
+
 Hash table:
 	- use FArray internally.
 

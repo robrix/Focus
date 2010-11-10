@@ -7,6 +7,12 @@
 #include "FHashTable.h"
 #include "FSymbol.h"
 
+struct FObject {
+	struct FObject *prototype;
+	struct FHashTable *slots;
+};
+
+
 FObject *FObjectCreate(FObject *prototype) {
 	FObject *object = FAllocatorAllocate(NULL, sizeof(FObject));
 	object->prototype = prototype;
@@ -14,13 +20,18 @@ FObject *FObjectCreate(FObject *prototype) {
 }
 
 
-FMethod FObjectGetMethod(FObject *self, struct FSymbol *selector) {
-	return (FMethod)(self->methods ? FHashTableGetValueForKey(self->methods, selector) : NULL) ?: (self->prototype ? FObjectGetMethod(self->prototype, selector) : NULL);
+FObject *FObjectGetPrototype(FObject *self) {
+	return self->prototype;
 }
 
-void FObjectSetMethod(FObject *self, struct FSymbol *selector, FMethod method) {
-	if(self->methods == NULL) {
-		self->methods = FHashTableCreate();
+
+FMethod FObjectGetSlot(FObject *self, struct FSymbol *selector) {
+	return (FMethod)(self->slots ? FHashTableGetValueForKey(self->slots, selector) : NULL) ?: (self->prototype ? FObjectGetSlot(self->prototype, selector) : NULL);
+}
+
+void FObjectSetSlot(FObject *self, struct FSymbol *selector, FMethod method) {
+	if(self->slots == NULL) {
+		self->slots = FHashTableCreate();
 	}
-	FHashTableSetValueForKey(self->methods, selector, method);
+	FHashTableSetValueForKey(self->slots, selector, method);
 }
