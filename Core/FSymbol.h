@@ -9,15 +9,14 @@
 #include <stdbool.h>
 #include <string.h>
 
-typedef struct FSymbol {
-	FObject super;
-	unsigned long hash;
-	const char *symbol;
-} FSymbol;
+typedef struct FSymbol FSymbol;
 
 FSymbol *FSymbolCreateWithString(const char *symbol);
 FSymbol *FSymbolCreateWithSubstring(const char *symbol, size_t length);
 
 bool FSymbolIsEqual(FSymbol *a, FSymbol *b);
+
+const char *FSymbolGetString(FSymbol *self);
+unsigned long FSymbolGetHash(FSymbol *self);
 
 #endif // F_SYMBOL

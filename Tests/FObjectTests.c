@@ -4,6 +4,7 @@
 
 #include "Core/FObject.h"
 #include "Core/FSymbol.h"
+#include "Core/FFunction.h"
 #include "FTestSuite.h"
 
 static FObject *object = NULL;
@@ -23,9 +24,9 @@ static FObject *method(FObject *receiver, FSymbol *selector) {
 }
 
 static void testInheritance() {
-	FObjectSetMethod(object, FSymbolCreateWithString("method"), (FMethod)method);
+	FObjectSetSlot(object, FSymbolCreateWithString("method"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)method));
 	FObject *clone = FObjectCreate(object);
-	FAssert(FObjectGetMethod(clone, FSymbolCreateWithString("method")) == (FMethod)method);
+	FAssert(FFunctionGetFunctionPointer(FObjectGetSlot(clone, FSymbolCreateWithString("method"))) == (FFunctionPointer)method);
 }
 
 

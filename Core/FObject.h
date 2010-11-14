@@ -7,21 +7,17 @@
 
 #include <stdlib.h>
 
-typedef struct FSymbol * FSymbolRef;
 extern struct FSymbol *FSymbolCreateWithString(const char *);
 
-typedef struct FObject {
-	struct FObject *prototype;
-	struct FHashTable *methods;
-} FObject;
+typedef struct FObject FObject;
 
-typedef FObject *(*FMethod)(FObject *receiver, struct FSymbol *selector, ...);
-
-#define FSend(receiver, selector, ...) FObjectGetMethod(receiver, FSymbolCreateWithString(#selector))(receiver, FSymbolCreateWithString(#selector), ## __VA_ARGS__)
+#define FSend(receiver, selector, ...) FFunctionGetFunctionPointer(FObjectGetSlot(receiver, FSymbolCreateWithString(#selector)))(receiver, FSymbolCreateWithString(#selector), ## __VA_ARGS__)
 
 FObject *FObjectCreate(FObject *prototype);
 
-FMethod FObjectGetMethod(FObject *self, struct FSymbol *selector);
-void FObjectSetMethod(FObject *self, struct FSymbol *selector, FMethod method);
+FObject *FObjectGetPrototype(FObject *self);
+
+struct FFunction *FObjectGetSlot(FObject *self, struct FSymbol *selector);
+void FObjectSetSlot(FObject *self, struct FSymbol *selector, struct FFunction *function);
 
 #endif // F_OBJECT

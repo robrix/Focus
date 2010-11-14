@@ -3,6 +3,7 @@
 // Copyright 2010 Monochrome Industries
 
 #include "FAllocator.h"
+#include "FSymbol.h"
 #include "FHashTable.h"
 #include <stdlib.h>
 
@@ -35,7 +36,7 @@ FPair *FPairGetTail(FPair *pair) {
 }
 
 FPair *FHashTableGetPairForKey(FHashTable *self, FSymbol *key) {
-	FPair *pair = FHashTableGetBucketForHash(self, key->hash);
+	FPair *pair = FHashTableGetBucketForHash(self, FSymbolGetHash(key));
 	while(pair != NULL) {
 		if(FSymbolIsEqual(pair->key, key)) {
 			break;
@@ -54,7 +55,7 @@ void *FHashTableGetValueForKey(FHashTable *self, FSymbol *key) {
 }
 
 void FHashTableSetValueForKey(FHashTable *self, FSymbol *key, void *value) {
-	FPair *pair = FPairGetTail(FHashTableGetBucketForHash(self, key->hash));
+	FPair *pair = FPairGetTail(FHashTableGetBucketForHash(self, FSymbolGetHash(key)));
 	pair->key = key;
 	pair->value = value;
 	pair->nextPair = FAllocatorAllocate(NULL, sizeof(FPair));

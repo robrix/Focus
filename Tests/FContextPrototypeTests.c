@@ -4,6 +4,7 @@
 
 #include "Core/Prototypes/FContextPrototype.h"
 #include "Core/Prototypes/FObjectPrototype.h"
+#include "Core/FFunction.h"
 #include "FTestSuite.h"
 
 static void testCreatesASingletonPrototype() {
@@ -11,7 +12,7 @@ static void testCreatesASingletonPrototype() {
 }
 
 static void testInheritsFromObject() {
-	FAssert(FContextPrototypeGet()->prototype == FObjectPrototypeGet());
+	FAssert(FObjectGetPrototype(FContextPrototypeGet()) == FObjectPrototypeGet());
 }
 
 static void testExposesObjectPrototype() {

@@ -2,10 +2,11 @@
 // Created by Rob Rix on 2010-10-27
 // Copyright 2010 Monochrome Industries
 
+#include "FAllocator.h"
+#include "FSymbol.h"
 #include "FMessage.h"
 #include "FObject.h"
 #include "FCompiler.h"
-#include "FSymbol.h"
 #include <llvm-c/ExecutionEngine.h>
 #include <stdlib.h>
 
@@ -49,5 +50,5 @@ LLVMValueRef FCompilerCompileMessage(FCompiler *compiler, FMessage *message) {
 		arguments[i++] = FCompilerCompileMessage(compiler, node->message);
 	} while((node = node->nextNode));
 	LLVMValueRef method = LLVMBuildCall(compiler->builder, FCompilerGetMethodFunction(compiler), (LLVMValueRef[]){receiver, selector}, 2, "lookup");
-	return LLVMBuildCall(compiler->builder, method, arguments, count, message->selector->symbol);
+	return LLVMBuildCall(compiler->builder, method, arguments, count, FSymbolGetString(message->selector));
 }

@@ -3,6 +3,7 @@
 // Copyright 2010 Monochrome Industries
 
 #include "Core/Prototypes/FObjectPrototype.h"
+#include "Core/FFunction.h"
 #include "FTestSuite.h"
 
 static void testCreatesASingletonPrototype() {
@@ -14,7 +15,7 @@ static void testImplementsTheIdentityMethod() {
 }
 
 static void testCanBeCloned() {
-	FAssert(FSend(FObjectPrototypeGet(), new)->prototype == FObjectPrototypeGet());
+	FAssert(FObjectGetPrototype(FSend(FObjectPrototypeGet(), new)) == FObjectPrototypeGet());
 }
 
 static void testReturnsItsPrototype() {

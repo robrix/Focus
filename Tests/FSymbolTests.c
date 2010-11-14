@@ -24,9 +24,9 @@ static void testCanBeCompared() {
 
 static void testHashesItsSymbol() {
 	FSymbol *same = FSymbolCreateWithString("symbol:"), *different = FSymbolCreateWithString("fishstick");
-	FAssert(symbol->hash != 0);
-	FAssert(symbol->hash == same->hash);
-	FAssert(symbol->hash != different->hash);
+	FAssert(FSymbolGetHash(symbol) != 0);
+	FAssert(FSymbolGetHash(symbol) == FSymbolGetHash(same));
+	FAssert(FSymbolGetHash(symbol) != FSymbolGetHash(different));
 }
 
 void FRunSymbolTests() {
