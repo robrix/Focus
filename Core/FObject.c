@@ -7,11 +7,7 @@
 #include "FHashTable.h"
 #include "FSymbol.h"
 
-struct FObject {
-	struct FObject *prototype;
-	struct FHashTable *slots;
-};
-
+#include "FObject+Protected.h"
 
 FObject *FObjectCreate(FObject *prototype) {
 	FObject *object = FAllocatorAllocate(NULL, sizeof(FObject));

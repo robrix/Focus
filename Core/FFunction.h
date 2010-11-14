@@ -5,12 +5,18 @@
 #ifndef F_FUNCTION
 #define F_FUNCTION
 
-// functions should contain a function pointer for the compiled version of themselves
-
 /*
 Interface:
 - messages
 - arguments
 */
+
+typedef struct FFunction FFunction;
+
+typedef FObject *(*FFunctionPointer)(struct FObject *receiver, struct FSymbol *selector, ...);
+
+FFunction *FFunctionCreateWithFunctionPointer(struct FObject *arguments, FFunctionPointer *pointer);
+
+FFunctionPointer *FFunctionGetFunctionPointer(FFunction *self);
 
 #endif // F_FUNCTION

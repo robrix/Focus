@@ -17,4 +17,8 @@ AST:
 	- message nodes should be objects.
 
 Evaluator:
-	- each source file gets its own context
+	- each source file gets its own context.
+	- per-evaluator objects:
+		- allocator/GC.
+		- prototypes (object, context, function, etc).
+		- compiler.
