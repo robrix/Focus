@@ -12,7 +12,6 @@ static FObject *FFunctionPrototype = NULL;
 
 FObject *FFunctionPrototypeCreate() {
 	FObject *prototype = FObjectCreate(FObjectPrototypeGet());
-	// FObjectSetSlot(prototype, FSymbolCreateWithString("Object"), (FMethod)FContextPrototypeGetObjectPrototype);
 	return prototype;
 }
 

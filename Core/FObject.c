@@ -21,13 +21,13 @@ FObject *FObjectGetPrototype(FObject *self) {
 }
 
 
-FMethod FObjectGetSlot(FObject *self, struct FSymbol *selector) {
-	return (FMethod)(self->slots ? FHashTableGetValueForKey(self->slots, selector) : NULL) ?: (self->prototype ? FObjectGetSlot(self->prototype, selector) : NULL);
+struct FFunction *FObjectGetSlot(FObject *self, struct FSymbol *selector) {
+	return (struct FFunction *)(self->slots ? FHashTableGetValueForKey(self->slots, selector) : NULL) ?: (self->prototype ? FObjectGetSlot(self->prototype, selector) : NULL);
 }
 
-void FObjectSetSlot(FObject *self, struct FSymbol *selector, FMethod method) {
+void FObjectSetSlot(FObject *self, struct FSymbol *selector, struct FFunction *function) {
 	if(self->slots == NULL) {
 		self->slots = FHashTableCreate();
 	}
-	FHashTableSetValueForKey(self->slots, selector, method);
+	FHashTableSetValueForKey(self->slots, selector, function);
 }

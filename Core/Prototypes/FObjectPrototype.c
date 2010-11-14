@@ -5,6 +5,7 @@
 #include "FObjectPrototype.h"
 
 #include "../FSymbol.h"
+#include "../FFunction.h"
 #include <stdlib.h>
 
 static FObject *FObjectPrototype = NULL;
@@ -24,9 +25,9 @@ FObject *FObjectPrototypeClone(FObject *self, FSymbol *selector) {
 
 FObject *FObjectPrototypeCreate() {
 	FObject *prototype = FObjectCreate(NULL);
-	FObjectSetSlot(prototype, FSymbolCreateWithString("self"), (FMethod)FObjectPrototypeGetSelf);
-	FObjectSetSlot(prototype, FSymbolCreateWithString("prototype"), (FMethod)FObjectPrototypeGetPrototype);
-	FObjectSetSlot(prototype, FSymbolCreateWithString("new"), (FMethod)FObjectPrototypeClone);
+	FObjectSetSlot(prototype, FSymbolCreateWithString("self"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectPrototypeGetSelf));
+	FObjectSetSlot(prototype, FSymbolCreateWithString("prototype"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectPrototypeGetPrototype));
+	FObjectSetSlot(prototype, FSymbolCreateWithString("new"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectPrototypeClone));
 	return prototype;
 }
 

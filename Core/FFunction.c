@@ -9,11 +9,11 @@
 
 struct FFunction {
 	FObject super;
-	FFunctionPointer *functionPointer;
+	FFunctionPointer functionPointer;
 };
 
 
-FFunction *FFunctionCreateWithFunctionPointer(FObject *arguments, FFunctionPointer *functionPointer) {
+FFunction *FFunctionCreateWithFunctionPointer(FObject *arguments, FFunctionPointer functionPointer) {
 	FFunction *function = FAllocatorAllocate(NULL, sizeof(FFunction));
 	// set the arguments
 	function->functionPointer = functionPointer;
@@ -21,7 +21,7 @@ FFunction *FFunctionCreateWithFunctionPointer(FObject *arguments, FFunctionPoint
 }
 
 
-FFunctionPointer *FFunctionGetFunctionPointer(FFunction *self) {
+FFunctionPointer FFunctionGetFunctionPointer(FFunction *self) {
 	if(!self->functionPointer) {
 		// compile it
 	}

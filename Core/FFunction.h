@@ -15,8 +15,8 @@ typedef struct FFunction FFunction;
 
 typedef FObject *(*FFunctionPointer)(struct FObject *receiver, struct FSymbol *selector, ...);
 
-FFunction *FFunctionCreateWithFunctionPointer(struct FObject *arguments, FFunctionPointer *pointer);
+FFunction *FFunctionCreateWithFunctionPointer(struct FObject *arguments, FFunctionPointer functionPointer);
 
-FFunctionPointer *FFunctionGetFunctionPointer(FFunction *self);
+FFunctionPointer FFunctionGetFunctionPointer(FFunction *self);
 
 #endif // F_FUNCTION
