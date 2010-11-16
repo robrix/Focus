@@ -19,4 +19,6 @@ bool FSymbolIsEqual(FSymbol *a, FSymbol *b);
 const char *FSymbolGetString(FSymbol *self);
 unsigned long FSymbolGetHash(FSymbol *self);
 
+size_t FSymbolGetArity(FSymbol *self);
+
 #endif // F_SYMBOL

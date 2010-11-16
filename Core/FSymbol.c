@@ -4,10 +4,12 @@
 
 #include "FAllocator.h"
 #include "FSymbol.h"
+#include "FObject+Protected.h"
 #include <stdlib.h>
 #include <string.h>
 
 struct FSymbol {
+	FObject super;
 	unsigned long hash;
 	const char *symbol;
 };
@@ -28,6 +30,7 @@ FSymbol *FSymbolCreateWithString(const char *symbol) {
 	FSymbol *instance = FAllocatorAllocate(NULL, sizeof(FSymbol));
 	instance->symbol = symbol;
 	instance->hash = FSymbolCalculateHashForString(instance->symbol);
+	// set the prototype
 	return instance;
 }
 
@@ -52,4 +55,14 @@ const char *FSymbolGetString(FSymbol *self) {
 
 unsigned long FSymbolGetHash(FSymbol *self) {
 	return self->hash;
+}
+
+
+size_t FSymbolGetArity(FSymbol *self) {
+	size_t count = 0;
+	char *symbol = (char *)self->symbol;
+	while((symbol = index(symbol + 1, ':'))) {
+		count++;
+	}
+	return count;
 }

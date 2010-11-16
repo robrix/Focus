@@ -29,11 +29,21 @@ static void testHashesItsSymbol() {
 	FAssert(FSymbolGetHash(symbol) != FSymbolGetHash(different));
 }
 
+
+static void testCalculatesItsArity() {
+	FAssert(FSymbolGetArity(FSymbolCreateWithString("nullary")) == 0);
+	FAssert(FSymbolGetArity(FSymbolCreateWithString("unary:")) == 1);
+	FAssert(FSymbolGetArity(FSymbolCreateWithString("bin:ary:")) == 2);
+}
+
+
 void FRunSymbolTests() {
 	FRunTestSuite("FSymbol", setUp, NULL, (FTestSuiteTestCase[]){
 		FTestCase(testCreation),
 		FTestCase(testCanBeCompared),
 		FTestCase(testHashesItsSymbol),
+		
+		FTestCase(testCalculatesItsArity),
 		{0},
 	});
 }
