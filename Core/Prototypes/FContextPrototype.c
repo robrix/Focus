@@ -18,7 +18,7 @@ FObject *FContextPrototypeGetObjectPrototype(FObject *self, FSymbol *selector) {
 FObject *FContextPrototypeCreate() {
 	FObject *prototype = FObjectCreate(FObjectPrototypeGet());
 	// fixme: create a list of arguments
-	FObjectSetSlot(prototype, FSymbolCreateWithString("Object"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FContextPrototypeGetObjectPrototype));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("Object"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FContextPrototypeGetObjectPrototype));
 	return prototype;
 }
 

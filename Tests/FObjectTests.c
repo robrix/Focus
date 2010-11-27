@@ -24,9 +24,9 @@ static FObject *method(FObject *receiver, FSymbol *selector) {
 }
 
 static void testInheritance() {
-	FObjectSetSlot(object, FSymbolCreateWithString("method"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)method));
+	FObjectSetMethod(object, FSymbolCreateWithString("method"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)method));
 	FObject *clone = FObjectCreate(object);
-	FAssert(FFunctionGetFunctionPointer(FObjectGetSlot(clone, FSymbolCreateWithString("method"))) == (FFunctionPointer)method);
+	FAssert(FFunctionGetFunctionPointer(FObjectGetMethod(clone, FSymbolCreateWithString("method"))) == (FFunctionPointer)method);
 }
 
 

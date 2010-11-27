@@ -33,7 +33,7 @@ FObject *FObjectSetVariable(FObject *self, struct FSymbol *selector, FObject *ot
 
 
 struct FFunction *FObjectGetMethod(FObject *self, struct FSymbol *selector) {
-	return (struct FFunction *)(self->methods ? FHashTableGetValueForKey(self->methods, selector) : NULL) ?: (self->prototype ? FObjectGetSlot(self->prototype, selector) : NULL);
+	return (struct FFunction *)(self->methods ? FHashTableGetValueForKey(self->methods, selector) : NULL) ?: (self->prototype ? FObjectGetMethod(self->prototype, selector) : NULL);
 }
 
 void FObjectSetMethod(FObject *self, struct FSymbol *selector, struct FFunction *function) {

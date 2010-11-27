@@ -11,7 +11,7 @@ struct FObject {
 	struct FHashTable *methods;
 };
 
-extern FObject *FObjectGetVariable(FObject *self, struct FSymbol *selector);
-extern FObject *FObjectSetVariable(FObject *self, struct FSymbol *selector, FObject *other);
+extern struct FObject *FObjectGetVariable(struct FObject *self, struct FSymbol *selector);
+extern struct FObject *FObjectSetVariable(struct FObject *self, struct FSymbol *selector, struct FObject *other);
 
 #endif // F_OBJECT_PROTECTED
