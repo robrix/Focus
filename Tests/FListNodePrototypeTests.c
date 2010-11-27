@@ -15,15 +15,11 @@ static void testInheritsFromObject() {
 	FAssert(FObjectGetPrototype(FListNodePrototypeGet()) == FObjectPrototypeGet());
 }
 
-// static void testExposesObjectPrototype() {
-// 	FAssert(FSend(FListNodePrototypeGet(), Object) == FObjectPrototypeGet());
-// }
-
 void FRunListNodePrototypeTests() {
 	FRunTestSuite("FListNodePrototype", NULL, NULL, (FTestSuiteTestCase[]){
 		FTestCase(testCreatesASingletonPrototype),
 		FTestCase(testInheritsFromObject),
-		// FTestCase(testExposesObjectPrototype),
+		
 		{0},
 	});
 }
