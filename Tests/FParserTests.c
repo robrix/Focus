@@ -170,7 +170,7 @@ static void testParsesNullaryMessageChains() {
 	for(unsigned i = 0; i < 2; i++) {
 		size_t length = 0;
 		FMessage *message = NULL;
-		printf("\t%s\n", fixtures[i].source);
+		// printf("\t%s\n", fixtures[i].source);
 		FAssert(FParseExpression(FParserTestsContext, fixtures[i].source, 0, &length, &message) && length == fixtures[i].length);
 		if(FAssert(message != NULL)) {
 			FAssert(FSymbolIsEqual(message->selector, FSymbolCreateWithString("quux")));
@@ -199,7 +199,7 @@ static void testParsesUnaryMessagesAfterNullaryMessageChains() {
 	for(unsigned i = 0; i < 2; i++) {
 		size_t length = 0;
 		FMessage *message = NULL;
-		printf("\t%s\n", fixtures[i].source);
+		// printf("\t%s\n", fixtures[i].source);
 		FAssert(FParseExpression(FParserTestsContext, fixtures[i].source, 0, &length, &message) && length == fixtures[i].length);
 		if(FAssert(message != NULL)) {
 			FAssert(FSymbolIsEqual(message->selector, FSymbolCreateWithString("bar:")));
@@ -230,7 +230,7 @@ static void testParsesNullaryMessageChainsAsArguments() {
 	for(unsigned i = 0; i < 2; i++) {
 		size_t length = 0;
 		FMessage *message = NULL;
-		printf("\t%s\n", fixtures[i].source);
+		// printf("\t%s\n", fixtures[i].source);
 		FAssert(FParseExpression(FParserTestsContext, fixtures[i].source, 0, &length, &message) && length == fixtures[i].length);
 		if(FAssert(message != NULL)) {
 			FAssert(FSymbolIsEqual(message->selector, FSymbolCreateWithString("bar:")));
@@ -269,7 +269,7 @@ static void testParsesMessagesChainedOntoNullaryMessageChains() {
 	for(unsigned i = 0; i < 2; i++) {
 		size_t length = 0;
 		FMessage *message = NULL;
-		printf("\t%s\n", fixtures[i].source);
+		// printf("\t%s\n", fixtures[i].source);
 		FAssert(FParseExpression(FParserTestsContext, fixtures[i].source, 0, &length, &message) && length == fixtures[i].length);
 		if(FAssert(message != NULL)) {
 			FAssert(FSymbolIsEqual(message->selector, FSymbolCreateWithString("quux:")));
