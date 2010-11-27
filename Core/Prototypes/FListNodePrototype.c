@@ -12,10 +12,21 @@
 
 static FObject *FListNodePrototype = NULL;
 
+FObject *FListNodeNewWithObject(FObject *self, FSymbol *selector, FObject *object) {
+	FObject *instance = FSend(self, new);
+	FObjectSetVariable(instance, FSymbolCreateWithString("object"), object);
+	return instance;
+}
+
+
 FObject *FListNodePrototypeCreate() {
 	FObject *prototype = FObjectCreate(FObjectPrototypeGet());
+	
 	FObjectSetMethod(prototype, FSymbolCreateWithString("nextNode"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectGetVariable));
 	FObjectSetMethod(prototype, FSymbolCreateWithString("object"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectGetVariable));
+	
+	FObjectSetMethod(prototype, FSymbolCreateWithString("newWith:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FListNodeNewWithObject));
+	
 	return prototype;
 }
 

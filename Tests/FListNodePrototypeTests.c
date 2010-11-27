@@ -9,22 +9,34 @@
 #include "FTestSuite.h"
 
 static void testCreatesASingletonPrototype() {
-	FAssert(FListNodePrototypeGet() != NULL);
+	FObject *prototype = FListNodePrototypeGet();
+	FAssert(prototype != NULL);
+	FAssert(prototype == FListNodePrototypeGet());
 }
 
 static void testInheritsFromObject() {
 	FAssert(FObjectGetPrototype(FListNodePrototypeGet()) == FObjectPrototypeGet());
 }
 
-static void testCanBeCloned() {
-	FAssert(FObjectGetPrototype(FSend(FListNodePrototypeGet(), new)) == FListNodePrototypeGet());
+static void testNewInstancesInheritFromThePrototype() {
+	FObject *instance = FSend(FListNodePrototypeGet(), new);
+	FAssert(instance != NULL);
+	FAssert(FObjectGetPrototype(instance) == FListNodePrototypeGet());
+}
+
+static void testInstancesCanBeCreatedWithAnObject() {
+	FObject *instance = FSend(FListNodePrototypeGet(), newWith:, FObjectPrototypeGet());
+	FAssert(FSend(instance, object) == FObjectPrototypeGet());
+	FAssert(FObjectGetPrototype(instance) == FListNodePrototypeGet());
 }
 
 void FRunListNodePrototypeTests() {
 	FRunTestSuite("FListNodePrototype", NULL, NULL, (FTestSuiteTestCase[]){
 		FTestCase(testCreatesASingletonPrototype),
 		FTestCase(testInheritsFromObject),
-		FTestCase(testCanBeCloned),
+		
+		FTestCase(testNewInstancesInheritFromThePrototype),
+		FTestCase(testInstancesCanBeCreatedWithAnObject),
 		{0},
 	});
 }
