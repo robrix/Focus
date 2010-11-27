@@ -23,17 +23,19 @@ static FObject *method(FObject *receiver, FSymbol *selector) {
 	return NULL;
 }
 
-static void testInheritance() {
+static void testInheritsMethodsFromItsPrototype() {
 	FObjectSetMethod(object, FSymbolCreateWithString("method"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)method));
 	FObject *clone = FObjectCreate(object);
 	FAssert(FFunctionGetFunctionPointer(FObjectGetMethod(clone, FSymbolCreateWithString("method"))) == (FFunctionPointer)method);
+	
+	FAssert(FSend(clone, method) == NULL);
 }
 
 
 void FRunObjectTests() {
 	FRunTestSuite("FObject", setUp, NULL, (FTestSuiteTestCase[]){
 		FTestCase(testCreation),
-		FTestCase(testInheritance),
+		FTestCase(testInheritsMethodsFromItsPrototype),
 		{0},
 	});
 }
