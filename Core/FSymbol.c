@@ -7,6 +7,7 @@
 #include "FObject+Protected.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 struct FSymbol {
 	FObject super;
@@ -40,10 +41,19 @@ FSymbol *FSymbolCreateWithSubstring(const char *symbol, size_t length) {
 
 
 bool FSymbolIsEqual(FSymbol *a, FSymbol *b) {
+	if(!a) {
+		printf("a is null!\n");
+		fflush(stdout);
+	}
+	if(!b) {
+		printf("b is null!\n");
+		fflush(stdout);
+	}
 	return
 		((a == b) && (a != NULL))
 	||	(
-		(a->hash == b->hash)
+		((a != NULL) && (b != NULL))
+	&&	(a->hash == b->hash)
 	&&	(strcmp(a->symbol, b->symbol) == 0)
 	);
 }
