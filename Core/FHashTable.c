@@ -6,6 +6,7 @@
 #include "FSymbol.h"
 #include "FHashTable.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 typedef struct FPair {
 	struct FSymbol *key;
@@ -36,8 +37,12 @@ FPair *FPairGetTail(FPair *pair) {
 }
 
 FPair *FHashTableGetPairForKey(FHashTable *self, FSymbol *key) {
+	if(!key) {
+		printf("null key!\n");
+		fflush(stdout);
+	}
 	FPair *pair = FHashTableGetBucketForHash(self, FSymbolGetHash(key));
-	while(pair != NULL) {
+	while((pair->key != NULL) && (pair != NULL)) {
 		if(FSymbolIsEqual(pair->key, key)) {
 			break;
 		} else {
@@ -48,6 +53,10 @@ FPair *FHashTableGetPairForKey(FHashTable *self, FSymbol *key) {
 }
 
 void *FHashTableGetValueForKey(FHashTable *self, FSymbol *key) {
+	if(!key) {
+		printf("null key!\n");
+		fflush(stdout);
+	}
 	FPair *pair = FHashTableGetPairForKey(self, key);
 	return (pair != NULL)
 	?	pair->value
@@ -55,6 +64,14 @@ void *FHashTableGetValueForKey(FHashTable *self, FSymbol *key) {
 }
 
 void FHashTableSetValueForKey(FHashTable *self, FSymbol *key, void *value) {
+	if(!key) {
+		printf("null key!\n");
+		fflush(stdout);
+	}
+	if(!value) {
+		printf("null value!\n");
+		fflush(stdout);
+	}
 	FPair *pair = FPairGetTail(FHashTableGetBucketForHash(self, FSymbolGetHash(key)));
 	pair->key = key;
 	pair->value = value;
