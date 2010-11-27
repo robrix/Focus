@@ -63,9 +63,9 @@ LLVMTypeRef FCompilerGetMethodTypeOfArity(FCompiler *compiler, size_t arity) {
 	return LLVMFunctionType(FCompilerGetObjectType(compiler), types, arity + 2, 0);
 }
 
-LLVMValueRef FCompilerGetSlotFunction(FCompiler *compiler) {
+LLVMValueRef FCompilerGetMethodFunction(FCompiler *compiler) {
 	LLVMTypeRef objectType = FCompilerGetObjectType(compiler);
-	return FCompilerGetReferenceToExternalFunction(compiler, "FObjectGetSlot", LLVMFunctionType(objectType, (LLVMTypeRef[]){ objectType, objectType }, 2, 0));
+	return FCompilerGetReferenceToExternalFunction(compiler, "FObjectGetMethod", LLVMFunctionType(objectType, (LLVMTypeRef[]){ objectType, objectType }, 2, 0));
 }
 
 LLVMValueRef FCompilerGetFunctionPointerFunction(FCompiler *compiler) {
@@ -87,7 +87,7 @@ LLVMValueRef FCompilerCompileMessage(FCompiler *compiler, FMessage *message) {
 	do {
 		arguments[i++] = FCompilerCompileMessage(compiler, node->message);
 	} while((node = node->nextNode));
-	LLVMValueRef function = LLVMBuildCall(compiler->builder, FCompilerGetSlotFunction(compiler), (LLVMValueRef[]){ receiver, selector }, 2, "lookup");
+	LLVMValueRef function = LLVMBuildCall(compiler->builder, FCompilerGetMethodFunction(compiler), (LLVMValueRef[]){ receiver, selector }, 2, "lookup");
 	LLVMValueRef functionPointer = LLVMBuildCall(compiler->builder, FCompilerGetFunctionPointerFunction(compiler), (LLVMValueRef[]){ function }, 1, "get fptr");
 	return LLVMBuildCall(compiler->builder, LLVMBuildPointerCast(compiler->builder, functionPointer, FCompilerGetMethodTypeOfArity(compiler, FSymbolGetArity(message->selector)), "cast fptr to method type"), arguments, count, FSymbolGetString(message->selector));
 }
@@ -95,9 +95,9 @@ LLVMValueRef FCompilerCompileMessage(FCompiler *compiler, FMessage *message) {
 
 LLVMValueRef FCompilerCompileFunction(FCompiler *compiler, FFunction *function) {
 	LLVMValueRef result = NULL;
-	while((node = FNodeGetNextObject(node))) {
-		result = FCompilerCompileMessage(compiler, FNodeGetObject(message));
-	}
+	// while((node = FNodeGetNextObject(node))) {
+	// 	result = FCompilerCompileMessage(compiler, FNodeGetObject(message));
+	// }
 	// compile each message, return the last one
 	// pass the function to each message so they can check for references to the arguments
 	
