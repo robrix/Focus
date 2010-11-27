@@ -18,6 +18,7 @@ static void testInheritsFromObject() {
 	FAssert(FObjectGetPrototype(FListNodePrototypeGet()) == FObjectPrototypeGet());
 }
 
+
 static void testNewInstancesInheritFromThePrototype() {
 	FObject *instance = FSend(FListNodePrototypeGet(), new);
 	FAssert(instance != NULL);
@@ -25,10 +26,20 @@ static void testNewInstancesInheritFromThePrototype() {
 }
 
 static void testInstancesCanBeCreatedWithAnObject() {
-	FObject *instance = FSend(FListNodePrototypeGet(), newWith:, FObjectPrototypeGet());
+	FObject *instance = FSend(FListNodePrototypeGet(), newWithObject:, FObjectPrototypeGet());
 	FAssert(FSend(instance, object) == FObjectPrototypeGet());
 	FAssert(FObjectGetPrototype(instance) == FListNodePrototypeGet());
 }
+
+
+static void testInstancesReferToTheNextNode() {
+	FObject
+		*next = FSend(FListNodePrototypeGet(), newWithObject:, FObjectPrototypeGet()),
+		*instance = FSend(FListNodePrototypeGet(), newWithObject:nextNode:, FObjectPrototypeGet(), next);
+	FAssert(FSend(instance, nextNode) == next);
+	FAssert(FObjectGetPrototype(instance) == FListNodePrototypeGet());
+}
+
 
 void FRunListNodePrototypeTests() {
 	FRunTestSuite("FListNodePrototype", NULL, NULL, (FTestSuiteTestCase[]){
@@ -37,6 +48,8 @@ void FRunListNodePrototypeTests() {
 		
 		FTestCase(testNewInstancesInheritFromThePrototype),
 		FTestCase(testInstancesCanBeCreatedWithAnObject),
+		
+		FTestCase(testInstancesReferToTheNextNode),
 		{0},
 	});
 }

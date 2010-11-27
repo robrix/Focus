@@ -18,6 +18,13 @@ FObject *FListNodeNewWithObject(FObject *self, FSymbol *selector, FObject *objec
 	return instance;
 }
 
+FObject *FListNodeNewWithObjectAndNextNode(FObject *self, FSymbol *selector, FObject *object, FObject *nextNode) {
+	FObject *instance = FSend(self, new);
+	FObjectSetVariable(instance, FSymbolCreateWithString("object"), object);
+	FObjectSetVariable(instance, FSymbolCreateWithString("nextNode"), nextNode);
+	return instance;
+}
+
 
 FObject *FListNodePrototypeCreate() {
 	FObject *prototype = FObjectCreate(FObjectPrototypeGet());
@@ -25,7 +32,8 @@ FObject *FListNodePrototypeCreate() {
 	FObjectSetMethod(prototype, FSymbolCreateWithString("nextNode"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectGetVariable));
 	FObjectSetMethod(prototype, FSymbolCreateWithString("object"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectGetVariable));
 	
-	FObjectSetMethod(prototype, FSymbolCreateWithString("newWith:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FListNodeNewWithObject));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("newWithObject:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FListNodeNewWithObject));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("newWithObject:nextNode:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FListNodeNewWithObjectAndNextNode));
 	
 	return prototype;
 }
