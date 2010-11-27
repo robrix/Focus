@@ -2,6 +2,7 @@
 // Created by Rob Rix on 2010-11-10
 // Copyright 2010 Monochrome Industries
 
+#include "FSymbol.h"
 #include "FObject+Protected.h"
 #include "FObject.h"
 #include "FAllocator.h"
