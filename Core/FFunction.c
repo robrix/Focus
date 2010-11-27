@@ -15,6 +15,7 @@ struct FFunction {
 
 FFunction *FFunctionCreateWithFunctionPointer(FObject *arguments, FFunctionPointer functionPointer) {
 	FFunction *function = FAllocatorAllocate(NULL, sizeof(FFunction));
+	// set the prototype
 	// set the arguments
 	function->functionPointer = functionPointer;
 	return function;

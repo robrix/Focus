@@ -11,13 +11,13 @@ extern struct FSymbol *FSymbolCreateWithString(const char *);
 
 typedef struct FObject FObject;
 
-#define FSend(receiver, selector, ...) FFunctionGetFunctionPointer(FObjectGetSlot(receiver, FSymbolCreateWithString(#selector)))(receiver, FSymbolCreateWithString(#selector), ## __VA_ARGS__)
+#define FSend(receiver, selector, ...) FFunctionGetFunctionPointer(FObjectGetMethod(receiver, FSymbolCreateWithString(#selector)))(receiver, FSymbolCreateWithString(#selector), ## __VA_ARGS__)
 
 FObject *FObjectCreate(FObject *prototype);
 
 FObject *FObjectGetPrototype(FObject *self);
 
-struct FFunction *FObjectGetSlot(FObject *self, struct FSymbol *selector);
-void FObjectSetSlot(FObject *self, struct FSymbol *selector, struct FFunction *function);
+struct FFunction *FObjectGetMethod(FObject *self, struct FSymbol *selector);
+void FObjectSetMethod(FObject *self, struct FSymbol *selector, struct FFunction *function);
 
 #endif // F_OBJECT

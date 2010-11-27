@@ -7,7 +7,11 @@
 
 struct FObject {
 	struct FObject *prototype;
-	struct FHashTable *slots;
+	struct FHashTable *variables;
+	struct FHashTable *methods;
 };
+
+extern FObject *FObjectGetVariable(FObject *self, struct FSymbol *selector);
+extern FObject *FObjectSetVariable(FObject *self, struct FSymbol *selector, FObject *other);
 
 #endif // F_OBJECT_PROTECTED
