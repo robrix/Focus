@@ -19,6 +19,7 @@ bool FAssertConditionWithMessage(bool condition, const char *format, ...) {
 		vprintf(format, arguments);
 		FTestSuiteAssertionsFailed++;
 	}
+	fflush(stdout);
 	return condition;
 }
 
@@ -32,10 +33,12 @@ void FRunTestSuite(const char *name, FTestSuiteSetUpFunction setUp, FTestSuiteTe
 			fflush(stdout);
 			
 			if(setUp) setUp();
+			fflush(stdout);
 			(testCase->test)();
+			fflush(stdout);
 			if(tearDown) tearDown();
+			fflush(stdout);
 		}
-		fflush(stdout);
 		testCase++;
 		FTestSuiteTestCasesRun++;
 	} while(testCase->test);
