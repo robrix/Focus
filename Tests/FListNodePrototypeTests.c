@@ -5,7 +5,6 @@
 #include "Core/Prototypes/FListNodePrototype.h"
 #include "Core/Prototypes/FObjectPrototype.h"
 #include "Core/FFunction.h"
-#include "Core/FListNode.h"
 #include "FTestSuite.h"
 
 static void testCreatesASingletonPrototype() {
@@ -36,8 +35,19 @@ static void testInstancesReferToTheNextNode() {
 	FObject
 		*next = FSend(FListNodePrototypeGet(), newWithObject:, FObjectPrototypeGet()),
 		*instance = FSend(FListNodePrototypeGet(), newWithObject:nextNode:, FObjectPrototypeGet(), next);
-	FAssert(FSend(instance, nextNode) == next);
+	FAssert(FSend(instance, next) == next);
 	FAssert(FObjectGetPrototype(instance) == FListNodePrototypeGet());
+}
+
+static void testCanFetchTheLastNode() {
+	FObject
+		*unary = FSend(FListNodePrototypeGet(), newWithObject:, FObjectPrototypeGet()),
+		*binary = FSend(FListNodePrototypeGet(), newWithObject:nextNode:, FObjectPrototypeGet(), unary),
+		*ternary = FSend(FListNodePrototypeGet(), newWithObject:nextNode:, FObjectPrototypeGet(), binary);
+	
+	FAssert(FSend(ternary, last) == unary);
+	FAssert(FSend(binary, last) == unary);
+	FAssert(FSend(unary, last) == unary);
 }
 
 
@@ -50,6 +60,9 @@ void FRunListNodePrototypeTests() {
 		FTestCase(testInstancesCanBeCreatedWithAnObject),
 		
 		FTestCase(testInstancesReferToTheNextNode),
+		
+		FTestCase(testCanFetchTheLastNode),
+		
 		{0},
 	});
 }
