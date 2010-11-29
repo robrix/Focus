@@ -73,10 +73,9 @@ LLVMValueRef FCompilerGetFunctionPointerFunction(FCompiler *compiler) {
 	return FCompilerGetReferenceToExternalFunction(compiler, "FFunctionGetFunctionPointer", LLVMFunctionType(LLVMFunctionType(objectType, (LLVMTypeRef[]){ objectType, objectType }, 2, 1), (LLVMTypeRef[]){ objectType }, 1, 0));
 }
 
-// fixme: take the function as an argument
-LLVMValueRef FCompilerCompileMessage(FCompiler *compiler, FMessage *message) {
+LLVMValueRef FCompilerCompileMessage(FCompiler *compiler, FFunction *function, FMessage *message) {
 	LLVMValueRef receiver = message->receiver
-	?	FCompilerCompileMessage(compiler, message->receiver)
+	?	FCompilerCompileMessage(compiler, function, message->receiver)
 	:	FCompilerGetReferenceToObject(compiler, message->context);
 	LLVMValueRef selector = FCompilerGetReferenceToSelector(compiler, message->selector);
 	FMessageNode *node = message->arguments;
@@ -85,21 +84,25 @@ LLVMValueRef FCompilerCompileMessage(FCompiler *compiler, FMessage *message) {
 	arguments[0] = receiver;
 	arguments[1] = selector;
 	do {
-		arguments[i++] = FCompilerCompileMessage(compiler, node->message);
+		arguments[i++] = FCompilerCompileMessage(compiler, function, node->message);
 	} while((node = node->nextNode));
-	LLVMValueRef function = LLVMBuildCall(compiler->builder, FCompilerGetMethodFunction(compiler), (LLVMValueRef[]){ receiver, selector }, 2, "lookup");
-	LLVMValueRef functionPointer = LLVMBuildCall(compiler->builder, FCompilerGetFunctionPointerFunction(compiler), (LLVMValueRef[]){ function }, 1, "get fptr");
+	LLVMValueRef method = LLVMBuildCall(compiler->builder, FCompilerGetMethodFunction(compiler), (LLVMValueRef[]){ receiver, selector }, 2, "lookup");
+	LLVMValueRef functionPointer = LLVMBuildCall(compiler->builder, FCompilerGetFunctionPointerFunction(compiler), (LLVMValueRef[]){ method }, 1, "get fptr");
 	return LLVMBuildCall(compiler->builder, LLVMBuildPointerCast(compiler->builder, functionPointer, FCompilerGetMethodTypeOfArity(compiler, FSymbolGetArity(message->selector)), "cast fptr to method type"), arguments, count, FSymbolGetString(message->selector));
 }
 
 
 LLVMValueRef FCompilerCompileFunction(FCompiler *compiler, FFunction *function) {
-	LLVMValueRef result = NULL;
-	// while((node = FNodeGetNextObject(node))) {
-	// 	result = FCompilerCompileMessage(compiler, FNodeGetObject(message));
-	// }
-	// compile each message, return the last one
-	// pass the function to each message so they can check for references to the arguments
+	// pick a name for the function; "function 0x…" or similar will do for now
+	LLVMValueRef f = LLVMAddFunction(compiler->module, "function", FCompilerGetMethodTypeOfArity(compiler, FFunctionGetArity(function))), result = NULL;
+	LLVMPositionBuilderAtEnd(compiler->builder, LLVMGetEntryBasicBlock(f));
 	
-	return result;
+	FObject *message = FSend(function, messages);
+	do {
+		result = FCompilerCompileMessage(compiler, function, FSend(message, object));
+	} while((message = FSend(message, next)));
+	
+	LLVMBuildRet(compiler->builder, result);
+	
+	return function;
 }
