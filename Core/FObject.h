@@ -11,7 +11,7 @@ extern struct FSymbol *FSymbolCreateWithString(const char *);
 
 typedef struct FObject FObject;
 
-#define FSend(receiver, selector, ...) FFunctionGetFunctionPointer(FObjectGetMethod(receiver, FSymbolCreateWithString(#selector)))(receiver, FSymbolCreateWithString(#selector), ## __VA_ARGS__)
+#define FSend(receiver, selector, ...) FFunctionGetFunctionPointer(FObjectGetMethod((FObject *)receiver, FSymbolCreateWithString(#selector)))((FObject *)receiver, FSymbolCreateWithString(#selector), ## __VA_ARGS__)
 
 FObject *FObjectCreate(FObject *prototype);
 
