@@ -55,3 +55,12 @@ FObject *FListNodePrototypeGet() {
 	}
 	return FListNodePrototype;
 }
+
+
+size_t FListNodeGetCount(FObject *self) {
+	size_t count = 0;
+	while(((self = FSend(self, next))) != NULL) {
+		count++;
+	}
+	return count;
+}

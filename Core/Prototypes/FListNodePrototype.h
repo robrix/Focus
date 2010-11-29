@@ -9,4 +9,9 @@
 
 FObject *FListNodePrototypeGet();
 
+// FObject *FListNodeCreateWithObjects(FObject *object, ...);
+// FObject *FListNodeCreateWithObjectsAndCount(FObject **objects, size_t count);
+
+size_t FListNodeGetCount(FObject *node);
+
 #endif // F_LIST_NODE_PROTOTYPE
