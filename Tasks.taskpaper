@@ -3,10 +3,7 @@ Parser:
 		<optional receiver expression> name = <expression>
 	- write the parser as a Focus object so it can be inherited from and overridden.
 	- test overall parsing (including trailing whitespace, and no trailing garbage).
-	- parse blocks.
-
-Core:
-	- objects should be a set of slots.
+	- parse functions. Decide on a syntax first, of course…
 
 Hash table:
 	- use FArray internally.
@@ -22,3 +19,11 @@ Evaluator:
 		- allocator/GC.
 		- prototypes (object, context, function, etc).
 		- compiler.
+
+Symbol:
+	- make a symbol prototype, and make symbols a proper object type.
+	- symbols should consist of a string and a hash.
+
+Function:
+	- should have a name based on its location in the source, where applicable.
+	- should have a name based on its assignment as a method, where applicable.

@@ -18,5 +18,6 @@ typedef FObject *(*FFunctionPointer)(struct FObject *receiver, struct FSymbol *s
 FFunction *FFunctionCreateWithFunctionPointer(struct FObject *arguments, FFunctionPointer functionPointer);
 
 FFunctionPointer FFunctionGetFunctionPointer(FFunction *self);
+size_t FFunctionGetArity(FFunction *self);
 
 #endif // F_FUNCTION

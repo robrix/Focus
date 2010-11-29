@@ -6,18 +6,17 @@
 
 #include "../FSymbol.h"
 #include "FObjectPrototype.h"
+#include "../FFunction.h"
+#include "../FObject+Protected.h"
 #include <stdlib.h>
 
 static FObject *FFunctionPrototype = NULL;
 
-FObject *FFunctionPrototypeCreate() {
-	FObject *prototype = FObjectCreate(FObjectPrototypeGet());
-	return prototype;
-}
-
 FObject *FFunctionPrototypeGet() {
 	if(!FFunctionPrototype) {
-		FFunctionPrototype = FFunctionPrototypeCreate();
+		FFunctionPrototype = FObjectCreate(FObjectPrototypeGet());
+		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("arguments"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectGetVariable));
+		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("messages"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectGetVariable));
 	}
 	return FFunctionPrototype;
 }

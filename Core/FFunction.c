@@ -7,6 +7,8 @@
 #include "FObject.h"
 #include "FAllocator.h"
 #include "FFunction.h"
+#include "Prototypes/FFunctionPrototype.h"
+#include "Prototypes/FListNodePrototype.h"
 
 struct FFunction {
 	FObject super;
@@ -16,8 +18,12 @@ struct FFunction {
 
 FFunction *FFunctionCreateWithFunctionPointer(FObject *arguments, FFunctionPointer functionPointer) {
 	FFunction *function = FAllocatorAllocate(NULL, sizeof(FFunction));
-	// set the prototype
-	// set the arguments
+	
+	function->super.prototype = FFunctionPrototypeGet();
+	
+	if(arguments) // fixme: arguments ought to be mandatory
+		FObjectSetVariable((FObject *)function, FSymbolCreateWithString("arguments"), arguments);
+	
 	function->functionPointer = functionPointer;
 	return function;
 }
@@ -28,4 +34,9 @@ FFunctionPointer FFunctionGetFunctionPointer(FFunction *self) {
 		// compile it
 	}
 	return self->functionPointer;
+}
+
+
+size_t FFunctionGetArity(FFunction *self) {
+	return FListNodeGetCount(FSend(self, arguments));
 }
