@@ -73,6 +73,8 @@ void FRunListNodePrototypeTests() {
 		
 		FTestCase(testCanFetchTheLastNode),
 		
+		FTestCase(testCanBeConvenientlyCreatedFromCCode),
+		
 		{0},
 	});
 }

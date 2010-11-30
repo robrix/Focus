@@ -38,7 +38,9 @@ FObject *FListNodePrototypeCreate() {
 	FObject *prototype = FObjectCreate(FObjectPrototypeGet());
 	
 	FObjectSetMethod(prototype, FSymbolCreateWithString("next"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectGetVariable));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("next:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectSetVariableAsAccessor));
 	FObjectSetMethod(prototype, FSymbolCreateWithString("object"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectGetVariable));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("object:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectSetVariableAsAccessor));
 	
 	FObjectSetMethod(prototype, FSymbolCreateWithString("newWithObject:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FListNodeNewWithObject));
 	FObjectSetMethod(prototype, FSymbolCreateWithString("newWithObject:nextNode:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FListNodeNewWithObjectAndNextNode));
@@ -55,6 +57,10 @@ FObject *FListNodePrototypeGet() {
 	return FListNodePrototype;
 }
 
+
+FObject *FListNodeCreateWithObject(FObject *object) {
+	return FSend(FListNodePrototypeGet(), newWithObject:, object);
+}
 
 FObject *FListNodeCreateWithObjects(FObject *object, ...) {
 	va_list arguments;

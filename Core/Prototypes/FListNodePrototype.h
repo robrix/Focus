@@ -9,6 +9,7 @@
 
 FObject *FListNodePrototypeGet();
 
+FObject *FListNodeCreateWithObject(FObject *object);
 FObject *FListNodeCreateWithObjects(FObject *object, ...);
 // FObject *FListNodeCreateWithObjectsAndCount(FObject **objects, size_t count);
 

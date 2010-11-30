@@ -2,9 +2,12 @@
 // Created by Rob Rix on 2010-10-04
 // Copyright 2010 Monochrome Industries
 
-#include "FMessage.h"
+#include "Prototypes/FMessagePrototype.h"
+#include "Prototypes/FListNodePrototype.h"
 #include "FParser.h"
 #include "FSymbol.h"
+#include "FFunction.h"
+#include "FObject.h"
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
@@ -55,7 +58,7 @@ bool FParseKeyword(const char *source, size_t index, size_t *outLength) {
 }
 
 
-bool FParseNullaryMessage(struct FMessage *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FMessage **messageNode) {
+bool FParseNullaryMessage(struct FObject *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **messageNode) {
 	size_t length = 0;
 	bool result = FParseWord(source, index, &length) && !FParseToken(source, index + length, ":");
 	if(result) {
@@ -70,9 +73,9 @@ bool FParseNullaryMessage(struct FMessage *receiver, struct FObject *context, co
 }
 
 
-bool FParseArgument(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FMessage **argumentNode) {
+bool FParseArgument(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **argumentNode) {
 	size_t totalLength = 0;
-	FMessage *receiver = NULL;
+	FObject *receiver = NULL;
 	bool result = FParseParenthesizedExpression(context, source, index, &totalLength, &receiver) || FParseNullaryMessage(NULL, context, source, index, &totalLength, &receiver);
 	if(result) {
 		size_t whitespaceLength = 0, messageLength = 0;
@@ -91,7 +94,7 @@ bool FParseArgument(struct FObject *context, const char *source, size_t index, s
 	return result;
 }
 
-bool FParseKeywordArgument(struct FMessage *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, size_t *outKeywordLength, struct FMessage **argumentNode) {
+bool FParseKeywordArgument(struct FObject *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, size_t *outKeywordLength, struct FObject **argumentNode) {
 	size_t keywordLength = 0, whitespaceLength = 0, argumentLength = 0;
 	bool result =
 		FParseKeyword(source, index, &keywordLength)
@@ -102,13 +105,13 @@ bool FParseKeywordArgument(struct FMessage *receiver, struct FObject *context, c
 	return result;
 }
 
-bool FParseNAryMessage(struct FMessage *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FMessage **messageNode) {
+bool FParseNAryMessage(struct FObject *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **messageNode) {
 	size_t totalLength = 0, selectorLength = 0;
 	char *selector = NULL;
-	FMessage
+	FObject
 		*message = FMessageCreate(context, receiver, NULL, NULL),
 		*argument = NULL;
-	FMessageNode *arguments = NULL;
+	FObject *arguments = NULL;
 	size_t keywordLength = 0, keywordArgumentLength = 0, whitespaceLength = 0;
 	unsigned count = 0;
 	while(
@@ -126,10 +129,9 @@ bool FParseNAryMessage(struct FMessage *receiver, struct FObject *context, const
 		
 		// set the argument
 		if(arguments == NULL) {
-			message->arguments = arguments = FMessageNodeCreate(argument);
+			arguments = FSend(message, arguments:, FListNodeCreateWithObject(argument));
 		} else {
-			FMessageNodeSetNextNode(arguments, FMessageNodeCreate(argument));
-			arguments = arguments->nextNode;
+			arguments = FSend(arguments, next:, FListNodeCreateWithObject(argument));
 		}
 		
 		keywordLength = keywordArgumentLength = whitespaceLength = 0;
@@ -137,22 +139,22 @@ bool FParseNAryMessage(struct FMessage *receiver, struct FObject *context, const
 	bool result = (count > 0);
 	if(result && outLength) *outLength = totalLength;
 	if(result && messageNode) {
-		message->selector = FSymbolCreateWithSubstring(selector, selectorLength);
+		FSend(message, selector:, (FObject *)FSymbolCreateWithSubstring(selector, selectorLength));
 		*messageNode = message;
 	}
 	return result;
 }
 
-bool FParseMessage(struct FMessage *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FMessage **messageNode) {
+bool FParseMessage(struct FObject *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **messageNode) {
 	return
 		FParseNAryMessage(receiver, context, source, index, outLength, messageNode)
 	||	FParseNullaryMessage(receiver, context, source, index, outLength, messageNode);
 }
 
 
-bool FParseExpression(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FMessage **expressionNode) {
+bool FParseExpression(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **expressionNode) {
 	size_t totalLength = 0;
-	FMessage *receiver = NULL;
+	FObject *receiver = NULL;
 	bool result = FParseParenthesizedExpression(context, source, index, &totalLength, &receiver) || FParseMessage(NULL, context, source, index, &totalLength, &receiver);
 	if(result) {
 		size_t whitespaceLength = 0, messageLength = 0;
@@ -171,7 +173,7 @@ bool FParseExpression(struct FObject *context, const char *source, size_t index,
 	return result;
 }
 
-bool FParseParenthesizedExpression(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FMessage **expressionNode) {
+bool FParseParenthesizedExpression(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **expressionNode) {
 	size_t expressionLength = 0, openingWhitespaceLength = 0, closingWhitespaceLength = 0;
 	bool result =
 		FParseToken(source, index, "(")

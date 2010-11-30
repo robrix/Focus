@@ -4,10 +4,11 @@
 
 #include "FAllocator.h"
 #include "FSymbol.h"
-#include "FMessage.h"
 #include "FObject.h"
 #include "FCompiler.h"
 #include "FFunction.h"
+#include "Prototypes/FMessagePrototype.h"
+#include "Prototypes/FListNodePrototype.h"
 #include <llvm-c/ExecutionEngine.h>
 #include <stdlib.h>
 
@@ -73,22 +74,22 @@ LLVMValueRef FCompilerGetFunctionPointerFunction(FCompiler *compiler) {
 	return FCompilerGetReferenceToExternalFunction(compiler, "FFunctionGetFunctionPointer", LLVMFunctionType(LLVMFunctionType(objectType, (LLVMTypeRef[]){ objectType, objectType }, 2, 1), (LLVMTypeRef[]){ objectType }, 1, 0));
 }
 
-LLVMValueRef FCompilerCompileMessage(FCompiler *compiler, FFunction *function, FMessage *message) {
-	LLVMValueRef receiver = message->receiver
-	?	FCompilerCompileMessage(compiler, function, message->receiver)
-	:	FCompilerGetReferenceToObject(compiler, message->context);
-	LLVMValueRef selector = FCompilerGetReferenceToSelector(compiler, message->selector);
-	FMessageNode *node = message->arguments;
-	size_t count = FMessageNodeGetNodeCount(message->arguments), i = 2;
+LLVMValueRef FCompilerCompileMessage(FCompiler *compiler, FFunction *function, FObject *message) {
+	LLVMValueRef receiver = FSend(message, receiver)
+	?	FCompilerCompileMessage(compiler, function, FSend(message, receiver))
+	:	FCompilerGetReferenceToObject(compiler, FSend(message, context));
+	LLVMValueRef selector = FCompilerGetReferenceToSelector(compiler, (FSymbol *)FSend(message, selector));
+	FObject *argumentNode = FSend(message, arguments);
+	size_t count = FListNodeGetCount(argumentNode), i = 2;
 	LLVMValueRef arguments[count + 2];
 	arguments[0] = receiver;
 	arguments[1] = selector;
 	do {
-		arguments[i++] = FCompilerCompileMessage(compiler, function, node->message);
-	} while((node = node->nextNode));
+		arguments[i++] = FCompilerCompileMessage(compiler, function, FSend(argumentNode, object));
+	} while((argumentNode = FSend(argumentNode, next)));
 	LLVMValueRef method = LLVMBuildCall(compiler->builder, FCompilerGetMethodFunction(compiler), (LLVMValueRef[]){ receiver, selector }, 2, "lookup");
 	LLVMValueRef functionPointer = LLVMBuildCall(compiler->builder, FCompilerGetFunctionPointerFunction(compiler), (LLVMValueRef[]){ method }, 1, "get fptr");
-	return LLVMBuildCall(compiler->builder, LLVMBuildPointerCast(compiler->builder, functionPointer, FCompilerGetMethodTypeOfArity(compiler, FSymbolGetArity(message->selector)), "cast fptr to method type"), arguments, count, FSymbolGetString(message->selector));
+	return LLVMBuildCall(compiler->builder, LLVMBuildPointerCast(compiler->builder, functionPointer, FCompilerGetMethodTypeOfArity(compiler, FSymbolGetArity((FSymbol *)FSend(message, selector))), "cast fptr to method type"), arguments, count, FSymbolGetString((FSymbol *)FSend(message, selector)));
 }
 
 
@@ -97,12 +98,12 @@ LLVMValueRef FCompilerCompileFunction(FCompiler *compiler, FFunction *function) 
 	LLVMValueRef f = LLVMAddFunction(compiler->module, "function", FCompilerGetMethodTypeOfArity(compiler, FFunctionGetArity(function))), result = NULL;
 	LLVMPositionBuilderAtEnd(compiler->builder, LLVMGetEntryBasicBlock(f));
 	
-	FObject *message = FSend(function, messages);
+	FObject *messageNode = FSend(function, messages);
 	do {
-		result = FCompilerCompileMessage(compiler, function, FSend(message, object));
-	} while((message = FSend(message, next)));
+		result = FCompilerCompileMessage(compiler, function, FSend(messageNode, object));
+	} while((messageNode = FSend(messageNode, next)));
 	
 	LLVMBuildRet(compiler->builder, result);
 	
-	return function;
+	return f;
 }

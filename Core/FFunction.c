@@ -29,7 +29,14 @@ FFunction *FFunctionCreateWithFunctionPointer(FObject *arguments, FFunctionPoint
 }
 
 
+FObject *FFunctionNoOp(FObject *self, struct FSymbol *selector) {
+	return NULL;
+}
+
 FFunctionPointer FFunctionGetFunctionPointer(FFunction *self) {
+	if(!self) {
+		return (FFunctionPointer)FFunctionNoOp;
+	}
 	if(!self->functionPointer) {
 		// compile it
 	}

@@ -69,6 +69,7 @@ void FHashTableSetValueForKey(FHashTable *self, FSymbol *key, void *value) {
 		fflush(stdout);
 	}
 	if(!value) {
+		abort();
 		printf("null value!\n");
 		fflush(stdout);
 	}

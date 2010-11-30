@@ -31,6 +31,12 @@ FObject *FObjectSetVariable(FObject *self, struct FSymbol *selector, FObject *ot
 	return other;
 }
 
+FObject *FObjectSetVariableAsAccessor(FObject *self, struct FSymbol *selector, FObject *other) {
+	const char *string = FSymbolGetString(selector);
+	FHashTableSetValueForKey(self->variables, FSymbolCreateWithSubstring(string, strlen(string) - 1), other);
+	return other;
+}
+
 
 struct FFunction *FObjectGetMethod(FObject *self, struct FSymbol *selector) {
 	return (struct FFunction *)(self->methods ? FHashTableGetValueForKey(self->methods, selector) : NULL) ?: (self->prototype ? FObjectGetMethod(self->prototype, selector) : NULL);

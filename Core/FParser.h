@@ -17,12 +17,12 @@ bool FParseWhitespaceAndNewlines(const char *source, size_t index, size_t *outLe
 
 bool FParseKeyword(const char *source, size_t index, size_t *outLength);
 
-bool FParseNullaryMessage(struct FMessage *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FMessage **messageNode);
-bool FParseNAryMessage(struct FMessage *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FMessage **messageNode);
-bool FParseMessage(struct FMessage *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FMessage **messageNode);
+bool FParseNullaryMessage(struct FObject *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **messageNode);
+bool FParseNAryMessage(struct FObject *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **messageNode);
+bool FParseMessage(struct FObject *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **messageNode);
 
-bool FParseExpression(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FMessage **expressionNode);
-bool FParseParenthesizedExpression(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FMessage **expressionNode);
+bool FParseExpression(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **expressionNode);
+bool FParseParenthesizedExpression(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **expressionNode);
 
 void *FParse(const char *source);
 

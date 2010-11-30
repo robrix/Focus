@@ -14,4 +14,6 @@ struct FObject {
 extern struct FObject *FObjectGetVariable(struct FObject *self, struct FSymbol *selector);
 extern struct FObject *FObjectSetVariable(struct FObject *self, struct FSymbol *selector, struct FObject *other);
 
+extern struct FObject *FObjectSetVariableAsAccessor(struct FObject *self, struct FSymbol *selector, struct FObject *other);
+
 #endif // F_OBJECT_PROTECTED
