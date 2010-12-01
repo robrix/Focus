@@ -152,6 +152,41 @@ bool FParseMessage(struct FObject *receiver, struct FObject *context, const char
 }
 
 
+/*
+	{ foo, bar -> foo or: bar }
+	{ -> 1 }
+	{ 2 }
+	
+	\ foo, bar -> foo or: bar
+	\ -> 3
+	\ 4
+*/
+bool FParseParameter(const char *source, size_t index, size_t *outLength, struct FSymbol **symbol) {
+	size_t whitespaceLength = 0, length = 0;
+	if(
+		(FParseWhitespaceAndNewlines(source, index, &whitespaceLength) || 1)
+	&&	FParseWord(source, index + whitespaceLength, &length)
+	) {
+		if(outLength) *outLength = length;
+		if(symbol) *symbol = FSymbolCreateWithSubstring(source + index + whitespaceLength, length);
+	}
+	return length > 0;
+}
+
+// bool FParseParameterList(const char *source, size_t index, size_t *outLength, struct FObject **parameterNode) {
+// 	bool result =
+// 		FParseWhitespaceAndNewlines(source, index, )
+// 	return 0;
+// }
+// 
+// bool FParseFunction(const char *source, size_t index, size_t *outLength, struct FFunction **outFunction) {
+// 	bool result =
+// 		FParseToken(source, index, "{")
+// 	&&	FParse;
+// 	return result;
+// }
+
+
 bool FParseExpression(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **expressionNode) {
 	size_t totalLength = 0;
 	FObject *receiver = NULL;
