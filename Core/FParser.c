@@ -162,23 +162,46 @@ bool FParseMessage(struct FObject *receiver, struct FObject *context, const char
 	\ 4
 */
 bool FParseParameter(const char *source, size_t index, size_t *outLength, struct FSymbol **symbol) {
-	size_t whitespaceLength = 0, length = 0;
-	if(
-		(FParseWhitespaceAndNewlines(source, index, &whitespaceLength) || 1)
-	&&	FParseWord(source, index + whitespaceLength, &length)
-	) {
+	size_t length = 0;
+	if(FParseWord(source, index, &length)) {
 		if(outLength) *outLength = length;
-		if(symbol) *symbol = FSymbolCreateWithSubstring(source + index + whitespaceLength, length);
+		if(symbol) *symbol = FSymbolCreateWithSubstring(source + index, length);
 	}
 	return length > 0;
 }
 
-// bool FParseParameterList(const char *source, size_t index, size_t *outLength, struct FObject **parameterNode) {
-// 	bool result =
-// 		FParseWhitespaceAndNewlines(source, index, )
-// 	return 0;
-// }
-// 
+bool FParseParameterList(const char *source, size_t index, size_t *outLength, struct FObject **outParameterNode) {
+	bool result = 1;
+	size_t totalLength = 0;
+	FObject *rootNode = NULL, *currentNode = NULL;
+	do {
+		FSymbol *parameter = NULL;
+		size_t whitespaceLength = 0, parameterLength = 0;
+		result =
+			(FParseWhitespace(source, index + totalLength, &whitespaceLength) || 1)
+		&&	FParseParameter(source, index + totalLength + whitespaceLength, &parameterLength, &parameter);
+		
+		if(result) {
+			totalLength += whitespaceLength + parameterLength;
+			if(outParameterNode) {
+				FObject *node = FSend(FListNodePrototypeGet(), newWithObject:, parameter);
+				if(currentNode) {
+					FSend(currentNode, next:, node);
+					currentNode = node;
+				} else {
+					rootNode = currentNode = node;
+				}
+			}
+		}
+	} while(result && FParseToken(source, index + totalLength, ",") && (totalLength += 1));
+	
+	if(result) {
+		if(outLength) *outLength = totalLength;
+		if(outParameterNode) *outParameterNode = rootNode;
+	}
+	return result;
+}
+
 // bool FParseFunction(const char *source, size_t index, size_t *outLength, struct FFunction **outFunction) {
 // 	bool result =
 // 		FParseToken(source, index, "{")
@@ -217,5 +240,33 @@ bool FParseParenthesizedExpression(struct FObject *context, const char *source, 
 	&&	(FParseWhitespaceAndNewlines(source, index + 1 + openingWhitespaceLength + expressionLength, &closingWhitespaceLength) || 1)
 	&&	FParseToken(source, index + 1 + openingWhitespaceLength + expressionLength + closingWhitespaceLength, ")");
 	if(outLength && result) *outLength = 1 + openingWhitespaceLength + expressionLength + closingWhitespaceLength + 1;
+	return result;
+}
+
+bool FParseExpressionList(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **listNode) {
+	bool result = 0;
+	size_t whitespaceLength = 0, expressionLength = 0, totalLength = 0;
+	FObject *rootNode = NULL, *currentNode = NULL, *expression = NULL;
+	while(
+		(FParseWhitespaceAndNewlines(source, index + totalLength, &whitespaceLength) || 1)
+	&&	FParseExpression(context, source, index + totalLength + whitespaceLength, &expressionLength, &expression)
+	) {
+		totalLength += whitespaceLength + expressionLength;
+		whitespaceLength = expressionLength = 0;
+		result = 1;
+		if(listNode) {
+			FObject *node = FSend(FListNodePrototypeGet(), newWithObject:, expression);
+			if(currentNode) {
+				FSend(currentNode, next:, node);
+				currentNode = node;
+			} else {
+				rootNode = currentNode = node;
+			}
+		}
+	}
+	if(result) {
+		if(outLength) *outLength = totalLength;
+		if(listNode) *listNode = rootNode;
+	}
 	return result;
 }

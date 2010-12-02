@@ -306,7 +306,25 @@ static void testParsesParameters() {
 	size_t length = 0;
 	FSymbol *symbol = NULL;
 	FAssert(FParseParameter("foo", 0, &length, &symbol) && length == 3 && FSymbolIsEqual(symbol, FSymbolCreateWithString("foo")));
-	FAssert(FParseParameter("\nfoo", 0, &length, &symbol) && length == 3 && FSymbolIsEqual(symbol, FSymbolCreateWithString("foo")));
+}
+
+static void testParsesParameterLists() {
+	size_t length = 0;
+	FObject *node = NULL;
+	FAssert(FParseParameterList("foo", 0, &length, &node) && length == 3 && FSymbolIsEqual((FSymbol *)FSend(node, object), FSymbolCreateWithString("foo")));
+	FAssert(
+		FParseParameterList("foo, bar", 0, &length, &node)
+	&&	length == 8
+	&&	FSymbolIsEqual((FSymbol *)FSend(node, object), FSymbolCreateWithString("foo"))
+	&&	FSymbolIsEqual((FSymbol *)FSend(FSend(node, next), object), FSymbolCreateWithString("bar"))
+	);
+	
+	FAssert(!FParseParameterList("", 0, NULL, NULL));
+	FAssert(!FParseParameterList("foo,", 0, NULL, NULL));
+}
+
+static void testParsesFunctions() {
+	
 }
 
 
@@ -327,6 +345,16 @@ static void testParsesExpressions() {
 	
 	length = 0;
 	FAssert(FParseExpression(FParserTestsContext, "foo", 0, &length, NULL) && length == 3);
+}
+
+static void testParsesExpressionLists() {
+	size_t length = 0;
+	FObject *node = NULL;
+	FAssert(FParseExpressionList(FParserTestsContext, "foo", 0, &length, &node) && length == 3 && node != NULL && FSend(node, next) == NULL);
+	FAssert(FParseExpressionList(FParserTestsContext, "foo\n", 0, &length, &node) && length == 3 && node != NULL && FSend(node, next) == NULL);
+	FAssert(FParseExpressionList(FParserTestsContext, "foo\nbar", 0, &length, &node) && length == 7 && node != NULL && FSend(node, next) != NULL);
+	
+	FAssert(!FParseExpressionList(FParserTestsContext, "", 0, &length, &node));
 }
 
 
@@ -351,9 +379,13 @@ void FRunParserTests() {
 		FTestCase(testParsesMessagesChainedOntoNullaryMessageChains),
 		
 		FTestCase(testParsesParameters),
+		FTestCase(testParsesParameterLists),
+		
+		FTestCase(testParsesFunctions),
 		
 		FTestCase(testParsesParenthesizedExpressions),
 		FTestCase(testParsesExpressions),
+		FTestCase(testParsesExpressionLists),
 		
 		{0},
 	});
