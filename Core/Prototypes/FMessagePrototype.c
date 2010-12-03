@@ -15,14 +15,14 @@ static FObject *FMessagePrototype = NULL;
 FObject *FMessagePrototypeGet() {
 	if(!FMessagePrototype) {
 		FMessagePrototype = FObjectCreate(FObjectPrototypeGet());
-		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("context"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectGetVariable));
-		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("context:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectSetVariableAsAccessor));
-		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("receiver"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectGetVariable));
-		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("receiver:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectSetVariableAsAccessor));
-		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("selector"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectGetVariable));
-		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("selector:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectSetVariableAsAccessor));
-		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("arguments"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectGetVariable));
-		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("arguments:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectSetVariableAsAccessor));
+		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("context"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
+		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("context:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
+		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("receiver"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
+		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("receiver:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
+		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("selector"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
+		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("selector:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
+		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("arguments"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
+		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("arguments:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
 	}
 	return FMessagePrototype;
 }

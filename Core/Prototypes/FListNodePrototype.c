@@ -37,15 +37,15 @@ FObject *FListNodeGetLastNode(FObject *self, FSymbol *selector) {
 FObject *FListNodePrototypeCreate() {
 	FObject *prototype = FObjectCreate(FObjectPrototypeGet());
 	
-	FObjectSetMethod(prototype, FSymbolCreateWithString("next"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectGetVariable));
-	FObjectSetMethod(prototype, FSymbolCreateWithString("next:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectSetVariableAsAccessor));
-	FObjectSetMethod(prototype, FSymbolCreateWithString("object"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectGetVariable));
-	FObjectSetMethod(prototype, FSymbolCreateWithString("object:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectSetVariableAsAccessor));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("next"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("next:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("object"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("object:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
 	
-	FObjectSetMethod(prototype, FSymbolCreateWithString("newWithObject:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FListNodeNewWithObject));
-	FObjectSetMethod(prototype, FSymbolCreateWithString("newWithObject:nextNode:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FListNodeNewWithObjectAndNextNode));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("newWithObject:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FListNodeNewWithObject));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("newWithObject:nextNode:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FListNodeNewWithObjectAndNextNode));
 	
-	FObjectSetMethod(prototype, FSymbolCreateWithString("last"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FListNodeGetLastNode));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("last"), FFunctionCreateWithImplementation(NULL, (FImplementation)FListNodeGetLastNode));
 	
 	return prototype;
 }

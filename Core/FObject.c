@@ -38,11 +38,11 @@ FObject *FObjectSetVariableAsAccessor(FObject *self, struct FSymbol *selector, F
 }
 
 
-struct FFunction *FObjectGetMethod(FObject *self, struct FSymbol *selector) {
-	return (struct FFunction *)(self->methods ? FHashTableGetValueForKey(self->methods, selector) : NULL) ?: (self->prototype ? FObjectGetMethod(self->prototype, selector) : NULL);
+struct FObject *FObjectGetMethod(FObject *self, struct FSymbol *selector) {
+	return (struct FObject *)(self->methods ? FHashTableGetValueForKey(self->methods, selector) : NULL) ?: (self->prototype ? FObjectGetMethod(self->prototype, selector) : NULL);
 }
 
-void FObjectSetMethod(FObject *self, struct FSymbol *selector, struct FFunction *function) {
+void FObjectSetMethod(FObject *self, struct FSymbol *selector, struct FObject *function) {
 	if(self->methods == NULL) {
 		self->methods = FHashTableCreate();
 	}

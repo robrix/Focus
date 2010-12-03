@@ -71,10 +71,10 @@ LLVMValueRef FCompilerGetMethodFunction(FCompiler *compiler) {
 
 LLVMValueRef FCompilerGetFunctionPointerFunction(FCompiler *compiler) {
 	LLVMTypeRef objectType = FCompilerGetObjectType(compiler);
-	return FCompilerGetReferenceToExternalFunction(compiler, "FFunctionGetFunctionPointer", LLVMFunctionType(LLVMFunctionType(objectType, (LLVMTypeRef[]){ objectType, objectType }, 2, 1), (LLVMTypeRef[]){ objectType }, 1, 0));
+	return FCompilerGetReferenceToExternalFunction(compiler, "FFunctionGetImplementation", LLVMFunctionType(LLVMFunctionType(objectType, (LLVMTypeRef[]){ objectType, objectType }, 2, 1), (LLVMTypeRef[]){ objectType }, 1, 0));
 }
 
-LLVMValueRef FCompilerCompileMessage(FCompiler *compiler, FFunction *function, FObject *message) {
+LLVMValueRef FCompilerCompileMessage(FCompiler *compiler, FObject *function, FObject *message) {
 	LLVMValueRef receiver = FSend(message, receiver)
 	?	FCompilerCompileMessage(compiler, function, FSend(message, receiver))
 	:	FCompilerGetReferenceToObject(compiler, FSend(message, context));
@@ -93,7 +93,7 @@ LLVMValueRef FCompilerCompileMessage(FCompiler *compiler, FFunction *function, F
 }
 
 
-LLVMValueRef FCompilerCompileFunction(FCompiler *compiler, FFunction *function) {
+LLVMValueRef FCompilerCompileFunction(FCompiler *compiler, FObject *function) {
 	// pick a name for the function; "function 0x…" or similar will do for now
 	LLVMValueRef f = LLVMAddFunction(compiler->module, "function", FCompilerGetMethodTypeOfArity(compiler, FFunctionGetArity(function))), result = NULL;
 	LLVMPositionBuilderAtEnd(compiler->builder, LLVMGetEntryBasicBlock(f));

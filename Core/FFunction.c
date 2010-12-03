@@ -10,21 +10,13 @@
 #include "Prototypes/FFunctionPrototype.h"
 #include "Prototypes/FListNodePrototype.h"
 
-struct FFunction {
-	FObject super;
-	FFunctionPointer functionPointer;
-};
-
-
-FFunction *FFunctionCreateWithFunctionPointer(FObject *arguments, FFunctionPointer functionPointer) {
-	FFunction *function = FAllocatorAllocate(NULL, sizeof(FFunction));
-	
-	function->super.prototype = FFunctionPrototypeGet();
+FObject *FFunctionCreateWithImplementation(FObject *arguments, FImplementation implementation) {
+	FObject *function = FObjectCreate(FFunctionPrototypeGet());
 	
 	if(arguments) // fixme: arguments ought to be mandatory
-		FObjectSetVariable((FObject *)function, FSymbolCreateWithString("arguments"), arguments);
+		FObjectSetVariable(function, FSymbolCreateWithString("arguments"), arguments);
 	
-	function->functionPointer = functionPointer;
+	FObjectSetVariable(function, FSymbolCreateWithString(" implementation"), (FObject *)implementation);
 	return function;
 }
 
@@ -33,17 +25,18 @@ FObject *FFunctionNoOp(FObject *self, struct FSymbol *selector) {
 	return NULL;
 }
 
-FFunctionPointer FFunctionGetFunctionPointer(FFunction *self) {
+FImplementation FFunctionGetImplementation(FObject *self) {
 	if(!self) {
-		return (FFunctionPointer)FFunctionNoOp;
+		return (FImplementation)FFunctionNoOp;
 	}
-	if(!self->functionPointer) {
+	FImplementation implementation = (FImplementation)FObjectGetVariable(self, FSymbolCreateWithString(" implementation"));
+	if(!implementation) {
 		// compile it
 	}
-	return self->functionPointer;
+	return implementation;
 }
 
 
-size_t FFunctionGetArity(FFunction *self) {
+size_t FFunctionGetArity(FObject *self) {
 	return FListNodeGetCount(FSend(self, arguments));
 }

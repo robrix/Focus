@@ -11,13 +11,11 @@ Interface:
 - arguments
 */
 
-typedef struct FFunction FFunction;
+typedef FObject *(*FImplementation)(struct FObject *receiver, struct FSymbol *selector, ...);
 
-typedef FObject *(*FFunctionPointer)(struct FObject *receiver, struct FSymbol *selector, ...);
+FObject *FFunctionCreateWithImplementation(struct FObject *arguments, FImplementation functionPointer);
 
-FFunction *FFunctionCreateWithFunctionPointer(struct FObject *arguments, FFunctionPointer functionPointer);
-
-FFunctionPointer FFunctionGetFunctionPointer(FFunction *self);
-size_t FFunctionGetArity(FFunction *self);
+FImplementation FFunctionGetImplementation(FObject *self);
+size_t FFunctionGetArity(FObject *self);
 
 #endif // F_FUNCTION

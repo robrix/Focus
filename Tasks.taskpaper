@@ -27,3 +27,4 @@ Symbol:
 Function:
 	- should have a name based on its location in the source, where applicable.
 	- should have a name based on its assignment as a method, where applicable.
+	- store the function pointer in the variables hash table. @done(2010-12-02)

@@ -23,12 +23,12 @@ FObject *FFunctionNewWithArgumentsAndMessages(FObject *self, FSymbol *selector, 
 FObject *FFunctionPrototypeGet() {
 	if(!FFunctionPrototype) {
 		FFunctionPrototype = FObjectCreate(FObjectPrototypeGet());
-		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("arguments"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectGetVariable));
-		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("arguments:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectSetVariableAsAccessor));
-		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("messages"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectGetVariable));
-		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("messages:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectSetVariableAsAccessor));
+		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("arguments"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
+		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("arguments:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
+		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("messages"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
+		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("messages:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
 		
-		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("newWithArguments:messages:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FFunctionNewWithArgumentsAndMessages));
+		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("newWithArguments:messages:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FFunctionNewWithArgumentsAndMessages));
 	}
 	return FFunctionPrototype;
 }

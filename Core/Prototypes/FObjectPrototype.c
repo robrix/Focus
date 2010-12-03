@@ -26,9 +26,9 @@ FObject *FObjectPrototypeClone(FObject *self, FSymbol *selector) {
 FObject *FObjectPrototypeGet() {
 	if(!FObjectPrototype) {
 		FObjectPrototype = FObjectCreate(NULL);
-		FObjectSetMethod(FObjectPrototype, FSymbolCreateWithString("self"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectPrototypeGetSelf));
-		FObjectSetMethod(FObjectPrototype, FSymbolCreateWithString("prototype"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectPrototypeGetPrototype));
-		FObjectSetMethod(FObjectPrototype, FSymbolCreateWithString("new"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectPrototypeClone));
+		FObjectSetMethod(FObjectPrototype, FSymbolCreateWithString("self"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectPrototypeGetSelf));
+		FObjectSetMethod(FObjectPrototype, FSymbolCreateWithString("prototype"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectPrototypeGetPrototype));
+		FObjectSetMethod(FObjectPrototype, FSymbolCreateWithString("new"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectPrototypeClone));
 	}
 	return FObjectPrototype;
 }
