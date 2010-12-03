@@ -323,8 +323,13 @@ static void testParsesParameterLists() {
 	FAssert(!FParseParameterList("foo,", 0, NULL, NULL));
 }
 
-static void testParsesFunctions() {
+static void testParsesNAryFunctions() {
 	
+}
+
+static void testParsesNullaryFunctions() {
+	size_t length = 0;
+	FAssert(FParseNullaryFunction("{foo}", 0, &length, NULL) && length == 5);
 }
 
 
@@ -381,7 +386,8 @@ void FRunParserTests() {
 		FTestCase(testParsesParameters),
 		FTestCase(testParsesParameterLists),
 		
-		FTestCase(testParsesFunctions),
+		FTestCase(testParsesNAryFunctions),
+		FTestCase(testParsesNullaryFunctions),
 		
 		FTestCase(testParsesParenthesizedExpressions),
 		FTestCase(testParsesExpressions),

@@ -12,11 +12,23 @@
 
 static FObject *FFunctionPrototype = NULL;
 
+FObject *FFunctionNewWithArgumentsAndMessages(FObject *self, FSymbol *selector, FObject *arguments, FObject *messages) {
+	FObject *function = FSend(FFunctionPrototypeGet(), new);
+	FSend(function, arguments:, arguments);
+	FSend(function, messages:, messages);
+	return function;
+}
+
+
 FObject *FFunctionPrototypeGet() {
 	if(!FFunctionPrototype) {
 		FFunctionPrototype = FObjectCreate(FObjectPrototypeGet());
 		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("arguments"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectGetVariable));
+		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("arguments:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectSetVariableAsAccessor));
 		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("messages"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectGetVariable));
+		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("messages:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FObjectSetVariableAsAccessor));
+		
+		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("newWithArguments:messages:"), FFunctionCreateWithFunctionPointer(NULL, (FFunctionPointer)FFunctionNewWithArgumentsAndMessages));
 	}
 	return FFunctionPrototype;
 }

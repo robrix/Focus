@@ -24,6 +24,8 @@ bool FParseMessage(struct FObject *receiver, struct FObject *context, const char
 bool FParseParameter(const char *source, size_t index, size_t *outLength, struct FSymbol **symbol);
 bool FParseParameterList(const char *source, size_t index, size_t *outLength, struct FObject **outParameterNode);
 
+bool FParseNullaryFunction(const char *source, size_t index, size_t *outLength, struct FObject **outFunction);
+
 bool FParseExpression(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **expressionNode);
 bool FParseParenthesizedExpression(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **expressionNode);
 bool FParseExpressionList(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **listNode);

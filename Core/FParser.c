@@ -4,6 +4,7 @@
 
 #include "Prototypes/FMessagePrototype.h"
 #include "Prototypes/FListNodePrototype.h"
+#include "Prototypes/FFunctionPrototype.h"
 #include "FParser.h"
 #include "FSymbol.h"
 #include "FFunction.h"
@@ -202,12 +203,37 @@ bool FParseParameterList(const char *source, size_t index, size_t *outLength, st
 	return result;
 }
 
-// bool FParseFunction(const char *source, size_t index, size_t *outLength, struct FFunction **outFunction) {
-// 	bool result =
-// 		FParseToken(source, index, "{")
-// 	&&	FParse;
-// 	return result;
-// }
+bool FParseNAryFunction(const char *source, size_t index, size_t *outLength, struct FObject **outFunction) {
+	return 0;
+	// bool result =
+	// 	FParseToken(source, index, "{")
+	// &&	(FParseParameterList(source, index + 1, &parameterListLength, &parameterNode) && FParseToken(source, index + 1 + parameterListLength, "->"))
+	// &&	FParseExpressionList(NULL, source, index + whatever, &whatever, &whatever)
+	// &&	FParseToken(source, index, "}");
+	// return result;
+}
+
+bool FParseNullaryFunction(const char *source, size_t index, size_t *outLength, struct FObject **outFunction) {
+	size_t openingWhitespaceLength = 0, closingWhitespaceLength = 0, expressionListLength = 0;
+	FObject *expressionList = NULL;
+	bool result =
+		FParseToken(source, index, "{")
+	&&	(FParseWhitespaceAndNewlines(source, index + 1, &openingWhitespaceLength) || 1)
+	&&	FParseExpressionList(NULL, source, index + 1 + openingWhitespaceLength, &expressionListLength, &expressionList)
+	&&	(FParseWhitespaceAndNewlines(source, index + 1 + openingWhitespaceLength + expressionListLength, &closingWhitespaceLength) || 1)
+	&&	FParseToken(source, index + 1 + openingWhitespaceLength + expressionListLength + closingWhitespaceLength, "}");
+	if(result) {
+		if(outLength) *outLength = index + 1 + openingWhitespaceLength + expressionListLength + closingWhitespaceLength + 1;
+		if(outFunction) *outFunction = FSend(FFunctionPrototypeGet(), newWithArguments:messages:, NULL, expressionList);
+	}
+	return result;
+}
+
+bool FParseFunction(const char *source, size_t index, size_t *outLength, struct FObject **outFunction) {
+	return
+		FParseNAryFunction(source, index, outLength, outFunction)
+	||	FParseNullaryFunction(source, index, outLength, outFunction);
+}
 
 
 bool FParseExpression(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **expressionNode) {
