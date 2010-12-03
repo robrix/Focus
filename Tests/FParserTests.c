@@ -329,7 +329,8 @@ static void testParsesNAryFunctions() {
 
 static void testParsesNullaryFunctions() {
 	size_t length = 0;
-	FAssert(FParseNullaryFunction("{foo}", 0, &length, NULL) && length == 5);
+	FObject *function = NULL;
+	FAssert(FParseNullaryFunction("{foo}", 0, &length, &function) && length == 5 && FSend(function, arguments) == NULL && FSymbolIsEqual((FSymbol *)FSend(FSend(FSend(function, messages), object), selector), FSymbolCreateWithString("foo")));
 }
 
 
