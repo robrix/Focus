@@ -324,13 +324,31 @@ static void testParsesParameterLists() {
 }
 
 static void testParsesNAryFunctions() {
-	
+	size_t length = 0;
+	FObject *function = NULL;
+	FAssert(
+		FParseNAryFunction("{x->x}", 0, &length, &function)
+	&&	length == 6
+	&&	FSymbolIsEqual((FSymbol *)FSend(FSend(function, arguments), object), FSymbolCreateWithString("x"))
+	&&	FSymbolIsEqual((FSymbol *)FSend(FSend(FSend(function, messages), object), selector), FSymbolCreateWithString("x"))
+	);
 }
 
 static void testParsesNullaryFunctions() {
 	size_t length = 0;
 	FObject *function = NULL;
-	FAssert(FParseNullaryFunction("{foo}", 0, &length, &function) && length == 5 && FSend(function, arguments) == NULL && FSymbolIsEqual((FSymbol *)FSend(FSend(FSend(function, messages), object), selector), FSymbolCreateWithString("foo")));
+	FAssert(
+		FParseNullaryFunction("{foo}", 0, &length, &function)
+	&&	length == 5
+	&&	FSend(function, arguments) == NULL
+	&&	FSymbolIsEqual((FSymbol *)FSend(FSend(FSend(function, messages), object), selector), FSymbolCreateWithString("foo"))
+	);
+	FAssert(
+		FParseNullaryFunction("{ foo }", 0, &length, &function)
+	&&	length == 7
+	&&	FSend(function, arguments) == NULL
+	&&	FSymbolIsEqual((FSymbol *)FSend(FSend(FSend(function, messages), object), selector), FSymbolCreateWithString("foo"))
+	);
 }
 
 

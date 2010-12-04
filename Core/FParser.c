@@ -203,15 +203,36 @@ bool FParseParameterList(const char *source, size_t index, size_t *outLength, st
 	return result;
 }
 
-bool FParseNAryFunction(const char *source, size_t index, size_t *outLength, struct FObject **outFunction) {
-	return 0;
-	// bool result =
-	// 	FParseToken(source, index, "{")
-	// &&	(FParseParameterList(source, index + 1, &parameterListLength, &parameterNode) && FParseToken(source, index + 1 + parameterListLength, "->"))
-	// &&	FParseExpressionList(NULL, source, index + whatever, &whatever, &whatever)
-	// &&	FParseToken(source, index, "}");
-	// return result;
+bool FParseParameterListAndFunctionBodySeparator(const char *source, size_t index, size_t *outLength, struct FObject **outParameterNode) {
+	size_t parameterListLength = 0, whitespaceLength = 0;
+	bool result =
+		FParseParameterList(source, index, &parameterListLength, outParameterNode)
+	&&	(FParseWhitespaceAndNewlines(source, index + parameterListLength, &whitespaceLength) || 1)
+	&&	FParseToken(source, index + parameterListLength + whitespaceLength, "->");
+	if(result) {
+		if(outLength) *outLength = parameterListLength + whitespaceLength + 2;
+	}
+	return result;
 }
+
+
+bool FParseNAryFunction(const char *source, size_t index, size_t *outLength, struct FObject **outFunction) {
+	size_t openingWhitespaceLength = 0, closingWhitespaceLength = 0, parameterListLength = 0, expressionListLength = 0;
+	FObject *parameterList = NULL, *expressionList = NULL;
+	bool result =
+		FParseToken(source, index, "{")
+	&&	(FParseWhitespaceAndNewlines(source, index + 1, &openingWhitespaceLength) || 1)
+	&&	FParseParameterListAndFunctionBodySeparator(source, index + 1 + openingWhitespaceLength, &parameterListLength, &parameterList)
+	&&	FParseExpressionList(NULL, source, index + 1 + openingWhitespaceLength + parameterListLength, &expressionListLength, &expressionList)
+	&&	(FParseWhitespaceAndNewlines(source, index + 1 + openingWhitespaceLength + parameterListLength + expressionListLength, &closingWhitespaceLength) || 1)
+	&&	FParseToken(source, index + 1 + openingWhitespaceLength + parameterListLength + expressionListLength + closingWhitespaceLength, "}");
+	if(result) {
+		if(outLength) *outLength = index + 1 + openingWhitespaceLength + parameterListLength + expressionListLength + closingWhitespaceLength + 1;
+		if(outFunction) *outFunction = FSend(FFunctionPrototypeGet(), newWithArguments:messages:, parameterList, expressionList);
+	}
+	return result;
+}
+
 
 bool FParseNullaryFunction(const char *source, size_t index, size_t *outLength, struct FObject **outFunction) {
 	size_t openingWhitespaceLength = 0, closingWhitespaceLength = 0, expressionListLength = 0;
