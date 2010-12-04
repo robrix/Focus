@@ -342,6 +342,16 @@ static void testParsesNAryFunctions() {
 	&&	FSymbolIsEqual((FSymbol *)FSend(FSend(FSend(function, messages), object), selector), FSymbolCreateWithString("x"))
 	&&	FSend(FSend(function, messages), next) == NULL
 	);
+	FAssert(
+		FParseNAryFunction("{ x, y -> x\ny }", 0, &length, &function)
+	&&	length == 15
+	&&	FSymbolIsEqual((FSymbol *)FSend(FSend(function, arguments), object), FSymbolCreateWithString("x"))
+	&&	FSymbolIsEqual((FSymbol *)FSend(FSend(FSend(function, arguments), next), object), FSymbolCreateWithString("y"))
+	&&	FSend(FSend(FSend(function, arguments), next), next) == NULL
+	&&	FSymbolIsEqual((FSymbol *)FSend(FSend(FSend(function, messages), object), selector), FSymbolCreateWithString("x"))
+	&&	FSymbolIsEqual((FSymbol *)FSend(FSend(FSend(FSend(function, messages), next), object), selector), FSymbolCreateWithString("y"))
+	&&	FSend(FSend(FSend(function, messages), next), next) == NULL
+	);
 }
 
 static void testParsesNullaryFunctions() {
