@@ -10,15 +10,15 @@
 
 static FObject *FObjectPrototype = NULL;
 
-FObject *FObjectPrototypeGetSelf(FObject *self, FSymbol *selector) {
+FObject *FObjectPrototypeGetSelf(FObject *self, FObject *selector) {
 	return self;
 }
 
-FObject *FObjectPrototypeGetPrototype(FObject *self, FSymbol *selector) {
+FObject *FObjectPrototypeGetPrototype(FObject *self, FObject *selector) {
 	return FObjectGetPrototype(self);
 }
 
-FObject *FObjectPrototypeClone(FObject *self, FSymbol *selector) {
+FObject *FObjectPrototypeClone(FObject *self, FObject *selector) {
 	return FObjectCreate(self);
 }
 

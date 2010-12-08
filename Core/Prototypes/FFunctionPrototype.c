@@ -12,7 +12,7 @@
 
 static FObject *FFunctionPrototype = NULL;
 
-FObject *FFunctionNewWithArgumentsAndMessages(FObject *self, FSymbol *selector, FObject *arguments, FObject *messages) {
+FObject *FFunctionNewWithArgumentsAndMessages(FObject *self, FObject *selector, FObject *arguments, FObject *messages) {
 	FObject *function = FSend(FFunctionPrototypeGet(), new);
 	FSend(function, arguments:, arguments);
 	FSend(function, messages:, messages);

@@ -9,9 +9,12 @@
 #define __STDC_LIMIT_MACROS
 
 #include <llvm-c/Core.h>
+#include "FObject.h"
 
 typedef struct FCompiler FCompiler;
 
+FCompiler *FCompilerCreate();
 
+FImplementation FCompilerCompileFunction(FCompiler *compiler, FObject *function);
 
 #endif // F_COMPILER

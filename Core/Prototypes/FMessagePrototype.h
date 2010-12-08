@@ -9,7 +9,7 @@
 
 FObject *FMessagePrototypeGet();
 
-FObject *FMessageCreate(struct FObject *context, struct FObject *receiver, struct FSymbol *selector, FObject *arguments);
+FObject *FMessageCreate(struct FObject *context, struct FObject *receiver, struct FObject *selector, FObject *arguments);
 FObject *FMessageCreateNullaryWithSubstring(struct FObject *context, struct FObject *receiver, const char *string, size_t length);
 
 #endif // F_MESSAGE_PROTOTYPE

@@ -112,7 +112,7 @@ static void testParsesNullaryMessages() {
 	FObject *message = NULL;
 	FAssert(FParseMessage(NULL, FParserTestsContext, "foo", 0, &length, &message) && length == 3);
 	if(FAssert(message != NULL)) {
-		FAssert(FSymbolIsEqual((FSymbol *)FSend(message, selector), FSymbolCreateWithString("foo")));
+		FAssert(FSymbolIsEqual(FSend(message, selector), FSymbolCreateWithString("foo")));
 		FAssert(FSend(message, receiver) == NULL);
 		FAssert(FSend(message, context) == FParserTestsContext);
 	}
@@ -124,11 +124,11 @@ static void testParsesUnaryMessages() {
 	FAssert(FParseMessage(NULL, FParserTestsContext, "foo: bar", 0, &length, &message) && length == 8);
 	
 	if(FAssert(message != NULL)) {
-		FAssert(FSymbolIsEqual((FSymbol *)FSend(message, selector), FSymbolCreateWithString("foo:")));
+		FAssert(FSymbolIsEqual(FSend(message, selector), FSymbolCreateWithString("foo:")));
 		FAssert(FSend(message, context) == FParserTestsContext);
 		FObject *argument = FSend(FSend(message, arguments), object);
 		if(FAssert(argument != NULL)) {
-			FAssert(FSymbolIsEqual((FSymbol *)FSend(argument, selector), FSymbolCreateWithString("bar")));
+			FAssert(FSymbolIsEqual(FSend(argument, selector), FSymbolCreateWithString("bar")));
 			FAssert(FSend(argument, arguments) == NULL);
 			FAssert(FSend(argument, context) == FSend(message, context));
 			FAssert(FSend(argument, receiver) == NULL);
@@ -142,7 +142,7 @@ static void testParsesBinaryMessages() {
 	FAssert(FParseMessage(NULL, FParserTestsContext, "foo: (bar) quux: (thing)", 0, &length, &message) && length == 24);
 	
 	if(FAssert(message != NULL)) {
-		FAssert(FSymbolIsEqual((FSymbol *)FSend(message, selector), FSymbolCreateWithString("foo:quux:")));
+		FAssert(FSymbolIsEqual(FSend(message, selector), FSymbolCreateWithString("foo:quux:")));
 		FAssert(FSend(message, context) == FParserTestsContext);
 		FAssert(FSend(message, receiver) == NULL);
 		
@@ -150,12 +150,12 @@ static void testParsesBinaryMessages() {
 			*fooArgument = FSend(FSend(message, arguments), object),
 			*quuxArgument = FSend(FSend(FSend(message, arguments), next), object);
 		
-		FAssert(FSymbolIsEqual((FSymbol *)FSend(fooArgument, selector), FSymbolCreateWithString("bar")));
+		FAssert(FSymbolIsEqual(FSend(fooArgument, selector), FSymbolCreateWithString("bar")));
 		FAssert(FSend(fooArgument, arguments) == NULL);
 		FAssert(FSend(fooArgument, context) == FParserTestsContext);
 		FAssert(FSend(fooArgument, receiver) == NULL);
 		
-		FAssert(FSymbolIsEqual((FSymbol *)FSend(quuxArgument, selector), FSymbolCreateWithString("thing")));
+		FAssert(FSymbolIsEqual(FSend(quuxArgument, selector), FSymbolCreateWithString("thing")));
 		FAssert(FSend(quuxArgument, arguments) == NULL);
 		FAssert(FSend(quuxArgument, context) == FParserTestsContext);
 		FAssert(FSend(quuxArgument, receiver) == NULL);
@@ -174,15 +174,15 @@ static void testParsesNullaryMessageChains() {
 		// printf("\t%s\n", fixtures[i].source);
 		FAssert(FParseExpression(FParserTestsContext, fixtures[i].source, 0, &length, &message) && length == fixtures[i].length);
 		if(FAssert(message != NULL)) {
-			FAssert(FSymbolIsEqual((FSymbol *)FSend(message, selector), FSymbolCreateWithString("quux")));
+			FAssert(FSymbolIsEqual(FSend(message, selector), FSymbolCreateWithString("quux")));
 			FAssert(FSend(message, arguments) == NULL);
 			FAssert(FSend(message, context) == FParserTestsContext);
 			if(FAssert((message = FSend(message, receiver)) != NULL)) {
-				FAssert(FSymbolIsEqual((FSymbol *)FSend(message, selector), FSymbolCreateWithString("bar")));
+				FAssert(FSymbolIsEqual(FSend(message, selector), FSymbolCreateWithString("bar")));
 				FAssert(FSend(message, arguments) == NULL);
 				FAssert(FSend(message, context) == FParserTestsContext);
 				if(FAssert((message = FSend(message, receiver)) != NULL)) {
-					FAssert(FSymbolIsEqual((FSymbol *)FSend(message, selector), FSymbolCreateWithString("foo")));
+					FAssert(FSymbolIsEqual(FSend(message, selector), FSymbolCreateWithString("foo")));
 					FAssert(FSend(message, arguments) == NULL);
 					FAssert(FSend(message, context) == FParserTestsContext);
 					FAssert(FSend(message, receiver) == NULL);
@@ -203,17 +203,17 @@ static void testParsesUnaryMessagesAfterNullaryMessageChains() {
 		// printf("\t%s\n", fixtures[i].source);
 		FAssert(FParseExpression(FParserTestsContext, fixtures[i].source, 0, &length, &message) && length == fixtures[i].length);
 		if(FAssert(message != NULL)) {
-			FAssert(FSymbolIsEqual((FSymbol *)FSend(message, selector), FSymbolCreateWithString("bar:")));
+			FAssert(FSymbolIsEqual(FSend(message, selector), FSymbolCreateWithString("bar:")));
 			FAssert(FSend(message, context) == FParserTestsContext);
 			if(FAssert(FSend(message, receiver) != NULL)) {
-				FAssert(FSymbolIsEqual((FSymbol *)FSend(FSend(message, receiver), selector), FSymbolCreateWithString("foo")));
+				FAssert(FSymbolIsEqual(FSend(FSend(message, receiver), selector), FSymbolCreateWithString("foo")));
 				FAssert(FSend(FSend(message, receiver), arguments) == NULL);
 				FAssert(FSend(FSend(message, receiver), context) == FParserTestsContext);
 				FAssert(FSend(FSend(message, receiver), receiver) == NULL);
 			}
 			if(FAssert(FSend(message, arguments) != NULL)) {
 				if(FAssert(FSend(FSend(message, arguments), object) != NULL)) {
-					FAssert(FSymbolIsEqual((FSymbol *)FSend(FSend(FSend(message, arguments), object), selector), FSymbolCreateWithString("quux")));
+					FAssert(FSymbolIsEqual(FSend(FSend(FSend(message, arguments), object), selector), FSymbolCreateWithString("quux")));
 					FAssert(FSend(FSend(FSend(message, arguments), object), context) == FParserTestsContext);
 					FAssert(FSend(FSend(FSend(message, arguments), object), receiver) == NULL);
 					FAssert(FSend(FSend(FSend(message, arguments), object), arguments) == NULL);
@@ -234,11 +234,11 @@ static void testParsesNullaryMessageChainsAsArguments() {
 		// printf("\t%s\n", fixtures[i].source);
 		FAssert(FParseExpression(FParserTestsContext, fixtures[i].source, 0, &length, &message) && length == fixtures[i].length);
 		if(FAssert(message != NULL)) {
-			FAssert(FSymbolIsEqual((FSymbol *)FSend(message, selector), FSymbolCreateWithString("bar:")));
+			FAssert(FSymbolIsEqual(FSend(message, selector), FSymbolCreateWithString("bar:")));
 			FAssert(FSend(message, context) == FParserTestsContext);
 			FObject *foo = FSend(message, receiver);
 			if(FAssert(foo != NULL)) {
-				FAssert(FSymbolIsEqual((FSymbol *)FSend(foo, selector), FSymbolCreateWithString("foo")));
+				FAssert(FSymbolIsEqual(FSend(foo, selector), FSymbolCreateWithString("foo")));
 				FAssert(FSend(foo, arguments) == NULL);
 				FAssert(FSend(foo, context) == FParserTestsContext);
 				FAssert(FSend(foo, receiver) == NULL);
@@ -246,12 +246,12 @@ static void testParsesNullaryMessageChainsAsArguments() {
 			if(FAssert(FSend(message, arguments) != NULL)) {
 				FObject *thing = FSend(FSend(message, arguments), object);
 				if(FAssert(thing != NULL)) {
-					FAssert(FSymbolIsEqual((FSymbol *)FSend(thing, selector), FSymbolCreateWithString("thing")));
+					FAssert(FSymbolIsEqual(FSend(thing, selector), FSymbolCreateWithString("thing")));
 					FAssert(FSend(thing, context) == FParserTestsContext);
 					FAssert(FSend(thing, arguments) == NULL);
 					FObject *quux = FSend(thing, receiver);
 					if(FAssert(quux != NULL)) {
-						FAssert(FSymbolIsEqual((FSymbol *)FSend(quux, selector), FSymbolCreateWithString("quux")));
+						FAssert(FSymbolIsEqual(FSend(quux, selector), FSymbolCreateWithString("quux")));
 						FAssert(FSend(quux, context) == FParserTestsContext);
 						FAssert(FSend(quux, arguments) == NULL);
 						FAssert(FSend(quux, receiver) == NULL);
@@ -273,16 +273,16 @@ static void testParsesMessagesChainedOntoNullaryMessageChains() {
 		// printf("\t%s\n", fixtures[i].source);
 		FAssert(FParseExpression(FParserTestsContext, fixtures[i].source, 0, &length, &message) && length == fixtures[i].length);
 		if(FAssert(message != NULL)) {
-			FAssert(FSymbolIsEqual((FSymbol *)FSend(message, selector), FSymbolCreateWithString("quux:")));
+			FAssert(FSymbolIsEqual(FSend(message, selector), FSymbolCreateWithString("quux:")));
 			FAssert(FSend(message, context) == FParserTestsContext);
 			FObject *bar = FSend(message, receiver);
 			if(FAssert(bar != NULL)) {
-				FAssert(FSymbolIsEqual((FSymbol *)FSend(bar, selector), FSymbolCreateWithString("bar")));
+				FAssert(FSymbolIsEqual(FSend(bar, selector), FSymbolCreateWithString("bar")));
 				FAssert(FSend(bar, arguments) == NULL);
 				FAssert(FSend(bar, context) == FParserTestsContext);
 				FObject *foo = FSend(bar, receiver);
 				if(FAssert(foo != NULL)) {
-					FAssert(FSymbolIsEqual((FSymbol *)FSend(foo, selector), FSymbolCreateWithString("foo")));
+					FAssert(FSymbolIsEqual(FSend(foo, selector), FSymbolCreateWithString("foo")));
 					FAssert(FSend(foo, arguments) == NULL);
 					FAssert(FSend(foo, context) == FParserTestsContext);
 					FAssert(FSend(foo, receiver) == NULL);
@@ -291,7 +291,7 @@ static void testParsesMessagesChainedOntoNullaryMessageChains() {
 			if(FAssert(FSend(message, arguments) != NULL)) {
 				FObject *thing = FSend(FSend(message, arguments), object);
 				if(FAssert(thing != NULL)) {
-					FAssert(FSymbolIsEqual((FSymbol *)FSend(thing, selector), FSymbolCreateWithString("thing")));
+					FAssert(FSymbolIsEqual(FSend(thing, selector), FSymbolCreateWithString("thing")));
 					FAssert(FSend(thing, context) == FParserTestsContext);
 					FAssert(FSend(thing, arguments) == NULL);
 					FAssert(FSend(thing, receiver) == NULL);
@@ -304,19 +304,19 @@ static void testParsesMessagesChainedOntoNullaryMessageChains() {
 
 static void testParsesParameters() {
 	size_t length = 0;
-	FSymbol *symbol = NULL;
+	FObject *symbol = NULL;
 	FAssert(FParseParameter("foo", 0, &length, &symbol) && length == 3 && FSymbolIsEqual(symbol, FSymbolCreateWithString("foo")));
 }
 
 static void testParsesParameterLists() {
 	size_t length = 0;
 	FObject *node = NULL;
-	FAssert(FParseParameterList("foo", 0, &length, &node) && length == 3 && FSymbolIsEqual((FSymbol *)FSend(node, object), FSymbolCreateWithString("foo")));
+	FAssert(FParseParameterList("foo", 0, &length, &node) && length == 3 && FSymbolIsEqual(FSend(node, object), FSymbolCreateWithString("foo")));
 	FAssert(
 		FParseParameterList("foo, bar", 0, &length, &node)
 	&&	length == 8
-	&&	FSymbolIsEqual((FSymbol *)FSend(node, object), FSymbolCreateWithString("foo"))
-	&&	FSymbolIsEqual((FSymbol *)FSend(FSend(node, next), object), FSymbolCreateWithString("bar"))
+	&&	FSymbolIsEqual(FSend(node, object), FSymbolCreateWithString("foo"))
+	&&	FSymbolIsEqual(FSend(FSend(node, next), object), FSymbolCreateWithString("bar"))
 	);
 	
 	FAssert(!FParseParameterList("", 0, NULL, NULL));
@@ -329,27 +329,27 @@ static void testParsesNAryFunctions() {
 	FAssert(
 		FParseNAryFunction("{x->x}", 0, &length, &function)
 	&&	length == 6
-	&&	FSymbolIsEqual((FSymbol *)FSend(FSend(function, arguments), object), FSymbolCreateWithString("x"))
+	&&	FSymbolIsEqual(FSend(FSend(function, arguments), object), FSymbolCreateWithString("x"))
 	&&	FSend(FSend(function, arguments), next) == NULL
-	&&	FSymbolIsEqual((FSymbol *)FSend(FSend(FSend(function, messages), object), selector), FSymbolCreateWithString("x"))
+	&&	FSymbolIsEqual(FSend(FSend(FSend(function, messages), object), selector), FSymbolCreateWithString("x"))
 	&&	FSend(FSend(function, messages), next) == NULL
 	);
 	FAssert(
 		FParseNAryFunction("{ x -> x }", 0, &length, &function)
 	&&	length == 10
-	&&	FSymbolIsEqual((FSymbol *)FSend(FSend(function, arguments), object), FSymbolCreateWithString("x"))
+	&&	FSymbolIsEqual(FSend(FSend(function, arguments), object), FSymbolCreateWithString("x"))
 	&&	FSend(FSend(function, arguments), next) == NULL
-	&&	FSymbolIsEqual((FSymbol *)FSend(FSend(FSend(function, messages), object), selector), FSymbolCreateWithString("x"))
+	&&	FSymbolIsEqual(FSend(FSend(FSend(function, messages), object), selector), FSymbolCreateWithString("x"))
 	&&	FSend(FSend(function, messages), next) == NULL
 	);
 	FAssert(
 		FParseNAryFunction("{ x, y -> x\ny }", 0, &length, &function)
 	&&	length == 15
-	&&	FSymbolIsEqual((FSymbol *)FSend(FSend(function, arguments), object), FSymbolCreateWithString("x"))
-	&&	FSymbolIsEqual((FSymbol *)FSend(FSend(FSend(function, arguments), next), object), FSymbolCreateWithString("y"))
+	&&	FSymbolIsEqual(FSend(FSend(function, arguments), object), FSymbolCreateWithString("x"))
+	&&	FSymbolIsEqual(FSend(FSend(FSend(function, arguments), next), object), FSymbolCreateWithString("y"))
 	&&	FSend(FSend(FSend(function, arguments), next), next) == NULL
-	&&	FSymbolIsEqual((FSymbol *)FSend(FSend(FSend(function, messages), object), selector), FSymbolCreateWithString("x"))
-	&&	FSymbolIsEqual((FSymbol *)FSend(FSend(FSend(FSend(function, messages), next), object), selector), FSymbolCreateWithString("y"))
+	&&	FSymbolIsEqual(FSend(FSend(FSend(function, messages), object), selector), FSymbolCreateWithString("x"))
+	&&	FSymbolIsEqual(FSend(FSend(FSend(FSend(function, messages), next), object), selector), FSymbolCreateWithString("y"))
 	&&	FSend(FSend(FSend(function, messages), next), next) == NULL
 	);
 }
@@ -361,13 +361,13 @@ static void testParsesNullaryFunctions() {
 		FParseNullaryFunction("{foo}", 0, &length, &function)
 	&&	length == 5
 	&&	FSend(function, arguments) == NULL
-	&&	FSymbolIsEqual((FSymbol *)FSend(FSend(FSend(function, messages), object), selector), FSymbolCreateWithString("foo"))
+	&&	FSymbolIsEqual(FSend(FSend(FSend(function, messages), object), selector), FSymbolCreateWithString("foo"))
 	);
 	FAssert(
 		FParseNullaryFunction("{ foo }", 0, &length, &function)
 	&&	length == 7
 	&&	FSend(function, arguments) == NULL
-	&&	FSymbolIsEqual((FSymbol *)FSend(FSend(FSend(function, messages), object), selector), FSymbolCreateWithString("foo"))
+	&&	FSymbolIsEqual(FSend(FSend(FSend(function, messages), object), selector), FSymbolCreateWithString("foo"))
 	);
 }
 

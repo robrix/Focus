@@ -5,15 +5,15 @@
 #ifndef F_FUNCTION
 #define F_FUNCTION
 
+#include "FObject.h"
+
 /*
 Interface:
 - messages
 - arguments
 */
 
-typedef FObject *(*FImplementation)(struct FObject *receiver, struct FSymbol *selector, ...);
-
-FObject *FFunctionCreateWithImplementation(struct FObject *arguments, FImplementation functionPointer);
+FObject *FFunctionCreateWithImplementation(FObject *arguments, FImplementation functionPointer);
 
 FImplementation FFunctionGetImplementation(FObject *self);
 size_t FFunctionGetArity(FObject *self);

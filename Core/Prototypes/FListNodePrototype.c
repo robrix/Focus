@@ -13,19 +13,19 @@
 
 static FObject *FListNodePrototype = NULL;
 
-FObject *FListNodeNewWithObjectAndNextNode(FObject *self, FSymbol *selector, FObject *object, FObject *next) {
+FObject *FListNodeNewWithObjectAndNextNode(FObject *self, FObject *selector, FObject *object, FObject *next) {
 	FObject *instance = FSend(self, new);
 	FObjectSetVariable(instance, FSymbolCreateWithString("object"), object);
 	if(next) FObjectSetVariable(instance, FSymbolCreateWithString("next"), next);
 	return instance;
 }
 
-FObject *FListNodeNewWithObject(FObject *self, FSymbol *selector, FObject *object) {
+FObject *FListNodeNewWithObject(FObject *self, FObject *selector, FObject *object) {
 	return FListNodeNewWithObjectAndNextNode(self, selector, object, NULL);
 }
 
 
-FObject *FListNodeGetLastNode(FObject *self, FSymbol *selector) {
+FObject *FListNodeGetLastNode(FObject *self, FObject *selector) {
 	FObject *node = self, *next = NULL;
 	while(((next = FSend(node, next))) != NULL) {
 		node = next;

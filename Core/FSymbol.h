@@ -9,16 +9,14 @@
 #include <stdbool.h>
 #include <string.h>
 
-typedef struct FSymbol FSymbol;
+FObject *FSymbolCreateWithString(const char *symbol);
+FObject *FSymbolCreateWithSubstring(const char *symbol, size_t length);
 
-FSymbol *FSymbolCreateWithString(const char *symbol);
-FSymbol *FSymbolCreateWithSubstring(const char *symbol, size_t length);
+bool FSymbolIsEqual(FObject *a, FObject *b);
 
-bool FSymbolIsEqual(FSymbol *a, FSymbol *b);
+const char *FSymbolGetString(FObject *self);
+unsigned long FSymbolGetHash(FObject *self);
 
-const char *FSymbolGetString(FSymbol *self);
-unsigned long FSymbolGetHash(FSymbol *self);
-
-size_t FSymbolGetArity(FSymbol *self);
+size_t FSymbolGetArity(FObject *self);
 
 #endif // F_SYMBOL

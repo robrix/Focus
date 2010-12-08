@@ -23,6 +23,7 @@ Evaluator:
 Symbol:
 	- make a symbol prototype, and make symbols a proper object type.
 	- symbols should consist of a string and a hash.
+	- symbols should be uniqued.
 
 Function:
 	- should have a name based on its location in the source, where applicable.

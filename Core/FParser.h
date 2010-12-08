@@ -21,7 +21,7 @@ bool FParseNullaryMessage(struct FObject *receiver, struct FObject *context, con
 bool FParseNAryMessage(struct FObject *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **messageNode);
 bool FParseMessage(struct FObject *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **messageNode);
 
-bool FParseParameter(const char *source, size_t index, size_t *outLength, struct FSymbol **symbol);
+bool FParseParameter(const char *source, size_t index, size_t *outLength, struct FObject **symbol);
 bool FParseParameterList(const char *source, size_t index, size_t *outLength, struct FObject **outParameterNode);
 
 bool FParseNAryFunction(const char *source, size_t index, size_t *outLength, struct FObject **outFunction);

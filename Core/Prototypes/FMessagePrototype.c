@@ -28,7 +28,7 @@ FObject *FMessagePrototypeGet() {
 }
 
 
-FObject *FMessageCreate(struct FObject *context, struct FObject *receiver, struct FSymbol *selector, FObject *arguments) {
+FObject *FMessageCreate(struct FObject *context, struct FObject *receiver, struct FObject *selector, FObject *arguments) {
 	FObject *message = FSend(FMessagePrototypeGet(), new);
 	if(context) FSend(message, context:, context);
 	if(receiver) FSend(message, receiver:, receiver);
@@ -38,6 +38,6 @@ FObject *FMessageCreate(struct FObject *context, struct FObject *receiver, struc
 }
 
 FObject *FMessageCreateNullaryWithSubstring(struct FObject *context, struct FObject *receiver, const char *string, size_t length) {
-	FSymbol *selector = FSymbolCreateWithSubstring(string, length);
+	FObject *selector = FSymbolCreateWithSubstring(string, length);
 	return FMessageCreate(context, receiver, selector, NULL);
 }

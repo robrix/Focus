@@ -9,7 +9,7 @@
 #include <stdio.h>
 
 typedef struct FPair {
-	struct FSymbol *key;
+	struct FObject *key;
 	void *value;
 	struct FPair *nextPair;
 } FPair;
@@ -36,12 +36,12 @@ FPair *FPairGetTail(FPair *pair) {
 	return pair;
 }
 
-FPair *FHashTableGetPairForKey(FHashTable *self, FSymbol *key) {
+FPair *FHashTableGetPairForKeyWithHash(FHashTable *self, FObject *key, size_t hash) {
 	if(!key) {
 		printf("null key!\n");
 		fflush(stdout);
 	}
-	FPair *pair = FHashTableGetBucketForHash(self, FSymbolGetHash(key));
+	FPair *pair = FHashTableGetBucketForHash(self, hash);
 	while((pair->key != NULL) && (pair != NULL)) {
 		if(FSymbolIsEqual(pair->key, key)) {
 			break;
@@ -52,18 +52,30 @@ FPair *FHashTableGetPairForKey(FHashTable *self, FSymbol *key) {
 	return pair;
 }
 
-void *FHashTableGetValueForKey(FHashTable *self, FSymbol *key) {
+// FPair *FHashTableGetPairForKeyWithHash(FHashTable *self, FObject *key, size_t hash) {
+// 	
+// }
+
+void *FHashTableGetValueForKey(FHashTable *self, FObject *key) {
+	return FHashTableGetValueForKeyWithHash(self, key, FSymbolGetHash(key));
+}
+
+void *FHashTableGetValueForKeyWithHash(FHashTable *self, FObject *key, size_t hash) {
 	if(!key) {
 		printf("null key!\n");
 		fflush(stdout);
 	}
-	FPair *pair = FHashTableGetPairForKey(self, key);
+	FPair *pair = FHashTableGetPairForKeyWithHash(self, key, hash);
 	return (pair != NULL)
 	?	pair->value
 	:	NULL;
 }
 
-void FHashTableSetValueForKey(FHashTable *self, FSymbol *key, void *value) {
+void FHashTableSetValueForKey(FHashTable *self, FObject *key, void *value) {
+	FHashTableSetValueForKeyWithHash(self, key, FSymbolGetHash(key), value);
+}
+
+void FHashTableSetValueForKeyWithHash(FHashTable *self, FObject *key, size_t hash, void *value) {
 	if(!key) {
 		printf("null key!\n");
 		fflush(stdout);
@@ -74,7 +86,7 @@ void FHashTableSetValueForKey(FHashTable *self, FSymbol *key, void *value) {
 		printf("null value!\n");
 		fflush(stdout);
 	}
-	FPair *pair = FPairGetTail(FHashTableGetBucketForHash(self, FSymbolGetHash(key)));
+	FPair *pair = FPairGetTail(FHashTableGetBucketForHash(self, hash));
 	pair->key = key;
 	pair->value = value;
 	pair->nextPair = FAllocatorAllocate(NULL, sizeof(FPair));

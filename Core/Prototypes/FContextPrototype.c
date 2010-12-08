@@ -11,7 +11,7 @@
 
 static FObject *FContextPrototype = NULL;
 
-FObject *FContextPrototypeGetObjectPrototype(FObject *self, FSymbol *selector) {
+FObject *FContextPrototypeGetObjectPrototype(FObject *self, FObject *selector) {
 	return FObjectPrototypeGet();
 }
 

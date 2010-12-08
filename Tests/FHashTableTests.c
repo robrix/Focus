@@ -18,7 +18,7 @@ static void testCreation() {
 }
 
 static void testStoresObjectsByKeys() {
-	FSymbol *key = FSymbolCreateWithString("key");
+	FObject *key = FSymbolCreateWithString("key");
 	void *value = testCreation;
 	FHashTableSetValueForKey(hashTable, key, value);
 	void *result = FHashTableGetValueForKey(hashTable, key);

@@ -19,7 +19,7 @@ static void testCreation() {
 }
 
 
-static FObject *method(FObject *receiver, FSymbol *selector) {
+static FObject *method(FObject *receiver, FObject *selector) {
 	return NULL;
 }
 

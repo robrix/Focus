@@ -4,7 +4,6 @@
 
 #include "FSymbol.h"
 #include "FObject+Protected.h"
-#include "FObject.h"
 #include "FAllocator.h"
 #include "FFunction.h"
 #include "Prototypes/FFunctionPrototype.h"
@@ -21,7 +20,7 @@ FObject *FFunctionCreateWithImplementation(FObject *arguments, FImplementation i
 }
 
 
-FObject *FFunctionNoOp(FObject *self, struct FSymbol *selector) {
+FObject *FFunctionNoOp(FObject *self, FObject *selector) {
 	return NULL;
 }
 

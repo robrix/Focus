@@ -162,7 +162,7 @@ bool FParseMessage(struct FObject *receiver, struct FObject *context, const char
 	\ -> 3
 	\ 4
 */
-bool FParseParameter(const char *source, size_t index, size_t *outLength, struct FSymbol **symbol) {
+bool FParseParameter(const char *source, size_t index, size_t *outLength, struct FObject **symbol) {
 	size_t length = 0;
 	if(FParseWord(source, index, &length)) {
 		if(outLength) *outLength = length;
@@ -176,7 +176,7 @@ bool FParseParameterList(const char *source, size_t index, size_t *outLength, st
 	size_t totalLength = 0;
 	FObject *rootNode = NULL, *currentNode = NULL;
 	do {
-		FSymbol *parameter = NULL;
+		FObject *parameter = NULL;
 		size_t whitespaceLength = 0, parameterLength = 0;
 		result =
 			(FParseWhitespace(source, index + totalLength, &whitespaceLength) || 1)

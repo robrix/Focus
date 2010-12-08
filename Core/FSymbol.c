@@ -4,17 +4,22 @@
 
 #include "FAllocator.h"
 #include "FSymbol.h"
+#include "FHashTable.h"
 #include "FObject+Protected.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
-struct FSymbol {
-	FObject super;
-	unsigned long hash;
-	const char *symbol;
-};
-
+// FHashTable *FSymbolGetSymbolTable() {
+// 	static FHashTable *table = NULL;
+// 	if(!table) {
+// 		table = FHashTableCreate();
+// 		// FObject *_symbol = FAllocatorAllocate(NULL, sizeof(FObject));
+// 		// FHashTableSetValueForKey(table, _symbol, _symbol);
+// 		// FObjectSetVariable(_symbol, FSymbolCreateWithString(" symbol"), _symbol);
+// 	}
+// 	return table;
+// }
 
 unsigned long FSymbolCalculateHashForString(const char *str) {
 	unsigned long hash = 5381;
@@ -27,20 +32,49 @@ unsigned long FSymbolCalculateHashForString(const char *str) {
 }
 
 
-FSymbol *FSymbolCreateWithString(const char *symbol) {
-	FSymbol *instance = FAllocatorAllocate(NULL, sizeof(FSymbol));
-	instance->symbol = symbol;
-	instance->hash = FSymbolCalculateHashForString(instance->symbol);
+FObject *FSymbolGetHashSymbol();
+
+// :)
+FObject *FSymbolGetSymbolSymbol() {
+	static FObject *_symbol = NULL;
+	if(!_symbol) {
+		_symbol = FObjectCreate(NULL);
+		size_t _symbolHash = FSymbolCalculateHashForString(" symbol");
+		FObjectSetVariableWithHash(_symbol, FSymbolGetSymbolSymbol(), _symbolHash, (FObject *)" symbol");
+		FObjectSetVariableWithHash(_symbol, FSymbolGetHashSymbol(), FSymbolCalculateHashForString(" hash"), (FObject *)_symbolHash);
+		// FSymbolCreateWithString(" symbol");
+	}
+	return _symbol;
+}
+
+FObject *FSymbolGetHashSymbol() {
+	static FObject *_hash = NULL;
+	if(!_hash) {
+		_hash = FObjectCreate(NULL);
+		size_t _hashHash = FSymbolCalculateHashForString(" hash"); // :)
+		FObjectSetVariableWithHash(_hash, FSymbolGetSymbolSymbol(), FSymbolCalculateHashForString(" symbol"), (FObject *)" hash");
+		FObjectSetVariableWithHash(_hash, FSymbolGetHashSymbol(), _hashHash, (FObject *)_hashHash);
+		// FSymbolCreateWithString(" symbol");
+	}
+	return _hash;
+}
+
+
+FObject *FSymbolCreateWithString(const char *symbol) {
+	// FHashTableGetValueForKey(FSymbolTable(), )
+	FObject *instance = FObjectCreate(NULL);
 	// set the prototype
+	FObjectSetVariableWithHash(instance, FSymbolGetSymbolSymbol(), FSymbolCalculateHashForString(" symbol"), (FObject *)symbol);
+	FObjectSetVariableWithHash(instance, FSymbolGetHashSymbol(), FSymbolCalculateHashForString(" hash"), (FObject *)FSymbolCalculateHashForString(symbol));
 	return instance;
 }
 
-FSymbol *FSymbolCreateWithSubstring(const char *symbol, size_t length) {
+FObject *FSymbolCreateWithSubstring(const char *symbol, size_t length) {
 	return FSymbolCreateWithString(strncpy(FAllocatorAllocate(NULL, length), symbol, length));
 }
 
 
-bool FSymbolIsEqual(FSymbol *a, FSymbol *b) {
+bool FSymbolIsEqual(FObject *a, FObject *b) {
 	if(!a) {
 		printf("a is null!\n");
 		fflush(stdout);
@@ -53,24 +87,25 @@ bool FSymbolIsEqual(FSymbol *a, FSymbol *b) {
 		((a == b) && (a != NULL))
 	||	(
 		((a != NULL) && (b != NULL))
-	&&	(a->hash == b->hash)
-	&&	(strcmp(a->symbol, b->symbol) == 0)
+	&&	(FSymbolGetHash(a) == FSymbolGetHash(b))
+	&&	(strcmp(FSymbolGetString(a), FSymbolGetString(b)) == 0)
 	);
 }
 
 
-const char *FSymbolGetString(FSymbol *self) {
-	return self->symbol;
+const char *FSymbolGetString(FObject *self) {
+	return (const char *)FObjectGetVariableWithHash(self, FSymbolGetSymbolSymbol(), FSymbolCalculateHashForString(" symbol"));
 }
 
-unsigned long FSymbolGetHash(FSymbol *self) {
-	return self->hash;
+unsigned long FSymbolGetHash(FObject *self) {
+	return (unsigned long)FObjectGetVariableWithHash(self, FSymbolGetHashSymbol(), FSymbolCalculateHashForString(" hash"));
+	// return (unsigned long)self;
 }
 
 
-size_t FSymbolGetArity(FSymbol *self) {
+size_t FSymbolGetArity(FObject *self) {
 	size_t count = 0;
-	char *symbol = (char *)self->symbol;
+	char *symbol = (char *)FSymbolGetString(self);
 	while((symbol = index(symbol + 1, ':'))) {
 		count++;
 	}
