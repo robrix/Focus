@@ -76,7 +76,7 @@ LLVMValueRef FCompilerGetMethodFunction(FCompiler *compiler) {
 
 LLVMValueRef FCompilerGetImplementationFunction(FCompiler *compiler) {
 	LLVMTypeRef objectType = FCompilerGetObjectType(compiler);
-	return FCompilerGetReferenceToExternalFunction(compiler, "FFunctionGetImplementation", LLVMFunctionType(LLVMFunctionType(objectType, (LLVMTypeRef[]){ objectType, objectType }, 2, 1), (LLVMTypeRef[]){ objectType }, 1, 0));
+	return FCompilerGetReferenceToExternalFunction(compiler, "FFunctionGetImplementation", LLVMFunctionType(LLVMPointerType(LLVMFunctionType(objectType, (LLVMTypeRef[]){ objectType, objectType }, 2, 1), 0), (LLVMTypeRef[]){ objectType }, 1, 0));
 }
 
 // fixme: if the message is nullary and has no receiver, try it out as an argument reference
@@ -100,7 +100,7 @@ LLVMValueRef FCompilerCompileMessage(FCompiler *compiler, FObject *function, FOb
 	}
 	LLVMValueRef method = LLVMBuildCall(compiler->builder, FCompilerGetMethodFunction(compiler), arguments, 2, "");
 	LLVMValueRef implementation = LLVMBuildCall(compiler->builder, FCompilerGetImplementationFunction(compiler), (LLVMValueRef[]){ method }, 1, "get fptr");
-	return LLVMBuildCall(compiler->builder, LLVMBuildPointerCast(compiler->builder, implementation, FCompilerGetMethodTypeOfArity(compiler, FSymbolGetArity(FSend(message, selector))), "cast fptr to method type"), arguments, count + 2, FSymbolGetString(FSend(message, selector)));
+	return LLVMBuildCall(compiler->builder, LLVMBuildPointerCast(compiler->builder, implementation, LLVMPointerType(FCompilerGetMethodTypeOfArity(compiler, FSymbolGetArity(FSend(message, selector))), 0), "cast fptr to method type"), arguments, count + 2, FSymbolGetString(FSend(message, selector)));
 }
 
 
