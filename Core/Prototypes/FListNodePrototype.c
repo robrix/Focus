@@ -83,8 +83,9 @@ FObject *FListNodeCreateWithObjects(FObject *object, ...) {
 
 size_t FListNodeGetCount(FObject *self) {
 	size_t count = 0;
-	while(((self = FSend(self, next))) != NULL) {
+	while(self) {
 		count++;
+		self = FSend(self, next);
 	}
 	return count;
 }
