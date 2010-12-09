@@ -9,6 +9,8 @@
 
 #include "FObject+Protected.h"
 
+#include <stdio.h>
+
 FObject *FObjectCreate(FObject *prototype) {
 	FObject *object = FAllocatorAllocate(NULL, sizeof(FObject));
 	object->prototype = prototype;
@@ -22,36 +24,41 @@ FObject *FObjectGetPrototype(FObject *self) {
 }
 
 
-FObject *FObjectGetVariable(FObject *self, struct FObject *selector) {
+FObject *FObjectGetVariable(FObject *self, FObject *selector) {
 	return FHashTableGetValueForKey(self->variables, selector);
 }
 
-FObject *FObjectGetVariableWithHash(struct FObject *self, struct FObject *selector, size_t hash) {
+FObject *FObjectGetVariableWithHash(FObject *self, FObject *selector, size_t hash) {
 	return FHashTableGetValueForKeyWithHash(self->variables, selector, hash);
 }
 
-FObject *FObjectSetVariable(FObject *self, struct FObject *selector, FObject *other) {
+FObject *FObjectSetVariable(FObject *self, FObject *selector, FObject *other) {
 	FHashTableSetValueForKey(self->variables, selector, other);
 	return other;
 }
 
-FObject *FObjectSetVariableWithHash(struct FObject *self, struct FObject *selector, size_t hash, struct FObject *variable) {
+FObject *FObjectSetVariableWithHash(FObject *self, FObject *selector, size_t hash, FObject *variable) {
 	FHashTableSetValueForKeyWithHash(self->variables, selector, hash, variable);
 	return variable;
 }
 
-FObject *FObjectSetVariableAsAccessor(FObject *self, struct FObject *selector, FObject *other) {
+FObject *FObjectSetVariableAsAccessor(FObject *self, FObject *selector, FObject *other) {
 	const char *string = FSymbolGetString(selector);
 	FHashTableSetValueForKey(self->variables, FSymbolCreateWithSubstring(string, strlen(string) - 1), other);
 	return other;
 }
 
 
-struct FObject *FObjectGetMethod(FObject *self, struct FObject *selector) {
-	return (struct FObject *)(self->methods ? FHashTableGetValueForKey(self->methods, selector) : NULL) ?: (self->prototype ? FObjectGetMethod(self->prototype, selector) : NULL);
+FObject *FObjectGetMethod(FObject *self, FObject *selector) {
+	if(!self) {
+		printf("#%s sent to NULL\n", FSymbolGetString(selector));
+		fflush(stdout);
+		// return NULL;
+	}
+	return (FObject *)(self->methods ? FHashTableGetValueForKey(self->methods, selector) : NULL) ?: (self->prototype ? FObjectGetMethod(self->prototype, selector) : NULL);
 }
 
-void FObjectSetMethod(FObject *self, struct FObject *selector, struct FObject *function) {
+void FObjectSetMethod(FObject *self, FObject *selector, FObject *function) {
 	if(self->methods == NULL) {
 		self->methods = FHashTableCreate();
 	}

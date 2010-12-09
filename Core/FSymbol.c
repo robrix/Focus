@@ -10,6 +10,7 @@
 #include <string.h>
 #include <stdio.h>
 
+// fixme: unique symbols
 // FHashTable *FSymbolGetSymbolTable() {
 // 	static FHashTable *table = NULL;
 // 	if(!table) {
@@ -42,7 +43,6 @@ FObject *FSymbolGetSymbolSymbol() {
 		size_t _symbolHash = FSymbolCalculateHashForString(" symbol");
 		FObjectSetVariableWithHash(_symbol, FSymbolGetSymbolSymbol(), _symbolHash, (FObject *)" symbol");
 		FObjectSetVariableWithHash(_symbol, FSymbolGetHashSymbol(), FSymbolCalculateHashForString(" hash"), (FObject *)_symbolHash);
-		// FSymbolCreateWithString(" symbol");
 	}
 	return _symbol;
 }
@@ -94,12 +94,13 @@ bool FSymbolIsEqual(FObject *a, FObject *b) {
 
 
 const char *FSymbolGetString(FObject *self) {
+	// fixme: cache the hash
 	return (const char *)FObjectGetVariableWithHash(self, FSymbolGetSymbolSymbol(), FSymbolCalculateHashForString(" symbol"));
 }
 
 unsigned long FSymbolGetHash(FObject *self) {
+	// fixme: cache the hash
 	return (unsigned long)FObjectGetVariableWithHash(self, FSymbolGetHashSymbol(), FSymbolCalculateHashForString(" hash"));
-	// return (unsigned long)self;
 }
 
 

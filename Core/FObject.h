@@ -9,7 +9,7 @@
 
 typedef struct FObject FObject;
 
-typedef FObject *(*FImplementation)(FObject *receiver, struct FObject *selector, ...);
+typedef FObject *(*FImplementation)(FObject *receiver, FObject *selector, ...);
 
 extern FObject *FSymbolCreateWithString(const char *);
 extern FImplementation FFunctionGetImplementation(FObject *function);
@@ -21,7 +21,7 @@ FObject *FObjectCreate(FObject *prototype);
 
 FObject *FObjectGetPrototype(FObject *self);
 
-struct FObject *FObjectGetMethod(FObject *self, struct FObject *selector);
-void FObjectSetMethod(FObject *self, struct FObject *selector, struct FObject *function);
+FObject *FObjectGetMethod(FObject *self, FObject *selector);
+void FObjectSetMethod(FObject *self, FObject *selector, FObject *function);
 
 #endif // F_OBJECT
