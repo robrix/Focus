@@ -12,11 +12,11 @@
 #include "FTestSuite.h"
 
 static void testCompilesFunctions() {
-	// FObject *function = FSend(FFunctionPrototypeGet(), newWithArguments:messages:, FListNodeCreateWithObject((FObject *)FSymbolCreateWithString("x")), FMessageCreateNullaryWithSubstring(NULL, NULL, "x", 1));
+	FObject *function = FSend(FFunctionPrototypeGet(), newWithArguments:messages:, FListNodeCreateWithObject(FSymbolCreateWithString("x")), FListNodeCreateWithObject(FMessageCreateNullaryWithSubstring(NULL, NULL, "x", 1)));
 	
-	// FCompiler *compiler = FCompilerCreate();
+	FCompiler *compiler = FCompilerCreate();
 	
-	// FCompilerCompileFunction(compiler, function);
+	FCompilerCompileFunction(compiler, function);
 	
 	// how do we get the fptr? ask the execution engine for it? how does that work? should wrap that in an FCompiler function
 	// where does optimization come in? just before getting the fptr?
