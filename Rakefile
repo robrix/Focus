@@ -15,18 +15,17 @@ tests = Hax::Target.new("tests") do |t|
 	
 	t.search_for_libraries_in %x{llvm-config --libdir}.chomp
 	t.link_with *%x{llvm-config --libnames engine}.split(" ").collect{ |lib| lib[/lib(.+?)\.a/, 1] }
-	# t.link_with "stdc++"
-	t.link_phase.linker = `which g++`.chomp
+	t.link_phase.linker = `which clang++`.chomp
 	
-	t.build_phase("debug") do |target|
-		puts "Extracting debug info"
-		%x{dsymutil "#{target.product_path}"}
-	end
-	
-	t.build_phase("strip") do |target|
-		puts "Stripping test executable"
-		%x{strip "#{target.product_path}"}
-	end
+	# t.build_phase("debug") do |target|
+	# 	puts "Extracting debug info"
+	# 	%x{dsymutil "#{target.product_path}"}
+	# end
+	# 
+	# t.build_phase("strip") do |target|
+	# 	puts "Stripping test executable"
+	# 	%x{strip -S "#{target.product_path}"}
+	# end
 	
 	t.build_phase("Run tests") do |target|
 		puts "Running tests\n\n"
