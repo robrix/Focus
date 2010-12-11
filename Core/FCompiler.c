@@ -8,6 +8,7 @@
 #include "FCompiler.h"
 #include "FFunction.h"
 #include "Prototypes/FMessagePrototype.h"
+#include "Prototypes/FFunctionPrototype.h"
 #include "Prototypes/FListNodePrototype.h"
 #include <llvm-c/ExecutionEngine.h>
 #include <llvm-c/Target.h>
@@ -85,22 +86,30 @@ LLVMValueRef FCompilerCompileMessage(FCompiler *compiler, FObject *function, FOb
 		printf("attempting to compile null message!\n");
 		fflush(stdout);
 	}
-	LLVMValueRef receiver = FSend(message, receiver)
-	?	FCompilerCompileMessage(compiler, function, FSend(message, receiver))
-	:	FCompilerGetReferenceToObject(compiler, FSend(message, context));
+	
+	LLVMValueRef result = NULL;
 	LLVMValueRef selector = FCompilerGetReferenceToObject(compiler, FSend(message, selector));
-	FObject *argumentNode = FSend(message, arguments);
-	size_t count = FListNodeGetCount(argumentNode), i = 2;
-	LLVMValueRef arguments[count + 2];
-	arguments[0] = receiver;
-	arguments[1] = selector;
-	while(argumentNode) {
-		arguments[i++] = FCompilerCompileMessage(compiler, function, FSend(argumentNode, object));
-		argumentNode = FSend(argumentNode, next);
+	size_t paramIndex = FFunctionGetIndexOfArgument(function, FSend(message, selector));
+	if(paramIndex != FFunctionArgumentNotFound) {
+		result = LLVMGetParam(LLVMGetBasicBlockParent(LLVMGetInsertBlock(compiler->builder)), paramIndex + 2);
+	} else {
+		LLVMValueRef receiver = FSend(message, receiver)
+		?	FCompilerCompileMessage(compiler, function, FSend(message, receiver))
+		:	FCompilerGetReferenceToObject(compiler, /*FSend(function, context)*/NULL);
+		FObject *argumentNode = FSend(message, arguments);
+		size_t count = FListNodeGetCount(argumentNode), i = 2;
+		LLVMValueRef arguments[count + 2];
+		arguments[0] = receiver;
+		arguments[1] = selector;
+		while(argumentNode) {
+			arguments[i++] = FCompilerCompileMessage(compiler, function, FSend(argumentNode, object));
+			argumentNode = FSend(argumentNode, next);
+		}
+		LLVMValueRef method = LLVMBuildCall(compiler->builder, FCompilerGetMethodFunction(compiler), arguments, 2, "");
+		LLVMValueRef implementation = LLVMBuildCall(compiler->builder, FCompilerGetImplementationFunction(compiler), (LLVMValueRef[]){ method }, 1, "get fptr");
+		result = LLVMBuildCall(compiler->builder, LLVMBuildPointerCast(compiler->builder, implementation, LLVMPointerType(FCompilerGetMethodTypeOfArity(compiler, FSymbolGetArity(FSend(message, selector))), 0), "cast fptr to method type"), arguments, count + 2, FSymbolGetString(FSend(message, selector)));
 	}
-	LLVMValueRef method = LLVMBuildCall(compiler->builder, FCompilerGetMethodFunction(compiler), arguments, 2, "");
-	LLVMValueRef implementation = LLVMBuildCall(compiler->builder, FCompilerGetImplementationFunction(compiler), (LLVMValueRef[]){ method }, 1, "get fptr");
-	return LLVMBuildCall(compiler->builder, LLVMBuildPointerCast(compiler->builder, implementation, LLVMPointerType(FCompilerGetMethodTypeOfArity(compiler, FSymbolGetArity(FSend(message, selector))), 0), "cast fptr to method type"), arguments, count + 2, FSymbolGetString(FSend(message, selector)));
+	return result;
 }
 
 

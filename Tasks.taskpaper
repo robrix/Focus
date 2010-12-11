@@ -14,9 +14,7 @@ Compiler:
 	- LLVMRunFunctionPassManager as functions are compiled.
 	- finalize and dispose of the function pass manager when the compiler is disposed of.
 AST:
-	- implement functions (a list of arguments and a list of messages).
-	- messages should be objects.
-	- message nodes should be objects.
+	- store source information (line number, etc) in the AST nodes.
 Evaluator:
 	- each source file gets its own context.
 	- per-evaluator objects:
@@ -30,4 +28,5 @@ Symbol:
 Function:
 	- should have a name based on its location in the source, where applicable.
 	- should have a name based on its assignment as a method, where applicable.
+	- organize all the relevant functions into FFunctionPrototype.h.
 	- store the function pointer in the variables hash table. @done(2010-12-02)
