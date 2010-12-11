@@ -8,6 +8,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "FObject.h"
+
 bool FParseCharacterSet(const char *source, size_t index, const char *characters, size_t *outLength);
 bool FParseToken(const char *source, size_t index, const char *token);
 
@@ -17,20 +19,20 @@ bool FParseWhitespaceAndNewlines(const char *source, size_t index, size_t *outLe
 
 bool FParseKeyword(const char *source, size_t index, size_t *outLength);
 
-bool FParseNullaryMessage(struct FObject *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **messageNode);
-bool FParseNAryMessage(struct FObject *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **messageNode);
-bool FParseMessage(struct FObject *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **messageNode);
+bool FParseNullaryMessage(FObject *receiver, const char *source, size_t index, size_t *outLength, FObject **messageNode);
+bool FParseNAryMessage(FObject *receiver, const char *source, size_t index, size_t *outLength, FObject **messageNode);
+bool FParseMessage(FObject *receiver, const char *source, size_t index, size_t *outLength, FObject **messageNode);
 
-bool FParseParameter(const char *source, size_t index, size_t *outLength, struct FObject **symbol);
-bool FParseParameterList(const char *source, size_t index, size_t *outLength, struct FObject **outParameterNode);
+bool FParseParameter(const char *source, size_t index, size_t *outLength, FObject **symbol);
+bool FParseParameterList(const char *source, size_t index, size_t *outLength, FObject **outParameterNode);
 
-bool FParseNAryFunction(const char *source, size_t index, size_t *outLength, struct FObject **outFunction);
-bool FParseNullaryFunction(const char *source, size_t index, size_t *outLength, struct FObject **outFunction);
+bool FParseNAryFunction(const char *source, size_t index, size_t *outLength, FObject **outFunction);
+bool FParseNullaryFunction(const char *source, size_t index, size_t *outLength, FObject **outFunction);
 
-bool FParseExpression(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **expressionNode);
-bool FParseParenthesizedExpression(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **expressionNode);
-bool FParseExpressionList(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **listNode);
+bool FParseExpression(const char *source, size_t index, size_t *outLength, FObject **expressionNode);
+bool FParseParenthesizedExpression(const char *source, size_t index, size_t *outLength, FObject **expressionNode);
+bool FParseExpressionList(const char *source, size_t index, size_t *outLength, FObject **listNode);
 
-void *FParse(const char *source);
+FObject *FParse(const char *source); // returns a function
 
 #endif // F_PARSER

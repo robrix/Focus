@@ -9,20 +9,29 @@
 #include "Core/Prototypes/FFunctionPrototype.h"
 #include "Core/Prototypes/FListNodePrototype.h"
 #include "Core/Prototypes/FMessagePrototype.h"
+#include "Core/Prototypes/FObjectPrototype.h"
 #include "FTestSuite.h"
 
 static void testCompilesFunctions() {
-	FObject *function = FSend(FFunctionPrototypeGet(), newWithArguments:messages:, FListNodeCreateWithObject(FSymbolCreateWithString("x")), FListNodeCreateWithObject(FMessageCreateNullaryWithSubstring(NULL, NULL, "x", 1)));
+	FObject *function = FSend(FFunctionPrototypeGet(), newWithArguments:messages:, FListNodeCreateWithObject(FSymbolCreateWithString("x")), FListNodeCreateWithObject(FMessageCreateNullaryWithSubstring(NULL, "x", 1)));
 	
 	FCompiler *compiler = FCompilerCreate();
 	
-	FCompilerCompileFunction(compiler, function);
+	FImplementation implementation = FCompilerCompileFunction(compiler, function);
+	FAssert(implementation != NULL);
 	
-	// how do we get the fptr? ask the execution engine for it? how does that work? should wrap that in an FCompiler function
 	// where does optimization come in? just before getting the fptr?
 	
 	// call it
-	
+	/*
+	calling conventions:
+	- implementations take their receiver as the first argument, and the selector they are being called with as the second. These may be null.
+	- functions are created with a reference to a context (scope).
+	- when a function is called, it sets up a new, temporary context inheriting from its original context.
+	- nullary messages within the function’s body are compared against its arguments.
+	*/
+	FAssert(implementation(NULL, NULL, NULL) == NULL);
+	FAssert(implementation(NULL, NULL, FObjectPrototypeGet()) == FObjectPrototypeGet());
 }
 
 void FRunCompilerTests() {

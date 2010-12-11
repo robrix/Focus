@@ -59,12 +59,12 @@ bool FParseKeyword(const char *source, size_t index, size_t *outLength) {
 }
 
 
-bool FParseNullaryMessage(struct FObject *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **messageNode) {
+bool FParseNullaryMessage(FObject *receiver, const char *source, size_t index, size_t *outLength, FObject **messageNode) {
 	size_t length = 0;
 	bool result = FParseWord(source, index, &length) && !FParseToken(source, index + length, ":");
 	if(result) {
 		if(messageNode) {
-			*messageNode = FMessageCreateNullaryWithSubstring(context, receiver, source + index, length);
+			*messageNode = FMessageCreateNullaryWithSubstring(receiver, source + index, length);
 		}
 		if(outLength) {
 			*outLength = length;
@@ -74,15 +74,15 @@ bool FParseNullaryMessage(struct FObject *receiver, struct FObject *context, con
 }
 
 
-bool FParseArgument(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **argumentNode) {
+bool FParseArgument(const char *source, size_t index, size_t *outLength, FObject **argumentNode) {
 	size_t totalLength = 0;
 	FObject *receiver = NULL;
-	bool result = FParseParenthesizedExpression(context, source, index, &totalLength, &receiver) || FParseNullaryMessage(NULL, context, source, index, &totalLength, &receiver);
+	bool result = FParseParenthesizedExpression(source, index, &totalLength, &receiver) || FParseNullaryMessage(NULL, source, index, &totalLength, &receiver);
 	if(result) {
 		size_t whitespaceLength = 0, messageLength = 0;
 		while(
 			(FParseWhitespace(source, index + totalLength, &whitespaceLength) || 1)
-		&&	FParseNullaryMessage(receiver, context, source, index + totalLength + whitespaceLength, &messageLength, &receiver)
+		&&	FParseNullaryMessage(receiver, source, index + totalLength + whitespaceLength, &messageLength, &receiver)
 		) {
 			totalLength += whitespaceLength + messageLength;
 			
@@ -95,29 +95,29 @@ bool FParseArgument(struct FObject *context, const char *source, size_t index, s
 	return result;
 }
 
-bool FParseKeywordArgument(struct FObject *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, size_t *outKeywordLength, struct FObject **argumentNode) {
+bool FParseKeywordArgument(FObject *receiver, const char *source, size_t index, size_t *outLength, size_t *outKeywordLength, FObject **argumentNode) {
 	size_t keywordLength = 0, whitespaceLength = 0, argumentLength = 0;
 	bool result =
 		FParseKeyword(source, index, &keywordLength)
 	&&	(FParseWhitespaceAndNewlines(source, index + keywordLength, &whitespaceLength) || 1)
-	&&	FParseArgument(context, source, index + keywordLength + whitespaceLength, &argumentLength, argumentNode);
+	&&	FParseArgument(source, index + keywordLength + whitespaceLength, &argumentLength, argumentNode);
 	if(outKeywordLength && result) *outKeywordLength = keywordLength;
 	if(outLength && result) *outLength = keywordLength + whitespaceLength + argumentLength;
 	return result;
 }
 
-bool FParseNAryMessage(struct FObject *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **messageNode) {
+bool FParseNAryMessage(FObject *receiver, const char *source, size_t index, size_t *outLength, FObject **messageNode) {
 	size_t totalLength = 0, selectorLength = 0;
 	char *selector = NULL;
 	FObject
-		*message = FMessageCreate(context, receiver, NULL, NULL),
+		*message = FMessageCreate(receiver, NULL, NULL),
 		*argument = NULL;
 	FObject *arguments = NULL;
 	size_t keywordLength = 0, keywordArgumentLength = 0, whitespaceLength = 0;
 	unsigned count = 0;
 	while(
 		(FParseWhitespace(source, index + totalLength, &whitespaceLength) || 1)
-	&&	FParseKeywordArgument(receiver, context, source, index + totalLength + whitespaceLength, &keywordArgumentLength, &keywordLength, &argument)
+	&&	FParseKeywordArgument(receiver, source, index + totalLength + whitespaceLength, &keywordArgumentLength, &keywordLength, &argument)
 	) {
 		size_t start = index + totalLength;
 		totalLength += keywordArgumentLength + whitespaceLength;
@@ -146,10 +146,10 @@ bool FParseNAryMessage(struct FObject *receiver, struct FObject *context, const 
 	return result;
 }
 
-bool FParseMessage(struct FObject *receiver, struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **messageNode) {
+bool FParseMessage(FObject *receiver, const char *source, size_t index, size_t *outLength, FObject **messageNode) {
 	return
-		FParseNAryMessage(receiver, context, source, index, outLength, messageNode)
-	||	FParseNullaryMessage(receiver, context, source, index, outLength, messageNode);
+		FParseNAryMessage(receiver, source, index, outLength, messageNode)
+	||	FParseNullaryMessage(receiver, source, index, outLength, messageNode);
 }
 
 
@@ -162,7 +162,7 @@ bool FParseMessage(struct FObject *receiver, struct FObject *context, const char
 	\ -> 3
 	\ 4
 */
-bool FParseParameter(const char *source, size_t index, size_t *outLength, struct FObject **symbol) {
+bool FParseParameter(const char *source, size_t index, size_t *outLength, FObject **symbol) {
 	size_t length = 0;
 	if(FParseWord(source, index, &length)) {
 		if(outLength) *outLength = length;
@@ -171,7 +171,7 @@ bool FParseParameter(const char *source, size_t index, size_t *outLength, struct
 	return length > 0;
 }
 
-bool FParseParameterList(const char *source, size_t index, size_t *outLength, struct FObject **outParameterNode) {
+bool FParseParameterList(const char *source, size_t index, size_t *outLength, FObject **outParameterNode) {
 	bool result = 1;
 	size_t totalLength = 0;
 	FObject *rootNode = NULL, *currentNode = NULL;
@@ -203,7 +203,7 @@ bool FParseParameterList(const char *source, size_t index, size_t *outLength, st
 	return result;
 }
 
-bool FParseParameterListAndFunctionBodySeparator(const char *source, size_t index, size_t *outLength, struct FObject **outParameterNode) {
+bool FParseParameterListAndFunctionBodySeparator(const char *source, size_t index, size_t *outLength, FObject **outParameterNode) {
 	size_t parameterListLength = 0, whitespaceLength = 0;
 	bool result =
 		FParseParameterList(source, index, &parameterListLength, outParameterNode)
@@ -216,14 +216,14 @@ bool FParseParameterListAndFunctionBodySeparator(const char *source, size_t inde
 }
 
 
-bool FParseNAryFunction(const char *source, size_t index, size_t *outLength, struct FObject **outFunction) {
+bool FParseNAryFunction(const char *source, size_t index, size_t *outLength, FObject **outFunction) {
 	size_t openingWhitespaceLength = 0, closingWhitespaceLength = 0, parameterListLength = 0, expressionListLength = 0;
 	FObject *parameterList = NULL, *expressionList = NULL;
 	bool result =
 		FParseToken(source, index, "{")
 	&&	(FParseWhitespaceAndNewlines(source, index + 1, &openingWhitespaceLength) || 1)
 	&&	FParseParameterListAndFunctionBodySeparator(source, index + 1 + openingWhitespaceLength, &parameterListLength, &parameterList)
-	&&	FParseExpressionList(NULL, source, index + 1 + openingWhitespaceLength + parameterListLength, &expressionListLength, &expressionList)
+	&&	FParseExpressionList(source, index + 1 + openingWhitespaceLength + parameterListLength, &expressionListLength, &expressionList)
 	&&	(FParseWhitespaceAndNewlines(source, index + 1 + openingWhitespaceLength + parameterListLength + expressionListLength, &closingWhitespaceLength) || 1)
 	&&	FParseToken(source, index + 1 + openingWhitespaceLength + parameterListLength + expressionListLength + closingWhitespaceLength, "}");
 	if(result) {
@@ -234,13 +234,13 @@ bool FParseNAryFunction(const char *source, size_t index, size_t *outLength, str
 }
 
 
-bool FParseNullaryFunction(const char *source, size_t index, size_t *outLength, struct FObject **outFunction) {
+bool FParseNullaryFunction(const char *source, size_t index, size_t *outLength, FObject **outFunction) {
 	size_t openingWhitespaceLength = 0, closingWhitespaceLength = 0, expressionListLength = 0;
 	FObject *expressionList = NULL;
 	bool result =
 		FParseToken(source, index, "{")
 	&&	(FParseWhitespaceAndNewlines(source, index + 1, &openingWhitespaceLength) || 1)
-	&&	FParseExpressionList(NULL, source, index + 1 + openingWhitespaceLength, &expressionListLength, &expressionList)
+	&&	FParseExpressionList(source, index + 1 + openingWhitespaceLength, &expressionListLength, &expressionList)
 	&&	(FParseWhitespaceAndNewlines(source, index + 1 + openingWhitespaceLength + expressionListLength, &closingWhitespaceLength) || 1)
 	&&	FParseToken(source, index + 1 + openingWhitespaceLength + expressionListLength + closingWhitespaceLength, "}");
 	if(result) {
@@ -250,22 +250,22 @@ bool FParseNullaryFunction(const char *source, size_t index, size_t *outLength, 
 	return result;
 }
 
-bool FParseFunction(const char *source, size_t index, size_t *outLength, struct FObject **outFunction) {
+bool FParseFunction(const char *source, size_t index, size_t *outLength, FObject **outFunction) {
 	return
 		FParseNAryFunction(source, index, outLength, outFunction)
 	||	FParseNullaryFunction(source, index, outLength, outFunction);
 }
 
 
-bool FParseExpression(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **expressionNode) {
+bool FParseExpression(const char *source, size_t index, size_t *outLength, FObject **expressionNode) {
 	size_t totalLength = 0;
 	FObject *receiver = NULL;
-	bool result = FParseParenthesizedExpression(context, source, index, &totalLength, &receiver) || FParseMessage(NULL, context, source, index, &totalLength, &receiver);
+	bool result = FParseParenthesizedExpression(source, index, &totalLength, &receiver) || FParseMessage(NULL, source, index, &totalLength, &receiver);
 	if(result) {
 		size_t whitespaceLength = 0, messageLength = 0;
 		while(
 			(FParseWhitespace(source, index + totalLength, &whitespaceLength) || 1)
-		&&	FParseMessage(receiver, context, source, index + totalLength + whitespaceLength, &messageLength, &receiver)
+		&&	FParseMessage(receiver, source, index + totalLength + whitespaceLength, &messageLength, &receiver)
 		) {
 			totalLength += whitespaceLength + messageLength;
 			whitespaceLength = messageLength = 0;
@@ -278,25 +278,25 @@ bool FParseExpression(struct FObject *context, const char *source, size_t index,
 	return result;
 }
 
-bool FParseParenthesizedExpression(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **expressionNode) {
+bool FParseParenthesizedExpression(const char *source, size_t index, size_t *outLength, FObject **expressionNode) {
 	size_t expressionLength = 0, openingWhitespaceLength = 0, closingWhitespaceLength = 0;
 	bool result =
 		FParseToken(source, index, "(")
 	&&	(FParseWhitespaceAndNewlines(source, index + 1, &openingWhitespaceLength) || 1)
-	&&	FParseExpression(context, source, index + 1 + openingWhitespaceLength, &expressionLength, expressionNode)
+	&&	FParseExpression(source, index + 1 + openingWhitespaceLength, &expressionLength, expressionNode)
 	&&	(FParseWhitespaceAndNewlines(source, index + 1 + openingWhitespaceLength + expressionLength, &closingWhitespaceLength) || 1)
 	&&	FParseToken(source, index + 1 + openingWhitespaceLength + expressionLength + closingWhitespaceLength, ")");
 	if(outLength && result) *outLength = 1 + openingWhitespaceLength + expressionLength + closingWhitespaceLength + 1;
 	return result;
 }
 
-bool FParseExpressionList(struct FObject *context, const char *source, size_t index, size_t *outLength, struct FObject **listNode) {
+bool FParseExpressionList(const char *source, size_t index, size_t *outLength, FObject **listNode) {
 	bool result = 0;
 	size_t whitespaceLength = 0, expressionLength = 0, totalLength = 0;
 	FObject *rootNode = NULL, *currentNode = NULL, *expression = NULL;
 	while(
 		(FParseWhitespaceAndNewlines(source, index + totalLength, &whitespaceLength) || 1)
-	&&	FParseExpression(context, source, index + totalLength + whitespaceLength, &expressionLength, &expression)
+	&&	FParseExpression(source, index + totalLength + whitespaceLength, &expressionLength, &expression)
 	) {
 		totalLength += whitespaceLength + expressionLength;
 		whitespaceLength = expressionLength = 0;

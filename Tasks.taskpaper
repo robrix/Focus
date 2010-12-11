@@ -4,27 +4,29 @@ Parser:
 	- write the parser as a Focus object so it can be inherited from and overridden.
 	- test overall parsing (including trailing whitespace, and no trailing garbage).
 	- parse functions. Decide on a syntax first, of course…
-
 Hash table:
 	- use FArray internally.
-
+Compiler:
+	- create and initialize a function pass manager on creation.
+		LLVMCreateFunctionPassManagerForModule
+		LLVMInitializeFunctionPassManager
+		- add optimization passes from llvm-c/Transforms/Scalar.h and llvm-c/Transforms/IPO.h.
+	- LLVMRunFunctionPassManager as functions are compiled.
+	- finalize and dispose of the function pass manager when the compiler is disposed of.
 AST:
 	- implement functions (a list of arguments and a list of messages).
 	- messages should be objects.
 	- message nodes should be objects.
-
 Evaluator:
 	- each source file gets its own context.
 	- per-evaluator objects:
 		- allocator/GC.
 		- prototypes (object, context, function, etc).
 		- compiler.
-
 Symbol:
 	- make a symbol prototype, and make symbols a proper object type.
 	- symbols should consist of a string and a hash.
 	- symbols should be uniqued.
-
 Function:
 	- should have a name based on its location in the source, where applicable.
 	- should have a name based on its assignment as a method, where applicable.
