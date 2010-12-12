@@ -11,10 +11,8 @@
 #include <llvm-c/Core.h>
 #include "FObject.h"
 
-typedef struct FCompiler FCompiler;
+FObject *FCompilerCreate();
 
-FCompiler *FCompilerCreate();
-
-FImplementation FCompilerCompileFunction(FCompiler *compiler, FObject *function);
+FImplementation FCompilerCompileFunction(FObject *compiler, FObject *function);
 
 #endif // F_COMPILER

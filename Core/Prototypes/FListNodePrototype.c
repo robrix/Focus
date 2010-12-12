@@ -5,7 +5,7 @@
 #include "FListNodePrototype.h"
 
 #include "../FSymbol.h"
-#include "../FFunction.h"
+#include "../Prototypes/FFunctionPrototype.h"
 #include "../FObject+Protected.h"
 #include "FObjectPrototype.h"
 #include <stdlib.h>

@@ -5,7 +5,7 @@
 #include "FMessagePrototype.h"
 
 #include "../FSymbol.h"
-#include "../FFunction.h"
+#include "../Prototypes/FFunctionPrototype.h"
 #include "FObjectPrototype.h"
 #include "../FObject+Protected.h"
 #include <stdlib.h>

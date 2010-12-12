@@ -7,7 +7,7 @@
 #include "Prototypes/FFunctionPrototype.h"
 #include "FParser.h"
 #include "FSymbol.h"
-#include "FFunction.h"
+#include "Prototypes/FFunctionPrototype.h"
 #include "FObject.h"
 #include <ctype.h>
 #include <string.h>
@@ -228,7 +228,7 @@ bool FParseNAryFunction(const char *source, size_t index, size_t *outLength, FOb
 	&&	FParseToken(source, index + 1 + openingWhitespaceLength + parameterListLength + expressionListLength + closingWhitespaceLength, "}");
 	if(result) {
 		if(outLength) *outLength = index + 1 + openingWhitespaceLength + parameterListLength + expressionListLength + closingWhitespaceLength + 1;
-		if(outFunction) *outFunction = FSend(FFunctionPrototypeGet(), newWithArguments:messages:, parameterList, expressionList);
+		if(outFunction) *outFunction = FSend(FFunctionPrototypeGet(), newWithContext:arguments:messages:, NULL, parameterList, expressionList);
 	}
 	return result;
 }
@@ -245,7 +245,7 @@ bool FParseNullaryFunction(const char *source, size_t index, size_t *outLength, 
 	&&	FParseToken(source, index + 1 + openingWhitespaceLength + expressionListLength + closingWhitespaceLength, "}");
 	if(result) {
 		if(outLength) *outLength = index + 1 + openingWhitespaceLength + expressionListLength + closingWhitespaceLength + 1;
-		if(outFunction) *outFunction = FSend(FFunctionPrototypeGet(), newWithArguments:messages:, NULL, expressionList);
+		if(outFunction) *outFunction = FSend(FFunctionPrototypeGet(), newWithContext:arguments:messages:, NULL, NULL, expressionList);
 	}
 	return result;
 }

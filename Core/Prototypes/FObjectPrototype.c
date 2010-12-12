@@ -5,7 +5,7 @@
 #include "FObjectPrototype.h"
 
 #include "../FSymbol.h"
-#include "../FFunction.h"
+#include "../Prototypes/FFunctionPrototype.h"
 #include <stdlib.h>
 
 static FObject *FObjectPrototype = NULL;

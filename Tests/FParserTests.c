@@ -6,7 +6,7 @@
 #include "Core/Prototypes/FContextPrototype.h"
 #include "Core/Prototypes/FMessagePrototype.h"
 #include "Core/FParser.h"
-#include "Core/FFunction.h"
+#include "Core/Prototypes/FFunctionPrototype.h"
 #include "Core/FSymbol.h"
 #include "FTestSuite.h"
 
@@ -333,6 +333,7 @@ static void testParsesNullaryFunctions() {
 	FObject *function = NULL;
 	FAssert(
 		FParseNullaryFunction("{foo}", 0, &length, &function)
+	&&	function != NULL
 	&&	length == 5
 	&&	FSend(function, arguments) == NULL
 	&&	FSymbolIsEqual(FSend(FSend(FSend(function, messages), object), selector), FSymbolCreateWithString("foo"))
@@ -340,6 +341,7 @@ static void testParsesNullaryFunctions() {
 	FAssert(
 		FParseNullaryFunction("{ foo }", 0, &length, &function)
 	&&	length == 7
+	&&	function != NULL
 	&&	FSend(function, arguments) == NULL
 	&&	FSymbolIsEqual(FSend(FSend(FSend(function, messages), object), selector), FSymbolCreateWithString("foo"))
 	);

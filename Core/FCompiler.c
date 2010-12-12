@@ -4,9 +4,9 @@
 
 #include "FAllocator.h"
 #include "FSymbol.h"
-#include "FObject.h"
+#include "FObject+Protected.h"
 #include "FCompiler.h"
-#include "FFunction.h"
+#include "Prototypes/FFunctionPrototype.h"
 #include "Prototypes/FMessagePrototype.h"
 #include "Prototypes/FFunctionPrototype.h"
 #include "Prototypes/FListNodePrototype.h"
@@ -16,52 +16,69 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-struct FCompiler {
-	LLVMContextRef context;
-	LLVMModuleRef module;
-	LLVMBuilderRef builder;
-	LLVMExecutionEngineRef executor;
-};
+LLVMContextRef FCompilerGetContext(FObject *self) {
+	return (LLVMContextRef)FObjectGetVariable(self, FSymbolCreateWithString(" context"));
+}
 
-FCompiler *FCompilerCreate() {
+LLVMModuleRef FCompilerGetModule(FObject *self) {
+	return (LLVMModuleRef)FObjectGetVariable(self, FSymbolCreateWithString(" module"));
+	
+}
+
+LLVMBuilderRef FCompilerGetBuilder(FObject *self) {
+	return (LLVMBuilderRef)FObjectGetVariable(self, FSymbolCreateWithString(" builder"));
+	
+}
+
+LLVMExecutionEngineRef FCompilerGetExecutor(FObject *self) {
+	return (LLVMExecutionEngineRef)FObjectGetVariable(self, FSymbolCreateWithString(" executor"));
+}
+
+
+FObject *FCompilerCreate() {
 	static bool initedJIT = 0;
 	if(!initedJIT) {
 		LLVMLinkInJIT();
 		LLVMInitializeNativeTarget();
 		initedJIT = 1;
 	}
-	FCompiler *compiler = FAllocatorAllocate(NULL, sizeof(FCompiler));
-	compiler->context = LLVMContextCreate();
-	compiler->module = LLVMModuleCreateWithNameInContext("Focus", compiler->context);
-	compiler->builder = LLVMCreateBuilderInContext(compiler->context);
-	LLVMCreateJITCompilerForModule(&compiler->executor, compiler->module, 3, NULL);
+	FObject *compiler = FObjectCreate(NULL);
+	LLVMContextRef context = LLVMContextCreate();
+	LLVMModuleRef module = LLVMModuleCreateWithNameInContext("Focus", context);
+	LLVMExecutionEngineRef executor = NULL;
+	LLVMCreateJITCompilerForModule(&executor, module, 3, NULL);
+	FObjectSetVariable(compiler, FSymbolCreateWithString(" context"), (FObject *)context);
+	FObjectSetVariable(compiler, FSymbolCreateWithString(" module"), (FObject *)module);
+	FObjectSetVariable(compiler, FSymbolCreateWithString(" builder"), (FObject *)LLVMCreateBuilderInContext(context));
+	FObjectSetVariable(compiler, FSymbolCreateWithString(" executor"), (FObject *)executor);
+	
 	return compiler;
 }
 
-LLVMTypeRef FCompilerGetObjectType(FCompiler *compiler) {
-	LLVMTypeRef type = LLVMGetTypeByName(compiler->module, "FObject");
+LLVMTypeRef FCompilerGetObjectType(FObject *compiler) {
+	LLVMTypeRef type = LLVMGetTypeByName(FCompilerGetModule(compiler), "FObject");
 	if(!type) {
-		type = LLVMPointerType(LLVMInt8TypeInContext(compiler->context), 0);
-		LLVMAddTypeName(compiler->module, "FObject", type);
+		type = LLVMPointerType(LLVMInt8TypeInContext(FCompilerGetContext(compiler)), 0);
+		LLVMAddTypeName(FCompilerGetModule(compiler), "FObject", type);
 	}
 	return type;
 }
 
 
-LLVMValueRef FCompilerGetReferenceToObject(FCompiler *compiler, FObject *object) {
-	return LLVMConstIntToPtr(LLVMConstInt(LLVMInt8TypeInContext(compiler->context), (unsigned long long)object, 0), FCompilerGetObjectType(compiler));
+LLVMValueRef FCompilerGetReferenceToObject(FObject *compiler, FObject *object) {
+	return LLVMConstIntToPtr(LLVMConstInt(LLVMInt8TypeInContext(FCompilerGetContext(compiler)), (unsigned long long)object, 0), FCompilerGetObjectType(compiler));
 }
 
-LLVMValueRef FCompilerGetReferenceToExternalFunction(FCompiler *compiler, const char *name, LLVMTypeRef type) {
-	LLVMValueRef function = LLVMGetNamedFunction(compiler->module, name);
+LLVMValueRef FCompilerGetReferenceToExternalFunction(FObject *compiler, const char *name, LLVMTypeRef type) {
+	LLVMValueRef function = LLVMGetNamedFunction(FCompilerGetModule(compiler), name);
 	if(!function) {
-		function = LLVMAddFunction(compiler->module, name, type);
+		function = LLVMAddFunction(FCompilerGetModule(compiler), name, type);
 		LLVMSetLinkage(function, LLVMExternalLinkage);
 	}
 	return function;
 }
 
-LLVMTypeRef FCompilerGetMethodTypeOfArity(FCompiler *compiler, size_t arity) {
+LLVMTypeRef FCompilerGetMethodTypeOfArity(FObject *compiler, size_t arity) {
 	// there are two implicit parameters, self and selector.
 	LLVMTypeRef types[arity + 2];
 	for(size_t i = 0; i < arity + 2; i++) {
@@ -70,18 +87,18 @@ LLVMTypeRef FCompilerGetMethodTypeOfArity(FCompiler *compiler, size_t arity) {
 	return LLVMFunctionType(FCompilerGetObjectType(compiler), types, arity + 2, 0);
 }
 
-LLVMValueRef FCompilerGetMethodFunction(FCompiler *compiler) {
+LLVMValueRef FCompilerGetMethodFunction(FObject *compiler) {
 	LLVMTypeRef objectType = FCompilerGetObjectType(compiler);
 	return FCompilerGetReferenceToExternalFunction(compiler, "FObjectGetMethod", LLVMFunctionType(objectType, (LLVMTypeRef[]){ objectType, objectType }, 2, 0));
 }
 
-LLVMValueRef FCompilerGetImplementationFunction(FCompiler *compiler) {
+LLVMValueRef FCompilerGetImplementationFunction(FObject *compiler) {
 	LLVMTypeRef objectType = FCompilerGetObjectType(compiler);
 	return FCompilerGetReferenceToExternalFunction(compiler, "FFunctionGetImplementation", LLVMFunctionType(LLVMPointerType(LLVMFunctionType(objectType, (LLVMTypeRef[]){ objectType, objectType }, 2, 1), 0), (LLVMTypeRef[]){ objectType }, 1, 0));
 }
 
-// fixme: if the message is nullary and has no receiver, try it out as an argument reference
-LLVMValueRef FCompilerCompileMessage(FCompiler *compiler, FObject *function, FObject *message) {
+
+LLVMValueRef FCompilerCompileMessage(FObject *compiler, FObject *function, FObject *context, FObject *message) {
 	if(!message) {
 		printf("attempting to compile null message!\n");
 		fflush(stdout);
@@ -91,43 +108,53 @@ LLVMValueRef FCompilerCompileMessage(FCompiler *compiler, FObject *function, FOb
 	LLVMValueRef selector = FCompilerGetReferenceToObject(compiler, FSend(message, selector));
 	size_t paramIndex = FFunctionGetIndexOfArgument(function, FSend(message, selector));
 	if(paramIndex != FFunctionArgumentNotFound) {
-		result = LLVMGetParam(LLVMGetBasicBlockParent(LLVMGetInsertBlock(compiler->builder)), paramIndex + 2);
+		result = LLVMGetParam(LLVMGetBasicBlockParent(LLVMGetInsertBlock(FCompilerGetBuilder(compiler))), paramIndex + 2);
 	} else {
 		LLVMValueRef receiver = FSend(message, receiver)
-		?	FCompilerCompileMessage(compiler, function, FSend(message, receiver))
-		:	FCompilerGetReferenceToObject(compiler, /*FSend(function, context)*/NULL);
+		?	FCompilerCompileMessage(compiler, function, context, FSend(message, receiver))
+		:	FCompilerGetReferenceToObject(compiler, context);
 		FObject *argumentNode = FSend(message, arguments);
 		size_t count = FListNodeGetCount(argumentNode), i = 2;
 		LLVMValueRef arguments[count + 2];
 		arguments[0] = receiver;
 		arguments[1] = selector;
 		while(argumentNode) {
-			arguments[i++] = FCompilerCompileMessage(compiler, function, FSend(argumentNode, object));
+			arguments[i++] = FCompilerCompileMessage(compiler, function, context, FSend(argumentNode, object));
 			argumentNode = FSend(argumentNode, next);
 		}
-		LLVMValueRef method = LLVMBuildCall(compiler->builder, FCompilerGetMethodFunction(compiler), arguments, 2, "");
-		LLVMValueRef implementation = LLVMBuildCall(compiler->builder, FCompilerGetImplementationFunction(compiler), (LLVMValueRef[]){ method }, 1, "get fptr");
-		result = LLVMBuildCall(compiler->builder, LLVMBuildPointerCast(compiler->builder, implementation, LLVMPointerType(FCompilerGetMethodTypeOfArity(compiler, FSymbolGetArity(FSend(message, selector))), 0), "cast fptr to method type"), arguments, count + 2, FSymbolGetString(FSend(message, selector)));
+		LLVMValueRef method = LLVMBuildCall(FCompilerGetBuilder(compiler), FCompilerGetMethodFunction(compiler), arguments, 2, "");
+		LLVMValueRef implementation = LLVMBuildCall(FCompilerGetBuilder(compiler), FCompilerGetImplementationFunction(compiler), (LLVMValueRef[]){ method }, 1, "get fptr");
+		result = LLVMBuildCall(FCompilerGetBuilder(compiler), LLVMBuildPointerCast(FCompilerGetBuilder(compiler), implementation, LLVMPointerType(FCompilerGetMethodTypeOfArity(compiler, FSymbolGetArity(FSend(message, selector))), 0), "cast fptr to method type"), arguments, count + 2, FSymbolGetString(FSend(message, selector)));
 	}
 	return result;
 }
 
 
-FImplementation FCompilerCompileFunction(FCompiler *compiler, FObject *function) {
+FImplementation FCompilerCompileFunction(FObject *compiler, FObject *function) {
+	if(!function) {
+		printf("attempting to compile null function!\n");
+		fflush(stdout);
+		return NULL;
+	}
+	
 	// pick a name for the function; "function 0x…" or similar will do for now
-	LLVMValueRef f = LLVMAddFunction(compiler->module, "function", FCompilerGetMethodTypeOfArity(compiler, FFunctionGetArity(function))), result = NULL;
+	LLVMValueRef f = LLVMAddFunction(FCompilerGetModule(compiler), "function", FCompilerGetMethodTypeOfArity(compiler, FFunctionGetArity(function))), result = NULL;
 	LLVMAppendBasicBlock(f, "entry");
-	LLVMPositionBuilderAtEnd(compiler->builder, LLVMGetEntryBasicBlock(f));
+	LLVMPositionBuilderAtEnd(FCompilerGetBuilder(compiler), LLVMGetEntryBasicBlock(f));
+	
+	// set up a new context inheriting from the function’s context
+	FObject *context = FObjectCreate(FSend(function, context));
 	
 	FObject *messageNode = FSend(function, messages);
 	while(messageNode) {
-		result = FCompilerCompileMessage(compiler, function, FSend(messageNode, object));
+		result = FCompilerCompileMessage(compiler, function, context, FSend(messageNode, object));
 		messageNode = FSend(messageNode, next);
 	}
 	
-	LLVMBuildRet(compiler->builder, result);
+	LLVMBuildRet(FCompilerGetBuilder(compiler), result);
 	
 	LLVMVerifyFunction(f, LLVMAbortProcessAction);
+	// optimize the function
 	
-	return LLVMRecompileAndRelinkFunction(compiler->executor, f);
+	return LLVMRecompileAndRelinkFunction(FCompilerGetExecutor(compiler), f);
 }

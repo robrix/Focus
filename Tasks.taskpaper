@@ -7,6 +7,7 @@ Parser:
 Hash table:
 	- use FArray internally.
 Compiler:
+	- ought to be a real object.
 	- create and initialize a function pass manager on creation.
 		LLVMCreateFunctionPassManagerForModule
 		LLVMInitializeFunctionPassManager
@@ -28,5 +29,7 @@ Symbol:
 Function:
 	- should have a name based on its location in the source, where applicable.
 	- should have a name based on its assignment as a method, where applicable.
-	- organize all the relevant functions into FFunctionPrototype.h.
+	- organize all the relevant functions into FFunctionPrototype.h. @done(2010-12-11)
+	- should have a reference to the evaluator.
+	- when evaluating a function, any functions within it should have their contexts set.
 	- store the function pointer in the variables hash table. @done(2010-12-02)

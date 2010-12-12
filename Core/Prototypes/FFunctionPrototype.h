@@ -10,6 +10,11 @@
 
 FObject *FFunctionPrototypeGet();
 
+FObject *FFunctionCreateWithImplementation(FObject *arguments, FImplementation implementation);
+
+FImplementation FFunctionGetImplementation(FObject *self);
+size_t FFunctionGetArity(FObject *self);
+
 extern const size_t FFunctionArgumentNotFound; // size_t is unsigned, so -1 is all 1s.
 size_t FFunctionGetIndexOfArgument(FObject *function, FObject *symbol);
 

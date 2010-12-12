@@ -3,7 +3,7 @@
 // Copyright 2010 Monochrome Industries
 
 #include "Core/Prototypes/FObjectPrototype.h"
-#include "Core/FFunction.h"
+#include "Core/Prototypes/FFunctionPrototype.h"
 #include "FTestSuite.h"
 
 static void testCreatesASingletonPrototype() {

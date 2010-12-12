@@ -5,7 +5,7 @@
 #include "FContextPrototype.h"
 
 #include "../FSymbol.h"
-#include "../FFunction.h"
+#include "../Prototypes/FFunctionPrototype.h"
 #include "FObjectPrototype.h"
 #include <stdlib.h>
 

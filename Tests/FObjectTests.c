@@ -4,7 +4,7 @@
 
 #include "Core/FObject.h"
 #include "Core/FSymbol.h"
-#include "Core/FFunction.h"
+#include "Core/Prototypes/FFunctionPrototype.h"
 #include "FTestSuite.h"
 
 static FObject *object = NULL;
