@@ -6,11 +6,25 @@
 
 #include "../FSymbol.h"
 #include "../Prototypes/FFunctionPrototype.h"
+#include "../Prototypes/FListNodePrototype.h"
 #include "FObjectPrototype.h"
 #include "../FObject+Protected.h"
 #include <stdlib.h>
 
 static FObject *FMessagePrototype = NULL;
+
+FObject *FMessageAcceptVisitor(FObject *self, FObject *selector, FObject *visitor) {
+	FObject *receiver = FSend(self, receiver) ? FSend(FSend(self, receiver), acceptVisitor:, visitor) : NULL;
+	FObject *node = FSend(self, arguments);
+	size_t count = FListNodeGetCount(node), index = 0;
+	FObject *arguments[count];
+	while(node) {
+		arguments[index++] = FSend(FSend(node, object), acceptVisitor:, visitor);
+		node = FSend(node, next);
+	}
+	return FSend(visitor, visitMessage:withVisitedReceiver:visitedArguments:, self, receiver, arguments);
+}
+
 
 FObject *FMessagePrototypeGet() {
 	if(!FMessagePrototype) {
@@ -21,6 +35,8 @@ FObject *FMessagePrototypeGet() {
 		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("selector:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
 		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("arguments"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
 		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("arguments:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
+		
+		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("acceptVisitor:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FMessageAcceptVisitor));
 	}
 	return FMessagePrototype;
 }

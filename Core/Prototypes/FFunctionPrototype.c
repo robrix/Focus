@@ -22,6 +22,10 @@ FObject *FFunctionNewWithContextArgumentsMessages(FObject *self, FObject *select
 	return function;
 }
 
+FObject *FFunctionAcceptVisitor(FObject *self, FObject *selector, FObject *visitor) {
+	return FSend(visitor, visitFunction:, self);
+}
+
 
 FObject *FFunctionPrototypeGet() {
 	if(!FFunctionPrototype) {
@@ -34,6 +38,8 @@ FObject *FFunctionPrototypeGet() {
 		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("messages:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
 		
 		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("newWithContext:arguments:messages:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FFunctionNewWithContextArgumentsMessages));
+		
+		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("acceptVisitor:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FFunctionAcceptVisitor));
 	}
 	return FFunctionPrototype;
 }
