@@ -76,9 +76,8 @@ LLVMTypeRef FCompilerGetObjectType(FObject *compiler) {
 	return type;
 }
 
-
 LLVMValueRef FCompilerGetReferenceToObject(FObject *compiler, FObject *object) {
-	return LLVMConstIntToPtr(LLVMConstInt(LLVMInt8TypeInContext(FCompilerGetContext(compiler)), (unsigned long long)object, 0), FCompilerGetObjectType(compiler));
+	return LLVMConstIntToPtr(LLVMConstInt(LLVMInt64TypeInContext(FCompilerGetContext(compiler)), (unsigned long long)object, 0), FCompilerGetObjectType(compiler));
 }
 
 LLVMValueRef FCompilerGetReferenceToExternalFunction(FObject *compiler, const char *name, LLVMTypeRef type) {
@@ -113,7 +112,8 @@ LLVMValueRef FCompilerGetImplementationFunction(FObject *compiler) {
 LLVMValueRef FCompilerVisitMessageWithVisitedReceiverAndArguments(FObject *self, FObject *selector, FObject *message, LLVMValueRef receiver, LLVMValueRef arguments[]) {
 	LLVMValueRef result = NULL;
 	size_t count = FListNodeGetCount(FSend(message, arguments)), paramIndex = 0;
-	LLVMBuilderRef builder = FCompilerGetBuilder(FObjectGetPrototype(self));
+	FObject *compiler = FObjectGetPrototype(self);
+	LLVMBuilderRef builder = FCompilerGetBuilder(compiler);
 	if(
 		!receiver
 	&&	count == 0
@@ -122,16 +122,19 @@ LLVMValueRef FCompilerVisitMessageWithVisitedReceiverAndArguments(FObject *self,
 		result = LLVMGetParam(LLVMGetBasicBlockParent(LLVMGetInsertBlock(builder)), paramIndex + 2);
 	} else {
 		LLVMValueRef parameters[count + 2];
-		parameters[0] = receiver ?: FCompilerGetReferenceToObject(self, FSend(self, context));
-		parameters[1] = FCompilerGetReferenceToObject(self, FSend(message, selector));
+		parameters[0] = receiver ?: FCompilerGetReferenceToObject(compiler, FSend(self, context));
+		LLVMSetValueName(parameters[0], "receiver");
+		parameters[1] = FCompilerGetReferenceToObject(compiler, FSend(message, selector));
+		LLVMSetValueName(parameters[1], "selector");
 		size_t index = 0;
 		for(index = 0; index < count; index++) {
 			parameters[index + 2] = arguments[index];
 		}
 		
-		LLVMValueRef method = LLVMBuildCall(builder, FCompilerGetMethodFunction(FObjectGetPrototype(self)), arguments, 2, "");
-		LLVMValueRef implementation = LLVMBuildCall(builder, FCompilerGetImplementationFunction(FObjectGetPrototype(self)), (LLVMValueRef[]){ method }, 1, "get fptr");
-		result = LLVMBuildCall(builder, LLVMBuildPointerCast(builder, implementation, LLVMPointerType(FCompilerGetMethodTypeOfArity(FObjectGetPrototype(self), FSymbolGetArity(FSend(message, selector))), 0), "cast fptr to method type"), arguments, count + 2, FSymbolGetString(FSend(message, selector)));
+		LLVMValueRef method = LLVMBuildCall(builder, FCompilerGetMethodFunction(compiler), parameters, 2, "get function");
+		LLVMValueRef implementation = LLVMBuildCall(builder, FCompilerGetImplementationFunction(compiler), (LLVMValueRef[]){ method }, 1, "get implementation");
+		LLVMValueRef cast = LLVMBuildPointerCast(builder, implementation, LLVMPointerType(FCompilerGetMethodTypeOfArity(compiler, FSymbolGetArity(FSend(message, selector))), 0), "cast implementation to specific type");
+		result = LLVMBuildCall(builder, cast, parameters, count + 2, FSymbolGetString(FSend(message, selector)));
 	}
 	return result;
 }
