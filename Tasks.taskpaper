@@ -3,11 +3,16 @@ Parser:
 		<optional receiver expression> name = <expression>
 	- write the parser as a Focus object so it can be inherited from and overridden.
 	- test overall parsing (including trailing whitespace, and no trailing garbage).
-	- parse functions. Decide on a syntax first, of course…
+		- this should build a function.
+	- parse functions. Decide on a syntax first, of course… @done(2010-12-15)
+Runtime:
+	- do performance tests using hash tables for ivars & method tables vs. balanced binary trees or similar.
 Hash table:
 	- use FArray internally.
 Compiler:
-	- ought to be a real object.
+	- test compilation of messages with receivers.
+	- test compilation of messages with arguments.
+	- ought to be a real object. @done(2010-12-15)
 	- create and initialize a function pass manager on creation.
 		LLVMCreateFunctionPassManagerForModule
 		LLVMInitializeFunctionPassManager

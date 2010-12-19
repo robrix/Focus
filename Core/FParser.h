@@ -33,6 +33,6 @@ bool FParseExpression(const char *source, size_t index, size_t *outLength, FObje
 bool FParseParenthesizedExpression(const char *source, size_t index, size_t *outLength, FObject **expressionNode);
 bool FParseExpressionList(const char *source, size_t index, size_t *outLength, FObject **listNode);
 
-FObject *FParse(const char *source); // returns a function
+bool FParse(const char *source, FObject **outFunction);
 
 #endif // F_PARSER

@@ -378,6 +378,14 @@ static void testParsesExpressionLists() {
 }
 
 
+static void testParsesCompleteSources() {
+	FObject *function = NULL;
+	FAssert(FParse("foo\nbar", &function) && function != NULL && FSend(function, messages) != NULL);
+	FAssert(FParse("foo\nbar\n", &function) && function != NULL && FSend(function, messages) != NULL);
+	
+}
+
+
 void FRunParserTests() {
 	FRunTestSuite("FParser", NULL, NULL, (FTestSuiteTestCase[]){
 		FTestCase(testParsesCharacterSets),
@@ -407,6 +415,8 @@ void FRunParserTests() {
 		FTestCase(testParsesParenthesizedExpressions),
 		FTestCase(testParsesExpressions),
 		FTestCase(testParsesExpressionLists),
+		
+		FTestCase(testParsesCompleteSources),
 		
 		{0},
 	});

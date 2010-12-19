@@ -317,3 +317,21 @@ bool FParseExpressionList(const char *source, size_t index, size_t *outLength, F
 	}
 	return result;
 }
+
+
+bool FParse(const char *source, FObject **outFunction) {
+	bool result = 0;
+	FObject *expressionList = NULL;
+	size_t expressionListLength = 0, whitespaceLength = 0, length = strlen(source);
+	if(
+		FParseExpressionList(source, 0, &expressionListLength, &expressionList)
+	&&	(FParseWhitespaceAndNewlines(source, expressionListLength, &whitespaceLength) || 1)
+	&&	(length == expressionListLength + whitespaceLength)
+	) {
+		if(outFunction) {
+			*outFunction = FSend(FFunctionPrototypeGet(), newWithContext:arguments:messages:, NULL, NULL, expressionList);
+		}
+		result = 1;
+	}
+	return result;
+}
