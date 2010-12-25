@@ -5,6 +5,7 @@
 #include "FFunctionPrototype.h"
 
 #include "../FSymbol.h"
+#include "../FCompiler.h"
 #include "FObjectPrototype.h"
 #include "../Prototypes/FFunctionPrototype.h"
 #include "../Prototypes/FListNodePrototype.h"
@@ -15,9 +16,11 @@ const size_t FFunctionArgumentNotFound = -1;
 static FObject *FFunctionPrototype = NULL;
 
 FObject *FFunctionNewWithContextArgumentsMessages(FObject *self, FObject *selector, FObject *context, FObject *arguments, FObject *messages) {
-	FObject *function = FSend(FFunctionPrototypeGet(), new);
-	FSend(function, context:, context);
-	FSend(function, arguments:, arguments);
+	FObject *function = FSend(self, new);
+	if(context)
+		FSend(function, context:, context);
+	if(arguments)
+		FSend(function, arguments:, arguments);
 	FSend(function, messages:, messages);
 	return function;
 }
@@ -59,7 +62,7 @@ FObject *FFunctionCreateWithImplementation(FObject *arguments, FImplementation i
 FObject *FFunctionNoOp(FObject *self, FObject *selector) {
 	return NULL;
 }
-
+#include <stdio.h>
 FImplementation FFunctionGetImplementation(FObject *self) {
 	if(!self) {
 		return (FImplementation)FFunctionNoOp;
@@ -67,6 +70,7 @@ FImplementation FFunctionGetImplementation(FObject *self) {
 	FImplementation implementation = (FImplementation)FObjectGetVariable(self, FSymbolCreateWithString(" implementation"));
 	if(!implementation) {
 		implementation = FCompilerCompileFunction(FSend(FSend(self, context), Compiler), self);
+		FObjectSetVariable(self, FSymbolCreateWithString(" implementation"), (FObject *)implementation);
 	}
 	return implementation;
 }

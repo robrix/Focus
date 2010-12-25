@@ -21,6 +21,14 @@ FObject *FContextGetEvaluatorVariable(FObject *self, FObject *selector) {
 	return FSendMessage(FContextGetEvaluator(self), selector);
 }
 
+FObject *FContextPrototypeGetCompilerPrototype(FObject *self, FObject *selector) {
+	static FObject *FCompilerPrototype = NULL;
+	if(!FCompilerPrototype) {
+		FCompilerPrototype = FCompilerCreate();
+	}
+	return FCompilerPrototype;
+}
+
 FObject *FContextPrototypeCreate() {
 	FObject *prototype = FObjectCreate(FObjectPrototypeGet());
 	// fixme: create a list of arguments
@@ -32,8 +40,7 @@ FObject *FContextPrototypeCreate() {
 	FObjectSetMethod(prototype, FSymbolCreateWithString("Function"), FFunctionCreateWithImplementation(NULL, (FImplementation)FContextGetEvaluatorVariable));
 	FObjectSetMethod(prototype, FSymbolCreateWithString("Object"), FFunctionCreateWithImplementation(NULL, (FImplementation)FContextGetEvaluatorVariable));
 	FObjectSetMethod(prototype, FSymbolCreateWithString("Symbol"), FFunctionCreateWithImplementation(NULL, (FImplementation)FContextGetEvaluatorVariable));
-	
-	
+		
 	return prototype;
 }
 
