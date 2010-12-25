@@ -83,7 +83,7 @@ void FHashTableSetValueForKeyWithHash(FHashTable *self, FObject *key, size_t has
 	}
 	if(!value) {
 		// fixme: this should be a debug log
-		printf("null value!\n");
+		printf("setting null value for %s\n", FSymbolGetString(key));
 		fflush(stdout);
 	}
 	FPair *pair = FPairGetTail(FHashTableGetBucketForHash(self, hash));
