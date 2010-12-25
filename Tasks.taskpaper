@@ -10,9 +10,9 @@ Runtime:
 Hash table:
 	- use FArray internally.
 Compiler:
+	- mark functions as being reentrant (if they are).
 	- test compilation of messages with receivers.
 	- test compilation of messages with arguments.
-	- ought to be a real object. @done(2010-12-15)
 	- create and initialize a function pass manager on creation.
 		LLVMCreateFunctionPassManagerForModule
 		LLVMInitializeFunctionPassManager
@@ -22,6 +22,7 @@ Compiler:
 AST:
 	- store source information (line number, etc) in the AST nodes.
 Evaluator:
+	An evaluator is sort of a meta-context. It contains the core prototypes which are accessible from Context (and its clones).
 	- each source file gets its own context.
 	- per-evaluator objects:
 		- allocator/GC.

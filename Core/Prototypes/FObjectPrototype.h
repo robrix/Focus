@@ -7,6 +7,7 @@
 
 #include "../FObject.h"
 
+FObject *FObjectPrototypeInitializeInEvaluator(FObject *prototype, FObject *evaluator);
 FObject *FObjectPrototypeGet();
 
 #endif // F_OBJECT_PROTOTYPE

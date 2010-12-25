@@ -19,11 +19,16 @@ static void testExposesObjectPrototype() {
 	FAssert(FSend(FContextPrototypeGet(), Object) == FObjectPrototypeGet());
 }
 
+static void testExposesContextPrototype() {
+	FAssert(FSend(FContextPrototypeGet(), Context) == FContextPrototypeGet());
+}
+
 void FRunContextPrototypeTests() {
 	FRunTestSuite("FContextPrototype", NULL, NULL, (FTestSuiteTestCase[]){
 		FTestCase(testCreatesASingletonPrototype),
 		FTestCase(testInheritsFromObject),
 		FTestCase(testExposesObjectPrototype),
+		FTestCase(testExposesContextPrototype),
 		{0},
 	});
 }

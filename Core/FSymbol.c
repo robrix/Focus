@@ -36,10 +36,10 @@ unsigned long FSymbolCalculateHashForString(const char *str) {
 FObject *FSymbolGetHashSymbol();
 
 // :)
-FObject *FSymbolGetSymbolSymbol() {
+FObject *FSymbolGetSymbolSymbolWithPrototype(FObject *prototype) {
 	static FObject *_symbol = NULL;
 	if(!_symbol) {
-		_symbol = FObjectCreate(NULL);
+		_symbol = FObjectCreate(prototype);
 		size_t _symbolHash = FSymbolCalculateHashForString(" symbol");
 		FObjectSetVariableWithHash(_symbol, FSymbolGetSymbolSymbol(), _symbolHash, (FObject *)" symbol");
 		FObjectSetVariableWithHash(_symbol, FSymbolGetHashSymbol(), FSymbolCalculateHashForString(" hash"), (FObject *)_symbolHash);
@@ -47,10 +47,10 @@ FObject *FSymbolGetSymbolSymbol() {
 	return _symbol;
 }
 
-FObject *FSymbolGetHashSymbol() {
+FObject *FSymbolGetHashSymbolWithPrototype(FObject *prototype) {
 	static FObject *_hash = NULL;
 	if(!_hash) {
-		_hash = FObjectCreate(NULL);
+		_hash = FObjectCreate(prototype);
 		size_t _hashHash = FSymbolCalculateHashForString(" hash"); // :)
 		FObjectSetVariableWithHash(_hash, FSymbolGetSymbolSymbol(), FSymbolCalculateHashForString(" symbol"), (FObject *)" hash");
 		FObjectSetVariableWithHash(_hash, FSymbolGetHashSymbol(), _hashHash, (FObject *)_hashHash);
@@ -60,13 +60,21 @@ FObject *FSymbolGetHashSymbol() {
 }
 
 
-FObject *FSymbolCreateWithString(const char *symbol) {
+FObject *FSymbolCreateWithPrototypeAndString(FObject *prototype, const char *symbol) {
 	// FHashTableGetValueForKey(FSymbolTable(), )
-	FObject *instance = FObjectCreate(NULL);
-	// set the prototype
-	FObjectSetVariableWithHash(instance, FSymbolGetSymbolSymbol(), FSymbolCalculateHashForString(" symbol"), (FObject *)symbol);
-	FObjectSetVariableWithHash(instance, FSymbolGetHashSymbol(), FSymbolCalculateHashForString(" hash"), (FObject *)FSymbolCalculateHashForString(symbol));
+	FObject *instance = FObjectCreate(prototype);
+	FObjectSetVariableWithHash(instance, FSymbolGetSymbolSymbolWithPrototype(), FSymbolCalculateHashForString(" symbol"), (FObject *)symbol);
+	FObjectSetVariableWithHash(instance, FSymbolGetHashSymbolWithPrototype(), FSymbolCalculateHashForString(" hash"), (FObject *)FSymbolCalculateHashForString(symbol));
 	return instance;
+}
+
+FObject *FSymbolCreateWithPrototypeAndSubstring(FObject *prototype, const char *symbol, size_t length) {
+	return FSymbolCreateWithPrototypeAndString(prototype, strncpy(FAllocatorAllocate(NULL, length), symbol, length));
+}
+
+#pragma message fixme: this has to go away
+FObject *FSymbolCreateWithString(const char *symbol) {
+	return FSymbolCreateWithPrototypeAndString(NULL, symbol);
 }
 
 FObject *FSymbolCreateWithSubstring(const char *symbol, size_t length) {
