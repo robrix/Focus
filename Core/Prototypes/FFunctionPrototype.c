@@ -66,7 +66,7 @@ FImplementation FFunctionGetImplementation(FObject *self) {
 	}
 	FImplementation implementation = (FImplementation)FObjectGetVariable(self, FSymbolCreateWithString(" implementation"));
 	if(!implementation) {
-		// compile it
+		implementation = FCompilerCompileFunction(FSend(FSend(self, context), Compiler), self);
 	}
 	return implementation;
 }
