@@ -5,6 +5,7 @@
 #include "FContextPrototype.h"
 
 #include "../FSymbol.h"
+#include "../FCompiler.h"
 #include "../Prototypes/FFunctionPrototype.h"
 #include "FObjectPrototype.h"
 #include <stdlib.h>
@@ -15,10 +16,19 @@ FObject *FContextPrototypeGetObjectPrototype(FObject *self, FObject *selector) {
 	return FObjectPrototypeGet();
 }
 
+FObject *FContextPrototypeGetCompilerPrototype(FObject *self, FObject *selector) {
+	static FObject *FCompilerPrototype = NULL;
+	if(!FCompilerPrototype) {
+		FCompilerPrototype = FCompilerCreate();
+	}
+	return FCompilerPrototype;
+}
+
 FObject *FContextPrototypeCreate() {
 	FObject *prototype = FObjectCreate(FObjectPrototypeGet());
 	// fixme: create a list of arguments
 	FObjectSetMethod(prototype, FSymbolCreateWithString("Object"), FFunctionCreateWithImplementation(NULL, (FImplementation)FContextPrototypeGetObjectPrototype));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("Compiler"), FFunctionCreateWithImplementation(NULL, (FImplementation)FContextPrototypeGetCompilerPrototype));
 	return prototype;
 }
 
