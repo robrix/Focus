@@ -29,7 +29,7 @@ FObject *FContextPrototypeGetCompilerPrototype(FObject *self, FObject *selector)
 	return FCompilerPrototype;
 }
 
-FObject *FContextPrototypeCreate() {
+FObject *FContextPrototypeCreateWithEvaluator(FObject *evaluator) {
 	FObject *prototype = FObjectCreate(FObjectPrototypeGet());
 	// fixme: create a list of arguments
 	FObjectSetMethod(prototype, FSymbolCreateWithString("Evaluator"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
@@ -42,6 +42,10 @@ FObject *FContextPrototypeCreate() {
 	FObjectSetMethod(prototype, FSymbolCreateWithString("Symbol"), FFunctionCreateWithImplementation(NULL, (FImplementation)FContextGetEvaluatorVariable));
 		
 	return prototype;
+}
+
+FObject *FContextPrototypeCreate() {
+	return FContextPrototypeCreateWithEvaluator(NULL);
 }
 
 FObject *FContextPrototypeGet() {
