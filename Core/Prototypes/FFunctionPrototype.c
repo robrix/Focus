@@ -13,7 +13,6 @@
 #include <stdlib.h>
 
 const size_t FFunctionArgumentNotFound = -1;
-static FObject *FFunctionPrototype = NULL;
 
 FObject *FFunctionNewWithContextArgumentsMessages(FObject *self, FObject *selector, FObject *context, FObject *arguments, FObject *messages) {
 	FObject *function = FSend(self, new);
@@ -30,19 +29,26 @@ FObject *FFunctionAcceptVisitor(FObject *self, FObject *selector, FObject *visit
 }
 
 
+FObject *FFunctionPrototypeInitialize(FObject *prototype) {
+	FObjectSetMethod(prototype, FSymbolCreateWithString("context"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("context:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("arguments"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("arguments:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("messages"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("messages:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
+	
+	FObjectSetMethod(prototype, FSymbolCreateWithString("newWithContext:arguments:messages:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FFunctionNewWithContextArgumentsMessages));
+	
+	FObjectSetMethod(prototype, FSymbolCreateWithString("acceptVisitor:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FFunctionAcceptVisitor));
+
+	return prototype;
+}
+
 FObject *FFunctionPrototypeGet() {
+	static FObject *FFunctionPrototype = NULL;
 	if(!FFunctionPrototype) {
 		FFunctionPrototype = FObjectCreate(FObjectPrototypeGet());
-		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("context"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
-		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("context:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
-		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("arguments"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
-		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("arguments:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
-		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("messages"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
-		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("messages:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
-		
-		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("newWithContext:arguments:messages:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FFunctionNewWithContextArgumentsMessages));
-		
-		FObjectSetMethod(FFunctionPrototype, FSymbolCreateWithString("acceptVisitor:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FFunctionAcceptVisitor));
+		FFunctionPrototypeInitialize(FFunctionPrototype);
 	}
 	return FFunctionPrototype;
 }
@@ -62,7 +68,7 @@ FObject *FFunctionCreateWithImplementation(FObject *arguments, FImplementation i
 FObject *FFunctionNoOp(FObject *self, FObject *selector) {
 	return NULL;
 }
-#include <stdio.h>
+
 FImplementation FFunctionGetImplementation(FObject *self) {
 	if(!self) {
 		return (FImplementation)FFunctionNoOp;

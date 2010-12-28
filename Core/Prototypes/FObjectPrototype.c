@@ -4,11 +4,10 @@
 
 #include "FObjectPrototype.h"
 
+#include "../FEvaluator.h"
 #include "../FSymbol.h"
 #include "../Prototypes/FFunctionPrototype.h"
 #include <stdlib.h>
-
-static FObject *FObjectPrototype = NULL;
 
 FObject *FObjectPrototypeGetSelf(FObject *self, FObject *selector) {
 	return self;
@@ -31,12 +30,14 @@ FObject *FObjectPrototypeInitializeInEvaluator(FObject *prototype, FObject *eval
 }
 
 FObject *FObjectPrototypeGet() {
-	if(!FObjectPrototype) {
-		FObjectPrototype = FObjectCreate(NULL);
-		FObjectPrototypeInitialize(FObjectPrototype);
-		// FObjectSetMethod(FObjectPrototype, FSymbolCreateWithString("self"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectPrototypeGetSelf));
-		// FObjectSetMethod(FObjectPrototype, FSymbolCreateWithString("prototype"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectPrototypeGetPrototype));
-		// FObjectSetMethod(FObjectPrototype, FSymbolCreateWithString("new"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectPrototypeClone));
-	}
-	return FObjectPrototype;
+	return FSend(FEvaluatorGet(), Object);
+	// static FObject *FObjectPrototype = NULL;
+	// if(!FObjectPrototype) {
+	// 	FObjectPrototype = FObjectCreate(NULL);
+	// 	FObjectPrototypeInitializeInEvaluator(FObjectPrototype, FEvaluatorGet());
+	// 	// FObjectSetMethod(FObjectPrototype, FSymbolCreateWithString("self"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectPrototypeGetSelf));
+	// 	// FObjectSetMethod(FObjectPrototype, FSymbolCreateWithString("prototype"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectPrototypeGetPrototype));
+	// 	// FObjectSetMethod(FObjectPrototype, FSymbolCreateWithString("new"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectPrototypeClone));
+	// }
+	// return FObjectPrototype;
 }

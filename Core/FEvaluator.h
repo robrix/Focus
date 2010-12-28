@@ -13,8 +13,10 @@
 - each of the various prototypes (the GC roots, in other words)
 */
 
-FObject *FEvaluatorCreate();
+FObject *FEvaluatorInitialize(FObject *evaluator);
+#pragma message("Temporary function for iterative development.")
+FObject *FEvaluatorGet();
 
-FObject *FEvaluatorEvaluateStringInContext(FEvaluator *evaluator, const char *string, FObject *context);
+FObject *FEvaluatorEvaluateStringInContext(FObject *evaluator, const char *string, FObject *context);
 
 #endif // F_EVALUATOR

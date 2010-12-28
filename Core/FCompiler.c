@@ -38,14 +38,13 @@ LLVMExecutionEngineRef FCompilerGetExecutor(FObject *self) {
 LLVMValueRef FCompilerVisitMessageWithVisitedReceiverAndArguments(FObject *self, FObject *selector, FObject *message, LLVMValueRef receiver, LLVMValueRef arguments[]);
 FObject *FCompilerVisitFunction(FObject *self, FObject *selector, FObject *function);
 
-FObject *FCompilerCreate() {
+FObject *FCompilerInitialize(FObject *compiler) {
 	static bool initedJIT = 0;
 	if(!initedJIT) {
 		LLVMLinkInJIT();
 		LLVMInitializeNativeTarget();
 		initedJIT = 1;
 	}
-	FObject *compiler = FObjectCreate(NULL);
 	
 	FObjectSetMethod(compiler, FSymbolCreateWithString("visitMessage:withVisitedReceiver:visitedArguments:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FCompilerVisitMessageWithVisitedReceiverAndArguments));
 	FObjectSetMethod(compiler, FSymbolCreateWithString("visitFunction:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FCompilerVisitFunction));
@@ -65,6 +64,10 @@ FObject *FCompilerCreate() {
 	FObjectSetVariable(compiler, FSymbolCreateWithString("$executor"), (FObject *)executor);
 	
 	return compiler;
+}
+
+FObject *FCompilerCreate() {
+	return FCompilerInitialize(FObjectCreate(NULL));
 }
 
 LLVMTypeRef FCompilerGetObjectType(FObject *compiler) {

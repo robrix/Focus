@@ -5,6 +5,7 @@ require "hax"
 focus = Hax::Target.new("focus") do |t|
 	t.compile_sources Dir["Core/**/*.c"]
 	t.link_phase.product_type = Hax::StaticArchiveProductType.new
+	t.compile_phase.other_flags = %w("-Wno-unknown-pragmas")
 end
 
 tests = Hax::Target.new("tests") do |t|
@@ -28,8 +29,9 @@ tests = Hax::Target.new("tests") do |t|
 	# end
 	
 	t.build_phase("Run tests") do |target|
-		puts "Running tests\n\n"
-		puts %x{#{target.product_path} || echo "Tests failed."}
+		puts "Running tests.\n\n"
+		puts %x{#{target.product_path}}
+		raise "Tests failed." unless $?.success?
 	end
 end
 
