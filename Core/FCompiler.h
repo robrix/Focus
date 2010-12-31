@@ -11,9 +11,6 @@
 #include <llvm-c/Core.h>
 #include "FObject.h"
 
-FObject *FCompilerCreate();
-FObject *FCompilerInitialize(FObject *compiler);
-
 FImplementation FCompilerCompileFunction(FObject *compiler, FObject *function);
 
 #endif // F_COMPILER

@@ -25,6 +25,7 @@ int main(int argc, const char *argv[]) {
 	FRunParserTests();
 	FRunCompilerTests();
 	FRunListNodePrototypeTests();
+	
 	printf("%u suites, %u cases, %u assertions, %u failures\n", FTestSuiteTestSuitesRun, FTestSuiteTestCasesRun, FTestSuiteAssertionsRun, FTestSuiteAssertionsFailed);
 	return FTestSuiteAssertionsFailed;
 }

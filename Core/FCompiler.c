@@ -6,6 +6,7 @@
 #include "FSymbol.h"
 #include "FObject+Protected.h"
 #include "FCompiler.h"
+#include "FEvaluator+Protected.h"
 #include "Prototypes/FFunctionPrototype.h"
 #include "Prototypes/FMessagePrototype.h"
 #include "Prototypes/FFunctionPrototype.h"
@@ -36,9 +37,9 @@ LLVMExecutionEngineRef FCompilerGetExecutor(FObject *self) {
 
 
 LLVMValueRef FCompilerVisitMessageWithVisitedReceiverAndArguments(FObject *self, FObject *selector, FObject *message, LLVMValueRef receiver, LLVMValueRef arguments[]);
-FObject *FCompilerVisitFunction(FObject *self, FObject *selector, FObject *function);
+LLVMValueRef FCompilerVisitFunction(FObject *self, FObject *selector, FObject *function);
 
-FObject *FCompilerInitialize(FObject *compiler) {
+FObject *FCompilerPrototypeBootstrap(FObject *compiler, FEvaluatorBootstrapState state) {
 	static bool initedJIT = 0;
 	if(!initedJIT) {
 		LLVMLinkInJIT();
@@ -46,29 +47,25 @@ FObject *FCompilerInitialize(FObject *compiler) {
 		initedJIT = 1;
 	}
 	
-	FObjectSetMethod(compiler, FSymbolCreateWithString("visitMessage:withVisitedReceiver:visitedArguments:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FCompilerVisitMessageWithVisitedReceiverAndArguments));
-	FObjectSetMethod(compiler, FSymbolCreateWithString("visitFunction:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FCompilerVisitFunction));
-	
+	FObjectSetMethod(compiler, FEvaluatorBootstrapSymbol("visitMessage:withVisitedReceiver:visitedArguments:", state), FEvaluatorBootstrapFunction((FImplementation)FCompilerVisitMessageWithVisitedReceiverAndArguments, state));
+	FObjectSetMethod(compiler, FEvaluatorBootstrapSymbol("visitFunction:", state), FEvaluatorBootstrapFunction((FImplementation)FCompilerVisitFunction, state));
 	
 	LLVMContextRef context = LLVMContextCreate();
 	LLVMModuleRef module = LLVMModuleCreateWithNameInContext("Focus", context);
 	LLVMExecutionEngineRef executor = NULL;
 	LLVMCreateJITCompilerForModule(&executor, module, 3, NULL);
-	FObjectSetMethod(compiler, FSymbolCreateWithString("$context"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
-	FObjectSetMethod(compiler, FSymbolCreateWithString("$module"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
-	FObjectSetMethod(compiler, FSymbolCreateWithString("$builder"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
-	FObjectSetMethod(compiler, FSymbolCreateWithString("$executor"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
-	FObjectSetVariable(compiler, FSymbolCreateWithString("$context"), (FObject *)context);
-	FObjectSetVariable(compiler, FSymbolCreateWithString("$module"), (FObject *)module);
-	FObjectSetVariable(compiler, FSymbolCreateWithString("$builder"), (FObject *)LLVMCreateBuilderInContext(context));
-	FObjectSetVariable(compiler, FSymbolCreateWithString("$executor"), (FObject *)executor);
+	FObjectSetMethod(compiler, FEvaluatorBootstrapSymbol("$context", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetMethod(compiler, FEvaluatorBootstrapSymbol("$module", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetMethod(compiler, FEvaluatorBootstrapSymbol("$builder", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetMethod(compiler, FEvaluatorBootstrapSymbol("$executor", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetVariable(compiler, FEvaluatorBootstrapSymbol("$context", state), (FObject *)context);
+	FObjectSetVariable(compiler, FEvaluatorBootstrapSymbol("$module", state), (FObject *)module);
+	FObjectSetVariable(compiler, FEvaluatorBootstrapSymbol("$builder", state), (FObject *)LLVMCreateBuilderInContext(context));
+	FObjectSetVariable(compiler, FEvaluatorBootstrapSymbol("$executor", state), (FObject *)executor);
 	
 	return compiler;
 }
 
-FObject *FCompilerCreate() {
-	return FCompilerInitialize(FObjectCreate(NULL));
-}
 
 LLVMTypeRef FCompilerGetObjectType(FObject *compiler) {
 	LLVMTypeRef type = LLVMGetTypeByName(FCompilerGetModule(compiler), "FObject");
@@ -142,8 +139,8 @@ LLVMValueRef FCompilerVisitMessageWithVisitedReceiverAndArguments(FObject *self,
 	return result;
 }
 
-FObject *FCompilerVisitFunction(FObject *self, FObject *selector, FObject *function) {
-	
+LLVMValueRef FCompilerVisitFunction(FObject *self, FObject *selector, FObject *function) {
+	#pragma message("fixme: this should create a clone of this function.")
 	return NULL;
 }
 

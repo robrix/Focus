@@ -9,6 +9,10 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include "../Core/FObject.h"
+
+extern FObject *FTestEvaluator;
+
 typedef void (*FTestSuiteSetUpFunction)();
 typedef void (*FTestSuiteTearDownFunction)();
 typedef void (*FTestSuiteTestFunction)();

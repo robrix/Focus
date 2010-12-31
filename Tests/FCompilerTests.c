@@ -15,7 +15,7 @@
 static FObject *compiler = NULL;
 
 static void setUp() {
-	compiler = FCompilerCreate();
+	compiler = FSend(FSend(FTestEvaluator, Context), Compiler);
 }
 
 static void testResolvesReferencesToArguments() {

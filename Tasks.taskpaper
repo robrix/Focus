@@ -25,9 +25,8 @@ Evaluator:
 	An evaluator is sort of a meta-context. It contains the core prototypes which are accessible from Context (and its clones).
 	- each source file gets its own context.
 	- per-evaluator objects:
-		- allocator/GC.
-		- prototypes (object, context, function, etc).
-		- compiler.
+		- Message
+		- ListNode
 Symbol:
 	- make a symbol prototype, and make symbols a proper object type.
 	- symbols should consist of a string and a hash.

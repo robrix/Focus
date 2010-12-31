@@ -5,11 +5,14 @@
 #include "FTestSuite.h"
 #include <stdarg.h>
 
+#include "../Core/FEvaluator.h"
+
 unsigned int FTestSuiteAssertionsRun = 0;
 unsigned int FTestSuiteAssertionsFailed = 0;
 unsigned int FTestSuiteTestCasesRun = 0;
 unsigned int FTestSuiteTestSuitesRun = 0;
 
+FObject *FTestEvaluator = NULL;
 
 void FAssertionFailed() {
 	FTestSuiteAssertionsFailed++;
@@ -36,12 +39,20 @@ void FRunTestSuite(const char *name, FTestSuiteSetUpFunction setUp, FTestSuiteTe
 			printf("%s\n", testCase->name);
 			fflush(stdout);
 			
-			if(setUp) setUp();
-			fflush(stdout);
+			FTestEvaluator = FEvaluatorCreate();
+			
+			if(setUp) {
+				setUp();
+				fflush(stdout);
+			}
+			
 			(testCase->test)();
 			fflush(stdout);
-			if(tearDown) tearDown();
-			fflush(stdout);
+			
+			if(tearDown) {
+				tearDown();
+				fflush(stdout);
+			}
 		}
 		testCase++;
 		FTestSuiteTestCasesRun++;

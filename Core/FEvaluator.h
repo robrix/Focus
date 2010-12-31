@@ -7,7 +7,7 @@
 
 #include "FObject.h"
 
-FObject *FEvaluatorInitialize(FObject *evaluator);
+FObject *FEvaluatorCreate();
 #pragma message("Temporary function for iterative development.")
 FObject *FEvaluatorGet();
 

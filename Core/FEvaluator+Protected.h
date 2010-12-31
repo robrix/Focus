@@ -14,6 +14,8 @@ typedef struct FEvaluatorBootstrapState {
 	FObject *Compiler;
 	FObject *Allocator;
 	FObject *Context;
+	FObject *ListNode;
+	FObject *Message;
 	FObject *Evaluator;
 } FEvaluatorBootstrapState;
 
