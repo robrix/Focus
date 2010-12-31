@@ -25,7 +25,12 @@ FObject *FObjectGetPrototype(FObject *self) {
 
 
 FObject *FObjectGetVariable(FObject *self, FObject *selector) {
-	return FHashTableGetValueForKey(self->variables, selector);
+	if(!self) {
+		printf("#%s requested on NULL\n", FSymbolGetString(selector));
+		fflush(stdout);
+		// return NULL;
+	}
+	return (FObject *)(self->variables ? FHashTableGetValueForKey(self->variables, selector) : NULL) ?: (self->prototype ? FObjectGetVariable(self->prototype, selector) : NULL);
 }
 
 FObject *FObjectGetVariableWithHash(FObject *self, FObject *selector, size_t hash) {
