@@ -7,12 +7,6 @@
 
 #include "FObject.h"
 
-/*
-- allocator
-- compiler
-- each of the various prototypes (the GC roots, in other words)
-*/
-
 FObject *FEvaluatorInitialize(FObject *evaluator);
 #pragma message("Temporary function for iterative development.")
 FObject *FEvaluatorGet();

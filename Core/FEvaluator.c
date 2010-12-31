@@ -23,32 +23,10 @@ FObject *FEvaluatorBootstrapFunction(FImplementation implementation, FEvaluatorB
 	return function;
 }
 
-FObject *FEvaluatorBootstrapObjectPrototype(FObject *prototype, FEvaluatorBootstrapState state) {
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("self", state), FEvaluatorBootstrapFunction((FImplementation)FObjectPrototypeGetSelf, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("prototype", state), FEvaluatorBootstrapFunction((FImplementation)FObjectPrototypeGetPrototype, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("new", state), FEvaluatorBootstrapFunction((FImplementation)FObjectPrototypeClone, state));
-	return prototype;
-}
 
-
-#pragma mark Context
-extern FObject *FContextGetEvaluatorVariable(FObject *self, FObject *selector);
-
-FObject *FEvaluatorBootstrapContextPrototype(FObject *prototype, FEvaluatorBootstrapState state) {
-	FObjectSetVariable(prototype, FEvaluatorBootstrapSymbol("Evaluator", state), state.Evaluator);
-	
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("Evaluator", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
-	
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("Allocator", state), FEvaluatorBootstrapFunction((FImplementation)FContextGetEvaluatorVariable, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("Compiler", state), FEvaluatorBootstrapFunction((FImplementation)FContextGetEvaluatorVariable, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("Context", state), FEvaluatorBootstrapFunction((FImplementation)FContextGetEvaluatorVariable, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("Function", state), FEvaluatorBootstrapFunction((FImplementation)FContextGetEvaluatorVariable, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("Object", state), FEvaluatorBootstrapFunction((FImplementation)FContextGetEvaluatorVariable, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("Symbol", state), FEvaluatorBootstrapFunction((FImplementation)FContextGetEvaluatorVariable, state));
-		
-	return prototype;
-}
-
+extern FObject *FObjectPrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state);
+extern FObject *FContextPrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state);
+extern FObject *FFunctionPrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state);
 
 FObject *FEvaluatorInitialize(FObject *Evaluator) {
 	FEvaluatorBootstrapState state = {
@@ -62,21 +40,25 @@ FObject *FEvaluatorInitialize(FObject *Evaluator) {
 	};
 	Evaluator->prototype = state.Object;
 	
-	FEvaluatorBootstrapObjectPrototype(state.Object, state);
-	FEvaluatorBootstrapContextPrototype(state.Context, state);
+	FObjectPrototypeBootstrap(state.Object, state);
+	FContextPrototypeBootstrap(state.Context, state);
+	FFunctionPrototypeBootstrap(state.Function, state);
+	// FAllocatorPrototypeBootstrap(state.Allocator, state);
+	// FSymbolPrototypeBootstrap(state.Symbol, state);
+	// FCompilerPrototypeBootstrap(state.Compiler, state);
 	
-	FObjectSetVariable(Evaluator, FEvaluatorBootstrapSymbol("Object", state), state.Object);
-	FObjectSetVariable(Evaluator, FEvaluatorBootstrapSymbol("Function", state), state.Function);
-	FObjectSetVariable(Evaluator, FEvaluatorBootstrapSymbol("Symbol", state), state.Symbol);
-	FObjectSetVariable(Evaluator, FEvaluatorBootstrapSymbol("Allocator", state), state.Allocator);
-	FObjectSetVariable(Evaluator, FEvaluatorBootstrapSymbol("Compiler", state), state.Compiler);
+	// FObjectSetVariable(Evaluator, FEvaluatorBootstrapSymbol("Object", state), state.Object);
+	// FObjectSetVariable(Evaluator, FEvaluatorBootstrapSymbol("Function", state), state.Function);
+	// FObjectSetVariable(Evaluator, FEvaluatorBootstrapSymbol("Symbol", state), state.Symbol);
+	// FObjectSetVariable(Evaluator, FEvaluatorBootstrapSymbol("Allocator", state), state.Allocator);
+	// FObjectSetVariable(Evaluator, FEvaluatorBootstrapSymbol("Compiler", state), state.Compiler);
 	FObjectSetVariable(Evaluator, FEvaluatorBootstrapSymbol("Context", state), state.Context);
 	
-	FObjectSetMethod(Evaluator, FEvaluatorBootstrapSymbol("Object", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
-	FObjectSetMethod(Evaluator, FEvaluatorBootstrapSymbol("Function", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
-	FObjectSetMethod(Evaluator, FEvaluatorBootstrapSymbol("Symbol", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
-	FObjectSetMethod(Evaluator, FEvaluatorBootstrapSymbol("Allocator", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
-	FObjectSetMethod(Evaluator, FEvaluatorBootstrapSymbol("Compiler", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	// FObjectSetMethod(Evaluator, FEvaluatorBootstrapSymbol("Object", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	// FObjectSetMethod(Evaluator, FEvaluatorBootstrapSymbol("Function", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	// FObjectSetMethod(Evaluator, FEvaluatorBootstrapSymbol("Symbol", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	// FObjectSetMethod(Evaluator, FEvaluatorBootstrapSymbol("Allocator", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	// FObjectSetMethod(Evaluator, FEvaluatorBootstrapSymbol("Compiler", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
 	FObjectSetMethod(Evaluator, FEvaluatorBootstrapSymbol("Context", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
 	
 	FCompilerInitialize(state.Compiler);

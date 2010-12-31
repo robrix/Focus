@@ -7,7 +7,7 @@
 #include "../FSymbol.h"
 #include "../FObject+Protected.h"
 #include "../FCompiler.h"
-#include "../FEvaluator.h"
+#include "../FEvaluator+Protected.h"
 #include "../Prototypes/FFunctionPrototype.h"
 #include "FObjectPrototype.h"
 #include <stdlib.h>
@@ -17,34 +17,30 @@ FObject *FContextGetEvaluator(FObject *self) {
 	return evaluator ?: FContextGetEvaluator(FObjectGetPrototype(self));
 }
 
-FObject *FContextGetEvaluatorVariable(FObject *self, FObject *selector) {
-	return FSendMessage(FContextGetEvaluator(self), selector);
+extern FObject *FObjectPrototypeGetSelf(FObject *self, FObject *selector);
+extern FObject *FObjectPrototypeGetPrototype(FObject *self, FObject *selector);
+
+
+FObject *FContextPrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state) {
+	FObjectSetVariable(prototype, FEvaluatorBootstrapSymbol("Allocator", state), state.Allocator);
+	FObjectSetVariable(prototype, FEvaluatorBootstrapSymbol("Compiler", state), state.Compiler);
+	FObjectSetVariable(prototype, FEvaluatorBootstrapSymbol("Evaluator", state), state.Evaluator);
+	FObjectSetVariable(prototype, FEvaluatorBootstrapSymbol("Function", state), state.Function);
+	// FObjectSetVariable(prototype, FEvaluatorBootstrapSymbol("Object", state), state.Object);
+	FObjectSetVariable(prototype, FEvaluatorBootstrapSymbol("Symbol", state), state.Symbol);
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("Allocator", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("Compiler", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("Evaluator", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("Function", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	// FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("Object", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("Symbol", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("Context", state), FEvaluatorBootstrapFunction((FImplementation)FObjectPrototypeGetSelf, state));
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("Object", state), FEvaluatorBootstrapFunction((FImplementation)FObjectPrototypeGetPrototype, state));
+	
+	return prototype;
 }
 
-// FObject *FContextPrototypeCreateWithEvaluator(FObject *evaluator) {
-// 	FObject *prototype = FObjectCreate(FObjectPrototypeGet());
-// 	// fixme: create a list of arguments
-// 	FObjectSetVariable(prototype, FSymbolCreateWithString("Evaluator"), evaluator);
-// 	FObjectSetMethod(prototype, FSymbolCreateWithString("Evaluator"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
-// 	
-// 	FObjectSetMethod(prototype, FSymbolCreateWithString("Allocator"), FFunctionCreateWithImplementation(NULL, (FImplementation)FContextGetEvaluatorVariable));
-// 	FObjectSetMethod(prototype, FSymbolCreateWithString("Compiler"), FFunctionCreateWithImplementation(NULL, (FImplementation)FContextGetEvaluatorVariable));
-// 	FObjectSetMethod(prototype, FSymbolCreateWithString("Context"), FFunctionCreateWithImplementation(NULL, (FImplementation)FContextGetEvaluatorVariable));
-// 	FObjectSetMethod(prototype, FSymbolCreateWithString("Function"), FFunctionCreateWithImplementation(NULL, (FImplementation)FContextGetEvaluatorVariable));
-// 	FObjectSetMethod(prototype, FSymbolCreateWithString("Object"), FFunctionCreateWithImplementation(NULL, (FImplementation)FContextGetEvaluatorVariable));
-// 	FObjectSetMethod(prototype, FSymbolCreateWithString("Symbol"), FFunctionCreateWithImplementation(NULL, (FImplementation)FContextGetEvaluatorVariable));
-// 		
-// 	return prototype;
-// }
-// 
-// FObject *FContextPrototypeCreate() {
-// 	return FContextPrototypeCreateWithEvaluator(FEvaluatorGet());
-// }
-
 FObject *FContextPrototypeGet() {
-	// static FObject *FContextPrototype = NULL;
-	// if(!FContextPrototype) {
-	// 	FContextPrototype = FContextPrototypeCreate();
-	// }
 	return FSend(FEvaluatorGet(), Context);
 }

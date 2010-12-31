@@ -4,10 +4,7 @@
 
 #include "FObjectPrototype.h"
 
-#include "../FEvaluator.h"
-#include "../FSymbol.h"
-#include "../Prototypes/FFunctionPrototype.h"
-#include <stdlib.h>
+#include "../FEvaluator+Protected.h"
 
 FObject *FObjectPrototypeGetSelf(FObject *self, FObject *selector) {
 	return self;
@@ -22,22 +19,13 @@ FObject *FObjectPrototypeClone(FObject *self, FObject *selector) {
 }
 
 
-FObject *FObjectPrototypeInitializeInEvaluator(FObject *prototype, FObject *evaluator) {
-	FObjectSetMethod(prototype, FSymbolCreateWithString("self"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectPrototypeGetSelf));
-	FObjectSetMethod(prototype, FSymbolCreateWithString("prototype"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectPrototypeGetPrototype));
-	FObjectSetMethod(prototype, FSymbolCreateWithString("new"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectPrototypeClone));
+FObject *FObjectPrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state) {
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("self", state), FEvaluatorBootstrapFunction((FImplementation)FObjectPrototypeGetSelf, state));
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("prototype", state), FEvaluatorBootstrapFunction((FImplementation)FObjectPrototypeGetPrototype, state));
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("new", state), FEvaluatorBootstrapFunction((FImplementation)FObjectPrototypeClone, state));
 	return prototype;
 }
 
 FObject *FObjectPrototypeGet() {
-	return FSend(FEvaluatorGet(), Object);
-	// static FObject *FObjectPrototype = NULL;
-	// if(!FObjectPrototype) {
-	// 	FObjectPrototype = FObjectCreate(NULL);
-	// 	FObjectPrototypeInitializeInEvaluator(FObjectPrototype, FEvaluatorGet());
-	// 	// FObjectSetMethod(FObjectPrototype, FSymbolCreateWithString("self"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectPrototypeGetSelf));
-	// 	// FObjectSetMethod(FObjectPrototype, FSymbolCreateWithString("prototype"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectPrototypeGetPrototype));
-	// 	// FObjectSetMethod(FObjectPrototype, FSymbolCreateWithString("new"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectPrototypeClone));
-	// }
-	// return FObjectPrototype;
+	return FSend(FSend(FEvaluatorGet(), Context), Object);
 }

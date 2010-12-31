@@ -11,7 +11,6 @@
 #include "../FObject+Protected.h"
 #include <stdlib.h>
 
-static FObject *FMessagePrototype = NULL;
 
 FObject *FMessageAcceptVisitor(FObject *self, FObject *selector, FObject *visitor) {
 	FObject *receiver = FSend(self, receiver) ? FSend(FSend(self, receiver), acceptVisitor:, visitor) : NULL;
@@ -27,6 +26,7 @@ FObject *FMessageAcceptVisitor(FObject *self, FObject *selector, FObject *visito
 
 
 FObject *FMessagePrototypeGet() {
+	static FObject *FMessagePrototype = NULL;
 	if(!FMessagePrototype) {
 		FMessagePrototype = FObjectCreate(FObjectPrototypeGet());
 		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("receiver"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
