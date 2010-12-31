@@ -11,13 +11,17 @@ unsigned int FTestSuiteTestCasesRun = 0;
 unsigned int FTestSuiteTestSuitesRun = 0;
 
 
+void FAssertionFailed() {
+	FTestSuiteAssertionsFailed++;
+}
+
 bool FAssertConditionWithMessage(bool condition, const char *format, ...) {
 	FTestSuiteAssertionsRun++;
 	if(!condition) {
 		va_list arguments;
 		va_start(arguments, format);
 		vprintf(format, arguments);
-		FTestSuiteAssertionsFailed++;
+		FAssertionFailed();
 	}
 	fflush(stdout);
 	return condition;
