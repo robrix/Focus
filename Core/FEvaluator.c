@@ -29,20 +29,21 @@ extern FObject *FMessagePrototypeBootstrap(FObject *prototype, FEvaluatorBootstr
 extern FObject *FSymbolPrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state);
 
 FObject *FEvaluatorInitialize(FObject *Evaluator) {
+	FObject *Object = FObjectCreate(NULL);
 	FEvaluatorBootstrapState state = {
-		.Object = FObjectCreate(NULL),
-		.Allocator = FObjectCreate(state.Object),
-		.Compiler = FObjectCreate(state.Object),
-		.Context = FObjectCreate(state.Object),
-		.Function = FObjectCreate(state.Object),
-		.Symbol = FObjectCreate(state.Object),
-		.ListNode = FObjectCreate(state.Object),
-		.Message = FObjectCreate(state.Object),
+		.Object = Object,
+		.Allocator = FObjectCreate(Object),
+		.Compiler = FObjectCreate(Object),
+		.Context = FObjectCreate(Object),
+		.Function = FObjectCreate(Object),
+		.ListNode = FObjectCreate(Object),
+		.Message = FObjectCreate(Object),
+		.Symbol = FObjectCreate(Object),
 		.Evaluator = Evaluator
 	};
-	Evaluator->prototype = state.Object;
+	Evaluator->prototype = Object;
 	
-	FObjectPrototypeBootstrap(state.Object, state);
+	FObjectPrototypeBootstrap(Object, state);
 	FContextPrototypeBootstrap(state.Context, state);
 	FFunctionPrototypeBootstrap(state.Function, state);
 	// FAllocatorPrototypeBootstrap(state.Allocator, state);
