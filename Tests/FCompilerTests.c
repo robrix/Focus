@@ -28,11 +28,12 @@ static void testResolvesReferencesToArguments() {
 }
 
 static void testClosesOverItsContext() {
-	FObject *function = FSend(FFunctionPrototypeGet(), newWithContext:arguments:messages:, FContextPrototypeGet(), NULL, FListNodeCreateWithObject(FMessageCreateNullaryWithSubstring(NULL, "Object", 6)));
+	FObject *context = FSend(FTestEvaluator, Context);
+	FObject *function = FSend(FFunctionPrototypeGet(), newWithContext:arguments:messages:, context, NULL, FListNodeCreateWithObject(FMessageCreateNullaryWithSubstring(NULL, "Object", 6)));
 	
 	FImplementation implementation = FCompilerCompileFunction(compiler, function);
 	FAssert(implementation != NULL);
-	FAssert(implementation(NULL, NULL) == FObjectPrototypeGet());
+	FAssert(implementation(NULL, NULL) == FSend(FSend(FTestEvaluator, Context), Object));
 }
 
 void FRunCompilerTests() {

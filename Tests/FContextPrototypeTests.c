@@ -7,24 +7,30 @@
 #include "Core/Prototypes/FFunctionPrototype.h"
 #include "FTestSuite.h"
 
+static FObject *Context = NULL;
+
+static void setUp() {
+	Context = FSend(FTestEvaluator, Context);
+}
+
 static void testCreatesASingletonPrototype() {
-	FAssert(FContextPrototypeGet() != NULL);
+	FAssert(Context != NULL);
 }
 
 static void testInheritsFromObject() {
-	FAssert(FObjectGetPrototype(FContextPrototypeGet()) == FObjectPrototypeGet());
+	FAssert(FObjectGetPrototype(Context) == FSend(Context, Object));
 }
 
 static void testExposesObjectPrototype() {
-	FAssert(FSend(FContextPrototypeGet(), Object) == FObjectPrototypeGet());
+	FAssert(FSend(Context, Object) == FSend(Context, Object));
 }
 
 static void testExposesContextPrototype() {
-	FAssert(FSend(FContextPrototypeGet(), Context) == FContextPrototypeGet());
+	FAssert(FSend(Context, Context) == Context);
 }
 
 void FRunContextPrototypeTests() {
-	FRunTestSuite("FContextPrototype", NULL, NULL, (FTestSuiteTestCase[]){
+	FRunTestSuite("FContextPrototype", setUp, NULL, (FTestSuiteTestCase[]){
 		FTestCase(testCreatesASingletonPrototype),
 		FTestCase(testInheritsFromObject),
 		FTestCase(testExposesObjectPrototype),

@@ -39,7 +39,3 @@ FObject *FContextPrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState
 	
 	return prototype;
 }
-
-FObject *FContextPrototypeGet() {
-	return FSend(FEvaluatorGet(), Context);
-}

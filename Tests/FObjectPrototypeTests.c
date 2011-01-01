@@ -6,27 +6,32 @@
 #include "Core/Prototypes/FFunctionPrototype.h"
 #include "FTestSuite.h"
 
+static FObject *Object = NULL;
+static void setUp() {
+	Object = FSend(FSend(FTestEvaluator, Context), Object);
+}
+
 static void testCreatesASingletonPrototype() {
-	FAssert(FObjectPrototypeGet() != NULL);
+	FAssert(Object != NULL);
 }
 
 static void testImplementsTheIdentityMethod() {
-	FAssert(FObjectPrototypeGet() == FSend(FObjectPrototypeGet(), self));
+	FAssert(Object == FSend(Object, self));
 }
 
 static void testCanBeCloned() {
-	FAssert(FObjectGetPrototype(FSend(FObjectPrototypeGet(), new)) == FObjectPrototypeGet());
+	FAssert(FObjectGetPrototype(FSend(Object, new)) == Object);
 }
 
 static void testReturnsItsPrototype() {
-	FAssert(FSend(FObjectPrototypeGet(), prototype) == NULL);
-	FObject *clone = FSend(FObjectPrototypeGet(), new);
+	FAssert(FSend(Object, prototype) == NULL);
+	FObject *clone = FSend(Object, new);
 	FAssert(clone != NULL);
-	FAssert(FSend(clone, prototype) == FObjectPrototypeGet());
+	FAssert(FSend(clone, prototype) == Object);
 }
 
 void FRunObjectPrototypeTests() {
-	FRunTestSuite("FObjectPrototype", NULL, NULL, (FTestSuiteTestCase[]){
+	FRunTestSuite("FObjectPrototype", setUp, NULL, (FTestSuiteTestCase[]){
 		FTestCase(testCreatesASingletonPrototype),
 		FTestCase(testImplementsTheIdentityMethod),
 		FTestCase(testCanBeCloned),

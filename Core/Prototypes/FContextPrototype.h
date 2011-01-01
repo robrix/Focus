@@ -7,6 +7,4 @@
 
 #include "../FObject.h"
 
-FObject *FContextPrototypeGet();
-
 #endif // F_CONTEXT_PROTOTYPE
