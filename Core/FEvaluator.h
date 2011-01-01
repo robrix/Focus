@@ -8,8 +8,6 @@
 #include "FObject.h"
 
 FObject *FEvaluatorCreate();
-#pragma message("Temporary function for iterative development.")
-FObject *FEvaluatorGet();
 
 FObject *FEvaluatorEvaluateStringInContext(FObject *evaluator, const char *string, FObject *context);
 

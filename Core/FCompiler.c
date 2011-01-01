@@ -163,8 +163,8 @@ FImplementation FCompilerCompileFunction(FObject *compiler, FObject *function) {
 	FObject *visitor = FObjectCreate(compiler);
 	FObjectSetVariable(visitor, FSymbolCreateWithString("function"), function);
 	FObjectSetVariable(visitor, FSymbolCreateWithString("context"), context);
-	FObjectSetMethod(visitor, FSymbolCreateWithString("function"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
-	FObjectSetMethod(visitor, FSymbolCreateWithString("context"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
+	FObjectSetMethod(visitor, FSymbolCreateWithString("function"), FFunctionCreateWithImplementation(context, (FImplementation)FObjectGetVariable));
+	FObjectSetMethod(visitor, FSymbolCreateWithString("context"), FFunctionCreateWithImplementation(context, (FImplementation)FObjectGetVariable));
 	
 	FObject *messageNode = FSend(function, messages);
 	while(messageNode) {

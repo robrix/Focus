@@ -13,9 +13,10 @@ FObject *FEvaluatorBootstrapSymbol(const char *string, FEvaluatorBootstrapState 
 }
 
 FObject *FEvaluatorBootstrapFunction(FImplementation implementation, FEvaluatorBootstrapState state) {
-	FObject *function = FObjectCreate(state.Function);
-	FObjectSetVariable(function, FEvaluatorBootstrapSymbol(" implementation", state), (FObject *)implementation);
-	return function;
+	return FFunctionCreateWithImplementation(state.Context, implementation);
+	// FObject *function = FObjectCreate(state.Function);
+	// FObjectSetVariable(function, FEvaluatorBootstrapSymbol(" implementation", state), (FObject *)implementation);
+	// return function;
 }
 
 
@@ -60,15 +61,6 @@ FObject *FEvaluatorInitialize(FObject *Evaluator) {
 
 FObject *FEvaluatorCreate() {
 	return FEvaluatorInitialize(FObjectCreate(NULL));
-}
-
-FObject *FEvaluatorGet() {
-	static FObject *FGlobalEvaluator = NULL;
-	if(!FGlobalEvaluator) {
-		FGlobalEvaluator = FObjectCreate(NULL);
-		FEvaluatorInitialize(FGlobalEvaluator);
-	}
-	return FGlobalEvaluator;
 }
 
 

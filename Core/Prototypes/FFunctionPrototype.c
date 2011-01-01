@@ -45,17 +45,9 @@ FObject *FFunctionPrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapStat
 	return prototype;
 }
 
-FObject *FFunctionPrototypeGet() {
-	return FSend(FSend(FEvaluatorGet(), Context), Function);
-}
 
-
-FObject *FFunctionCreateWithImplementation(FObject *arguments, FImplementation implementation) {
-	FObject *function = FObjectCreate(FFunctionPrototypeGet());
-	
-	if(arguments) // fixme: arguments ought to be mandatory
-		FObjectSetVariable(function, FSymbolCreateWithString("arguments"), arguments);
-	
+FObject *FFunctionCreateWithImplementation(FObject *context, FImplementation implementation) {
+	FObject *function = FObjectCreate(FSend(context, Function));
 	FObjectSetVariable(function, FSymbolCreateWithString(" implementation"), (FObject *)implementation);
 	return function;
 }

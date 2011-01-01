@@ -8,9 +8,7 @@
 #include <stddef.h>
 #include "../FObject.h"
 
-FObject *FFunctionPrototypeGet();
-
-FObject *FFunctionCreateWithImplementation(FObject *arguments, FImplementation implementation);
+FObject *FFunctionCreateWithImplementation(FObject *context, FImplementation implementation);
 
 FImplementation FFunctionGetImplementation(FObject *self);
 size_t FFunctionGetArity(FObject *self);

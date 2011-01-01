@@ -24,7 +24,7 @@ static FObject *method(FObject *receiver, FObject *selector) {
 }
 
 static void testInheritsMethodsFromItsPrototype() {
-	FObjectSetMethod(object, FSymbolCreateWithString("method"), FFunctionCreateWithImplementation(NULL, (FImplementation)method));
+	FObjectSetMethod(object, FSymbolCreateWithString("method"), FFunctionCreateWithImplementation(FSend(FSend(FTestEvaluator, Context), Function), (FImplementation)method));
 	FObject *clone = FObjectCreate(object);
 	FAssert(FFunctionGetImplementation(FObjectGetMethod(clone, FSymbolCreateWithString("method"))) == (FImplementation)method);
 	

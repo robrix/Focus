@@ -23,7 +23,7 @@ static void testResolvesReferencesToArguments() {
 	FObject *arguments = FSend(FSend(context, ListNode), newWithObject:, FSymbolCreateWithString("x"));
 	FObject *message = FSend(FSend(context, Message), newWithReceiver:selector:arguments:, NULL, FSymbolCreateWithString("x"), NULL);
 	FObject *messages = FSend(FSend(context, ListNode), newWithObject:, message);
-	FObject *function = FSend(FFunctionPrototypeGet(), newWithContext:arguments:messages:, NULL, arguments, messages);
+	FObject *function = FSend(FSend(context, Function), newWithContext:arguments:messages:, NULL, arguments, messages);
 	
 	FImplementation implementation = FCompilerCompileFunction(compiler, function);
 	FAssert(implementation != NULL);
@@ -35,7 +35,7 @@ static void testClosesOverItsContext() {
 	FObject *context = FSend(FTestEvaluator, Context);
 	FObject *message = FSend(FSend(context, Message), newWithReceiver:selector:arguments:, NULL, FSymbolCreateWithString("Object"), NULL);
 	FObject *messages = FSend(FSend(context, ListNode), newWithObject:, message);
-	FObject *function = FSend(FFunctionPrototypeGet(), newWithContext:arguments:messages:, context, NULL, messages);
+	FObject *function = FSend(FSend(context, Function), newWithContext:arguments:messages:, context, NULL, messages);
 	
 	FImplementation implementation = FCompilerCompileFunction(compiler, function);
 	FAssert(implementation != NULL);
