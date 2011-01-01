@@ -24,7 +24,7 @@ static void testResolvesReferencesToArguments() {
 	FImplementation implementation = FCompilerCompileFunction(compiler, function);
 	FAssert(implementation != NULL);
 	FAssert(implementation(NULL, NULL, NULL) == NULL);
-	FAssert(implementation(NULL, NULL, FObjectPrototypeGet()) == FObjectPrototypeGet());
+	FAssert(implementation(NULL, NULL, compiler) == compiler);
 }
 
 static void testClosesOverItsContext() {

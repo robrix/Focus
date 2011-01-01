@@ -5,13 +5,13 @@
 #include "FListNodePrototype.h"
 
 #include "../FSymbol.h"
+#include "../FEvaluator+Protected.h"
 #include "../Prototypes/FFunctionPrototype.h"
 #include "../FObject+Protected.h"
 #include "FObjectPrototype.h"
 #include <stdlib.h>
 #include <stdarg.h>
 
-static FObject *FListNodePrototype = NULL;
 
 FObject *FListNodeNewWithObjectAndNextNode(FObject *self, FObject *selector, FObject *object, FObject *next) {
 	FObject *instance = FSend(self, new);
@@ -34,27 +34,22 @@ FObject *FListNodeGetLastNode(FObject *self, FObject *selector) {
 }
 
 
-FObject *FListNodePrototypeCreate() {
-	FObject *prototype = FObjectCreate(FObjectPrototypeGet());
+FObject *FListNodePrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state) {
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("next", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("next:", state), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("object", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("object:", state), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
 	
-	FObjectSetMethod(prototype, FSymbolCreateWithString("next"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
-	FObjectSetMethod(prototype, FSymbolCreateWithString("next:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
-	FObjectSetMethod(prototype, FSymbolCreateWithString("object"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
-	FObjectSetMethod(prototype, FSymbolCreateWithString("object:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("newWithObject:", state), FEvaluatorBootstrapFunction((FImplementation)FListNodeNewWithObject, state));
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("newWithObject:nextNode:", state), FEvaluatorBootstrapFunction((FImplementation)FListNodeNewWithObjectAndNextNode, state));
 	
-	FObjectSetMethod(prototype, FSymbolCreateWithString("newWithObject:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FListNodeNewWithObject));
-	FObjectSetMethod(prototype, FSymbolCreateWithString("newWithObject:nextNode:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FListNodeNewWithObjectAndNextNode));
-	
-	FObjectSetMethod(prototype, FSymbolCreateWithString("last"), FFunctionCreateWithImplementation(NULL, (FImplementation)FListNodeGetLastNode));
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("last", state), FEvaluatorBootstrapFunction((FImplementation)FListNodeGetLastNode, state));
 	
 	return prototype;
 }
 
 FObject *FListNodePrototypeGet() {
-	if(!FListNodePrototype) {
-		FListNodePrototype = FListNodePrototypeCreate();
-	}
-	return FListNodePrototype;
+	return FSend(FSend(FEvaluatorGet(), Context), ListNode);
 }
 
 

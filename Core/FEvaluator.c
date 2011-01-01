@@ -19,10 +19,14 @@ FObject *FEvaluatorBootstrapFunction(FImplementation implementation, FEvaluatorB
 }
 
 
+extern FObject *FAllocatorPrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state);
 extern FObject *FObjectPrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state);
 extern FObject *FCompilerPrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state);
 extern FObject *FContextPrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state);
 extern FObject *FFunctionPrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state);
+extern FObject *FListNodePrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state);
+extern FObject *FMessagePrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state);
+extern FObject *FSymbolPrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state);
 
 FObject *FEvaluatorInitialize(FObject *Evaluator) {
 	FEvaluatorBootstrapState state = {
@@ -45,7 +49,7 @@ FObject *FEvaluatorInitialize(FObject *Evaluator) {
 	// FSymbolPrototypeBootstrap(state.Symbol, state);
 	FCompilerPrototypeBootstrap(state.Compiler, state);
 	// FMessagePrototypeBootstrap(state.Message, state);
-	// FListNodePrototypeBootstrap(state.ListNode, state);
+	FListNodePrototypeBootstrap(state.ListNode, state);
 	
 	FObjectSetVariable(Evaluator, FEvaluatorBootstrapSymbol("Context", state), state.Context);
 	FObjectSetMethod(Evaluator, FEvaluatorBootstrapSymbol("Context", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
