@@ -19,7 +19,10 @@ static void setUp() {
 }
 
 static void testResolvesReferencesToArguments() {
-	FObject *function = FSend(FFunctionPrototypeGet(), newWithContext:arguments:messages:, NULL, FListNodeCreateWithObject(FSymbolCreateWithString("x")), FListNodeCreateWithObject(FMessageCreateNullaryWithSubstring(NULL, "x", 1)));
+	FObject *context = FSend(FTestEvaluator, Context);
+	FObject *arguments = FSend(FSend(context, ListNode), newWithObject:, FSymbolCreateWithString("x"));
+	FObject *messages = FSend(FSend(context, ListNode), newWithObject:, FMessageCreateNullaryWithSubstring(NULL, "x", 1));
+	FObject *function = FSend(FFunctionPrototypeGet(), newWithContext:arguments:messages:, NULL, arguments, messages);
 	
 	FImplementation implementation = FCompilerCompileFunction(compiler, function);
 	FAssert(implementation != NULL);
@@ -29,7 +32,8 @@ static void testResolvesReferencesToArguments() {
 
 static void testClosesOverItsContext() {
 	FObject *context = FSend(FTestEvaluator, Context);
-	FObject *function = FSend(FFunctionPrototypeGet(), newWithContext:arguments:messages:, context, NULL, FListNodeCreateWithObject(FMessageCreateNullaryWithSubstring(NULL, "Object", 6)));
+	FObject *messages = FSend(FSend(context, ListNode), newWithObject:, FMessageCreateNullaryWithSubstring(NULL, "Object", 6));
+	FObject *function = FSend(FFunctionPrototypeGet(), newWithContext:arguments:messages:, context, NULL, messages);
 	
 	FImplementation implementation = FCompilerCompileFunction(compiler, function);
 	FAssert(implementation != NULL);

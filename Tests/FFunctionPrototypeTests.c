@@ -21,7 +21,8 @@ static void testInheritsFromObject() {
 static void testCompilesLazily() {
 	FObject *receiver = FObjectCreate(NULL);
 	FObject *context = FSend(FTestEvaluator, Context);
-	FObject *function = FSend(FFunctionPrototypeGet(), newWithContext:arguments:messages:, context, NULL, FListNodeCreateWithObject(FMessageCreateNullaryWithSubstring(NULL, "Object", 6)));
+	FObject *messages = FSend(FSend(context, ListNode), newWithObject:, FMessageCreateNullaryWithSubstring(NULL, "Object", 6));
+	FObject *function = FSend(FFunctionPrototypeGet(), newWithContext:arguments:messages:, context, NULL, messages);
 	
 	FObjectSetMethod(receiver, FSymbolCreateWithString("test"), function);
 	FAssert(FSend(receiver, test) == FSend(context, Object));

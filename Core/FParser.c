@@ -129,11 +129,10 @@ bool FParseNAryMessage(FObject *context, FObject *receiver, const char *source, 
 		memcpy(selector + selectorLength - keywordLength, source + start + whitespaceLength, keywordLength);
 		
 		// set the argument
-		if(arguments == NULL) {
-			arguments = FSend(message, arguments:, FListNodeCreateWithObject(argument));
-		} else {
-			arguments = FSend(arguments, next:, FListNodeCreateWithObject(argument));
-		}
+		FObject *argumentNode = FSend(FSend(context, ListNode), newWithObject:, argument);
+		arguments = (arguments == NULL)?
+			FSend(message, arguments:, argumentNode)
+		:	FSend(arguments, next:, argumentNode);
 		
 		keywordLength = keywordArgumentLength = whitespaceLength = 0;
 	}

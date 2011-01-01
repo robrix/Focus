@@ -54,7 +54,7 @@ static void testCanFetchTheLastNode() {
 
 
 static void testCanBeConvenientlyCreatedFromCCode() {
-	FObject *list = FListNodeCreateWithObjects(Object, Object, Object, NULL);
+	FObject *list = FListNodeCreateWithObjects(FSend(FTestEvaluator, Context), Object, Object, Object, NULL);
 	
 	FAssert(FSend(list, object) == Object);
 	FAssert(FSend(FSend(list, next), object) == Object);

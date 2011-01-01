@@ -48,32 +48,20 @@ FObject *FListNodePrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapStat
 	return prototype;
 }
 
-FObject *FListNodePrototypeGet() {
-	return FSend(FSend(FEvaluatorGet(), Context), ListNode);
-}
 
-
-FObject *FListNodeCreateWithObject(FObject *object) {
-	return FSend(FListNodePrototypeGet(), newWithObject:, object);
-}
-
-FObject *FListNodeCreateWithObjects(FObject *object, ...) {
+FObject *FListNodeCreateWithObjects(FObject *context, FObject *object, ...) {
 	va_list arguments;
 	FObject *root = NULL, *node = NULL;
 	va_start(arguments, object);
-	root = node = FSend(FListNodePrototypeGet(), newWithObject:, object);
+	root = node = FSend(FSend(context, ListNode), newWithObject:, object);
 	while((object = va_arg(arguments, FObject *))) {
-		FObject *next = FSend(FListNodePrototypeGet(), newWithObject:, object);
+		FObject *next = FSend(FSend(context, ListNode), newWithObject:, object);
 		FObjectSetVariable(node, FSymbolCreateWithString("next"), next);
 		node = next;
 	}
 	va_end(arguments);
 	return root;
 }
-
-// FObject *FListNodeCreateWithObjectsAndCount(FObject **objects, size_t count) {
-// 	
-// }
 
 
 size_t FListNodeGetCount(FObject *self) {
