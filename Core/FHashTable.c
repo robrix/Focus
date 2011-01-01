@@ -75,6 +75,11 @@ void FHashTableSetValueForKey(FHashTable *self, FObject *key, void *value) {
 	FHashTableSetValueForKeyWithHash(self, key, FSymbolGetHash(key), value);
 }
 
+void FHashTableDidSetNullValueForKeyWithHash(FHashTable *self, FObject *key, size_t hash) {
+		printf("setting null value for #%s\n", FSymbolGetString(key));
+		fflush(stdout);
+}
+
 void FHashTableSetValueForKeyWithHash(FHashTable *self, FObject *key, size_t hash, void *value) {
 	if(!key) {
 		printf("null key!\n");
@@ -82,9 +87,8 @@ void FHashTableSetValueForKeyWithHash(FHashTable *self, FObject *key, size_t has
 		abort();
 	}
 	if(!value) {
+		FHashTableDidSetNullValueForKeyWithHash(self, key, hash);
 		// fixme: this should be a debug log
-		printf("setting null value for %s\n", FSymbolGetString(key));
-		fflush(stdout);
 	}
 	FPair *pair = FPairGetTail(FHashTableGetBucketForHash(self, hash));
 	pair->key = key;
