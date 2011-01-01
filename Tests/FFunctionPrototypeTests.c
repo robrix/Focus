@@ -13,10 +13,6 @@ static void testCreatesASingletonPrototype() {
 	FAssert(FFunctionPrototypeGet() != NULL);
 }
 
-static void testInheritsFromObject() {
-	FAssert(FObjectGetPrototype(FFunctionPrototypeGet()) == FObjectPrototypeGet());
-}
-
 
 static void testCompilesLazily() {
 	FObject *receiver = FObjectCreate(NULL);
@@ -34,7 +30,6 @@ static void testCompilesLazily() {
 void FRunFunctionPrototypeTests() {
 	FRunTestSuite("FFunctionPrototype", NULL, NULL, (FTestSuiteTestCase[]){
 		FTestCase(testCreatesASingletonPrototype),
-		FTestCase(testInheritsFromObject),
 		
 		FTestCase(testCompilesLazily),
 		

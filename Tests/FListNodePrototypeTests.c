@@ -35,8 +35,8 @@ static void testInstancesCanBeCreatedWithAnObject() {
 
 static void testInstancesReferToTheNextNode() {
 	FObject
-		*next = FSend(ListNode, newWithObject:, FObjectPrototypeGet()),
-		*instance = FSend(ListNode, newWithObject:nextNode:, FObjectPrototypeGet(), next);
+		*next = FSend(ListNode, newWithObject:, Object),
+		*instance = FSend(ListNode, newWithObject:nextNode:, Object, next);
 	FAssert(FSend(instance, next) == next);
 	FAssert(FObjectGetPrototype(instance) == ListNode);
 }

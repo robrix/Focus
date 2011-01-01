@@ -25,7 +25,3 @@ FObject *FObjectPrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState 
 	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("new", state), FEvaluatorBootstrapFunction((FImplementation)FObjectPrototypeClone, state));
 	return prototype;
 }
-
-FObject *FObjectPrototypeGet() {
-	return FSend(FSend(FEvaluatorGet(), Context), Object);
-}
