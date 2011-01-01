@@ -64,7 +64,7 @@ bool FParseNullaryMessage(FObject *context, FObject *receiver, const char *sourc
 	bool result = FParseWord(source, index, &length) && !FParseToken(source, index + length, ":");
 	if(result) {
 		if(messageNode) {
-			*messageNode = FMessageCreateNullaryWithSubstring(receiver, source + index, length);
+			*messageNode = FSend(FSend(context, Message), newWithReceiver:selector:arguments:, receiver, FSymbolCreateWithSubstring(source + index, length), NULL);
 		}
 		if(outLength) {
 			*outLength = length;
@@ -110,7 +110,7 @@ bool FParseNAryMessage(FObject *context, FObject *receiver, const char *source, 
 	size_t totalLength = 0, selectorLength = 0;
 	char *selector = NULL;
 	FObject
-		*message = FMessageCreate(receiver, NULL, NULL),
+		*message = FSend(FSend(context, Message), newWithReceiver:selector:arguments:, receiver, NULL, NULL),
 		*argument = NULL;
 	FObject *arguments = NULL;
 	size_t keywordLength = 0, keywordArgumentLength = 0, whitespaceLength = 0;

@@ -13,6 +13,15 @@
 #include <stdlib.h>
 
 
+FObject *FMessageNewWithReceiverSelectorArguments(FObject *self, FObject *_cmd, FObject *receiver, FObject *selector, FObject *arguments) {
+	FObject *instance = FSend(self, new);
+	if(receiver) FSend(instance, receiver:, receiver);
+	if(selector) FSend(instance, selector:, selector);
+	if(arguments) FSend(instance, arguments:, arguments);
+	return instance;
+}
+
+
 FObject *FMessageAcceptVisitor(FObject *self, FObject *selector, FObject *visitor) {
 	FObject *receiver = FSend(self, receiver) ? FSend(FSend(self, receiver), acceptVisitor:, visitor) : NULL;
 	FObject *node = FSend(self, arguments);
@@ -34,25 +43,9 @@ FObject *FMessagePrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState
 	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("arguments", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
 	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("arguments:", state), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
 	
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("newWithReceiver:selector:arguments:", state), FEvaluatorBootstrapFunction((FImplementation)FMessageNewWithReceiverSelectorArguments, state));
+	
 	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("acceptVisitor:", state), FEvaluatorBootstrapFunction((FImplementation)FMessageAcceptVisitor, state));
 	
 	return prototype;
-}
-
-FObject *FMessagePrototypeGet() {
-	return FSend(FSend(FEvaluatorGet(), Context), Message);
-}
-
-
-FObject *FMessageCreate(FObject *receiver, FObject *selector, FObject *arguments) {
-	FObject *message = FSend(FMessagePrototypeGet(), new);
-	if(receiver) FSend(message, receiver:, receiver);
-	if(selector) FSend(message, selector:, selector);
-	if(arguments) FSend(message, arguments:, arguments);
-	return message;
-}
-
-FObject *FMessageCreateNullaryWithSubstring(FObject *receiver, const char *string, size_t length) {
-	FObject *selector = FSymbolCreateWithSubstring(string, length);
-	return FMessageCreate(receiver, selector, NULL);
 }
