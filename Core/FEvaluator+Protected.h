@@ -8,15 +8,15 @@
 #include "FEvaluator.h"
 
 typedef struct FEvaluatorBootstrapState {
-	FObject *Object;
-	FObject *Symbol;
-	FObject *Function;
-	FObject *Compiler;
 	FObject *Allocator;
+	FObject *Compiler;
 	FObject *Context;
+	FObject *Evaluator;
+	FObject *Function;
 	FObject *ListNode;
 	FObject *Message;
-	FObject *Evaluator;
+	FObject *Object;
+	FObject *Symbol;
 } FEvaluatorBootstrapState;
 
 extern FObject *FEvaluatorBootstrapSymbol(const char *string, FEvaluatorBootstrapState state);
