@@ -53,16 +53,6 @@ static void testCanFetchTheLastNode() {
 }
 
 
-static void testCanBeConvenientlyCreatedFromCCode() {
-	FObject *list = FListNodeCreateWithObjects(FSend(FTestEvaluator, Context), Object, Object, Object, NULL);
-	
-	FAssert(FSend(list, object) == Object);
-	FAssert(FSend(FSend(list, next), object) == Object);
-	FAssert(FSend(FSend(FSend(list, next), next), object) == Object);
-	FAssert(FSend(FSend(FSend(list, next), next), next) == NULL);
-}
-
-
 void FRunListNodePrototypeTests() {
 	FRunTestSuite("FListNodePrototype", setUp, NULL, (FTestSuiteTestCase[]){
 		FTestCase(testInheritsFromObject),
@@ -73,8 +63,6 @@ void FRunListNodePrototypeTests() {
 		FTestCase(testInstancesReferToTheNextNode),
 		
 		FTestCase(testCanFetchTheLastNode),
-		
-		FTestCase(testCanBeConvenientlyCreatedFromCCode),
 		
 		{0},
 	});

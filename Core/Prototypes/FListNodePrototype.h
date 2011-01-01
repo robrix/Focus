@@ -7,8 +7,6 @@
 
 #include "../FObject.h"
 
-FObject *FListNodeCreateWithObjects(FObject *context, FObject *object, ...);
-
 size_t FListNodeGetCount(FObject *node);
 
 #endif // F_LIST_NODE_PROTOTYPE
