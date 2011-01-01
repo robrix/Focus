@@ -9,7 +9,7 @@
 
 
 FObject *FEvaluatorBootstrapSymbol(const char *string, FEvaluatorBootstrapState state) {
-	return FSymbolCreateWithPrototypeAndString(state.Symbol, string);
+	return FSymbolCreateWithPrototypeAndString(state.Context, string);
 }
 
 FObject *FEvaluatorBootstrapFunction(FImplementation implementation, FEvaluatorBootstrapState state) {

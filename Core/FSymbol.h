@@ -9,10 +9,8 @@
 #include <stdbool.h>
 #include <string.h>
 
-FObject *FSymbolCreateWithPrototypeAndString(FObject *prototype, const char *symbol);
-FObject *FSymbolCreateWithPrototypeAndSubstring(FObject *prototype, const char *symbol, size_t length);
-FObject *FSymbolCreateWithString(const char *symbol);
-FObject *FSymbolCreateWithSubstring(const char *symbol, size_t length);
+FObject *FSymbolCreateWithString(FObject *context, const char *symbol);
+FObject *FSymbolCreateWithSubstring(FObject *context, const char *symbol, size_t length);
 
 bool FSymbolIsEqual(FObject *a, FObject *b);
 
