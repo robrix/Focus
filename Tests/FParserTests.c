@@ -12,6 +12,11 @@
 
 typedef struct FMessageFixture { const char *source; size_t length; } FMessageFixture;
 
+static FObject *Context = NULL;
+static void setUp() {
+	Context = FSend(FTestEvaluator, Context);
+}
+
 static void testParsesWords() {
 	size_t length = 0;
 	FAssert(FParseWord("_word123", 0, &length) && length == 8);
@@ -104,7 +109,7 @@ static void testParsesKeywords() {
 static void testParsesNullaryMessages() {
 	size_t length = 0;
 	FObject *message = NULL;
-	FAssert(FParseMessage(NULL, "foo", 0, &length, &message) && length == 3);
+	FAssert(FParseMessage(Context, NULL, "foo", 0, &length, &message) && length == 3);
 	if(FAssert(message != NULL)) {
 		FAssert(FSymbolIsEqual(FSend(message, selector), FSymbolCreateWithString("foo")));
 		FAssert(FSend(message, receiver) == NULL);
@@ -114,7 +119,7 @@ static void testParsesNullaryMessages() {
 static void testParsesUnaryMessages() {
 	size_t length = 0;
 	FObject *message = NULL;
-	FAssert(FParseMessage(NULL, "foo: bar", 0, &length, &message) && length == 8);
+	FAssert(FParseMessage(Context, NULL, "foo: bar", 0, &length, &message) && length == 8);
 	
 	if(FAssert(message != NULL)) {
 		FAssert(FSymbolIsEqual(FSend(message, selector), FSymbolCreateWithString("foo:")));
@@ -131,7 +136,7 @@ static void testParsesUnaryMessages() {
 static void testParsesBinaryMessages() {
 	size_t length = 0;
 	FObject *message = NULL;
-	FAssert(FParseMessage(NULL, "foo: (bar) quux: (thing)", 0, &length, &message) && length == 24);
+	FAssert(FParseMessage(Context, NULL, "foo: (bar) quux: (thing)", 0, &length, &message) && length == 24);
 	
 	if(FAssert(message != NULL)) {
 		FAssert(FSymbolIsEqual(FSend(message, selector), FSymbolCreateWithString("foo:quux:")));
@@ -161,7 +166,7 @@ static void testParsesNullaryMessageChains() {
 		size_t length = 0;
 		FObject *message = NULL;
 		// printf("\t%s\n", fixtures[i].source);
-		FAssert(FParseExpression(fixtures[i].source, 0, &length, &message) && length == fixtures[i].length);
+		FAssert(FParseExpression(Context, fixtures[i].source, 0, &length, &message) && length == fixtures[i].length);
 		if(FAssert(message != NULL)) {
 			FAssert(FSymbolIsEqual(FSend(message, selector), FSymbolCreateWithString("quux")));
 			FAssert(FSend(message, arguments) == NULL);
@@ -186,7 +191,7 @@ static void testParsesUnaryMessagesAfterNullaryMessageChains() {
 		size_t length = 0;
 		FObject *message = NULL;
 		// printf("\t%s\n", fixtures[i].source);
-		FAssert(FParseExpression(fixtures[i].source, 0, &length, &message) && length == fixtures[i].length);
+		FAssert(FParseExpression(Context, fixtures[i].source, 0, &length, &message) && length == fixtures[i].length);
 		if(FAssert(message != NULL)) {
 			FAssert(FSymbolIsEqual(FSend(message, selector), FSymbolCreateWithString("bar:")));
 			if(FAssert(FSend(message, receiver) != NULL)) {
@@ -214,7 +219,7 @@ static void testParsesNullaryMessageChainsAsArguments() {
 		size_t length = 0;
 		FObject *message = NULL;
 		// printf("\t%s\n", fixtures[i].source);
-		FAssert(FParseExpression(fixtures[i].source, 0, &length, &message) && length == fixtures[i].length);
+		FAssert(FParseExpression(Context, fixtures[i].source, 0, &length, &message) && length == fixtures[i].length);
 		if(FAssert(message != NULL)) {
 			FAssert(FSymbolIsEqual(FSend(message, selector), FSymbolCreateWithString("bar:")));
 			FObject *foo = FSend(message, receiver);
@@ -249,7 +254,7 @@ static void testParsesMessagesChainedOntoNullaryMessageChains() {
 		size_t length = 0;
 		FObject *message = NULL;
 		// printf("\t%s\n", fixtures[i].source);
-		FAssert(FParseExpression(fixtures[i].source, 0, &length, &message) && length == fixtures[i].length);
+		FAssert(FParseExpression(Context, fixtures[i].source, 0, &length, &message) && length == fixtures[i].length);
 		if(FAssert(message != NULL)) {
 			FAssert(FSymbolIsEqual(FSend(message, selector), FSymbolCreateWithString("quux:")));
 			FObject *bar = FSend(message, receiver);
@@ -279,29 +284,29 @@ static void testParsesMessagesChainedOntoNullaryMessageChains() {
 static void testParsesParameters() {
 	size_t length = 0;
 	FObject *symbol = NULL;
-	FAssert(FParseParameter("foo", 0, &length, &symbol) && length == 3 && FSymbolIsEqual(symbol, FSymbolCreateWithString("foo")));
+	FAssert(FParseParameter(Context, "foo", 0, &length, &symbol) && length == 3 && FSymbolIsEqual(symbol, FSymbolCreateWithString("foo")));
 }
 
 static void testParsesParameterLists() {
 	size_t length = 0;
 	FObject *node = NULL;
-	FAssert(FParseParameterList("foo", 0, &length, &node) && length == 3 && FSymbolIsEqual(FSend(node, object), FSymbolCreateWithString("foo")));
+	FAssert(FParseParameterList(Context, "foo", 0, &length, &node) && length == 3 && FSymbolIsEqual(FSend(node, object), FSymbolCreateWithString("foo")));
 	FAssert(
-		FParseParameterList("foo, bar", 0, &length, &node)
+		FParseParameterList(Context, "foo, bar", 0, &length, &node)
 	&&	length == 8
 	&&	FSymbolIsEqual(FSend(node, object), FSymbolCreateWithString("foo"))
 	&&	FSymbolIsEqual(FSend(FSend(node, next), object), FSymbolCreateWithString("bar"))
 	);
 	
-	FAssert(!FParseParameterList("", 0, NULL, NULL));
-	FAssert(!FParseParameterList("foo,", 0, NULL, NULL));
+	FAssert(!FParseParameterList(Context, "", 0, NULL, NULL));
+	FAssert(!FParseParameterList(Context, "foo,", 0, NULL, NULL));
 }
 
 static void testParsesNAryFunctions() {
 	size_t length = 0;
 	FObject *function = NULL;
 	FAssert(
-		FParseNAryFunction("{x->x}", 0, &length, &function)
+		FParseNAryFunction(Context, "{x->x}", 0, &length, &function)
 	&&	length == 6
 	&&	FSymbolIsEqual(FSend(FSend(function, arguments), object), FSymbolCreateWithString("x"))
 	&&	FSend(FSend(function, arguments), next) == NULL
@@ -309,7 +314,7 @@ static void testParsesNAryFunctions() {
 	&&	FSend(FSend(function, messages), next) == NULL
 	);
 	FAssert(
-		FParseNAryFunction("{ x -> x }", 0, &length, &function)
+		FParseNAryFunction(Context, "{ x -> x }", 0, &length, &function)
 	&&	length == 10
 	&&	FSymbolIsEqual(FSend(FSend(function, arguments), object), FSymbolCreateWithString("x"))
 	&&	FSend(FSend(function, arguments), next) == NULL
@@ -317,7 +322,7 @@ static void testParsesNAryFunctions() {
 	&&	FSend(FSend(function, messages), next) == NULL
 	);
 	FAssert(
-		FParseNAryFunction("{ x, y -> x\ny }", 0, &length, &function)
+		FParseNAryFunction(Context, "{ x, y -> x\ny }", 0, &length, &function)
 	&&	length == 15
 	&&	FSymbolIsEqual(FSend(FSend(function, arguments), object), FSymbolCreateWithString("x"))
 	&&	FSymbolIsEqual(FSend(FSend(FSend(function, arguments), next), object), FSymbolCreateWithString("y"))
@@ -332,14 +337,14 @@ static void testParsesNullaryFunctions() {
 	size_t length = 0;
 	FObject *function = NULL;
 	FAssert(
-		FParseNullaryFunction("{foo}", 0, &length, &function)
+		FParseNullaryFunction(Context, "{foo}", 0, &length, &function)
 	&&	function != NULL
 	&&	length == 5
 	&&	FSend(function, arguments) == NULL
 	&&	FSymbolIsEqual(FSend(FSend(FSend(function, messages), object), selector), FSymbolCreateWithString("foo"))
 	);
 	FAssert(
-		FParseNullaryFunction("{ foo }", 0, &length, &function)
+		FParseNullaryFunction(Context, "{ foo }", 0, &length, &function)
 	&&	length == 7
 	&&	function != NULL
 	&&	FSend(function, arguments) == NULL
@@ -350,44 +355,44 @@ static void testParsesNullaryFunctions() {
 
 static void testParsesParenthesizedExpressions() {
 	size_t length = 0;
-	FAssert(FParseParenthesizedExpression("(foo)", 0, &length, NULL) && length == 5);
+	FAssert(FParseParenthesizedExpression(Context, "(foo)", 0, &length, NULL) && length == 5);
 	
 	length = 0;
-	FAssert(FParseParenthesizedExpression("( foo ) ", 0, &length, NULL) && length == 7);
+	FAssert(FParseParenthesizedExpression(Context, "( foo ) ", 0, &length, NULL) && length == 7);
 	
 	length = 0;
-	FAssert(FParseParenthesizedExpression("(\nfoo\n) ", 0, &length, NULL) && length == 7);
+	FAssert(FParseParenthesizedExpression(Context, "(\nfoo\n) ", 0, &length, NULL) && length == 7);
 }
 
 static void testParsesExpressions() {
 	size_t length = 0;
-	FAssert(FParseExpression("(\nfoo\n)", 0, &length, NULL) && length == 7);
+	FAssert(FParseExpression(Context, "(\nfoo\n)", 0, &length, NULL) && length == 7);
 	
 	length = 0;
-	FAssert(FParseExpression("foo", 0, &length, NULL) && length == 3);
+	FAssert(FParseExpression(Context, "foo", 0, &length, NULL) && length == 3);
 }
 
 static void testParsesExpressionLists() {
 	size_t length = 0;
 	FObject *node = NULL;
-	FAssert(FParseExpressionList("foo", 0, &length, &node) && length == 3 && node != NULL && FSend(node, next) == NULL);
-	FAssert(FParseExpressionList("foo\n", 0, &length, &node) && length == 3 && node != NULL && FSend(node, next) == NULL);
-	FAssert(FParseExpressionList("foo\nbar", 0, &length, &node) && length == 7 && node != NULL && FSend(node, next) != NULL);
+	FAssert(FParseExpressionList(Context, "foo", 0, &length, &node) && length == 3 && node != NULL && FSend(node, next) == NULL);
+	FAssert(FParseExpressionList(Context, "foo\n", 0, &length, &node) && length == 3 && node != NULL && FSend(node, next) == NULL);
+	FAssert(FParseExpressionList(Context, "foo\nbar", 0, &length, &node) && length == 7 && node != NULL && FSend(node, next) != NULL);
 	
-	FAssert(!FParseExpressionList("", 0, &length, &node));
+	FAssert(!FParseExpressionList(Context, "", 0, &length, &node));
 }
 
 
 static void testParsesCompleteSources() {
 	FObject *function = NULL;
-	FAssert(FParse("foo\nbar", &function) && function != NULL && FSend(function, messages) != NULL);
-	FAssert(FParse("foo\nbar\n", &function) && function != NULL && FSend(function, messages) != NULL);
+	FAssert(FParse(Context, "foo\nbar", &function) && function != NULL && FSend(function, messages) != NULL);
+	FAssert(FParse(Context, "foo\nbar\n", &function) && function != NULL && FSend(function, messages) != NULL);
 	
 }
 
 
 void FRunParserTests() {
-	FRunTestSuite("FParser", NULL, NULL, (FTestSuiteTestCase[]){
+	FRunTestSuite("FParser", setUp, NULL, (FTestSuiteTestCase[]){
 		FTestCase(testParsesCharacterSets),
 		FTestCase(testParsesTokens),
 		

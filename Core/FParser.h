@@ -19,20 +19,20 @@ bool FParseWhitespaceAndNewlines(const char *source, size_t index, size_t *outLe
 
 bool FParseKeyword(const char *source, size_t index, size_t *outLength);
 
-bool FParseNullaryMessage(FObject *receiver, const char *source, size_t index, size_t *outLength, FObject **messageNode);
-bool FParseNAryMessage(FObject *receiver, const char *source, size_t index, size_t *outLength, FObject **messageNode);
-bool FParseMessage(FObject *receiver, const char *source, size_t index, size_t *outLength, FObject **messageNode);
+bool FParseNullaryMessage(FObject *context, FObject *receiver, const char *source, size_t index, size_t *outLength, FObject **messageNode);
+bool FParseNAryMessage(FObject *context, FObject *receiver, const char *source, size_t index, size_t *outLength, FObject **messageNode);
+bool FParseMessage(FObject *context, FObject *receiver, const char *source, size_t index, size_t *outLength, FObject **messageNode);
 
-bool FParseParameter(const char *source, size_t index, size_t *outLength, FObject **symbol);
-bool FParseParameterList(const char *source, size_t index, size_t *outLength, FObject **outParameterNode);
+bool FParseParameter(FObject *context, const char *source, size_t index, size_t *outLength, FObject **symbol);
+bool FParseParameterList(FObject *context, const char *source, size_t index, size_t *outLength, FObject **outParameterNode);
 
-bool FParseNAryFunction(const char *source, size_t index, size_t *outLength, FObject **outFunction);
-bool FParseNullaryFunction(const char *source, size_t index, size_t *outLength, FObject **outFunction);
+bool FParseNAryFunction(FObject *context, const char *source, size_t index, size_t *outLength, FObject **outFunction);
+bool FParseNullaryFunction(FObject *context, const char *source, size_t index, size_t *outLength, FObject **outFunction);
 
-bool FParseExpression(const char *source, size_t index, size_t *outLength, FObject **expressionNode);
-bool FParseParenthesizedExpression(const char *source, size_t index, size_t *outLength, FObject **expressionNode);
-bool FParseExpressionList(const char *source, size_t index, size_t *outLength, FObject **listNode);
+bool FParseExpression(FObject *context, const char *source, size_t index, size_t *outLength, FObject **expressionNode);
+bool FParseParenthesizedExpression(FObject *context, const char *source, size_t index, size_t *outLength, FObject **expressionNode);
+bool FParseExpressionList(FObject *context, const char *source, size_t index, size_t *outLength, FObject **listNode);
 
-bool FParse(const char *source, FObject **outFunction);
+bool FParse(FObject *context, const char *source, FObject **outFunction);
 
 #endif // F_PARSER

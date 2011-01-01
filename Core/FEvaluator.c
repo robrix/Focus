@@ -48,7 +48,7 @@ FObject *FEvaluatorInitialize(FObject *Evaluator) {
 	// FAllocatorPrototypeBootstrap(state.Allocator, state);
 	// FSymbolPrototypeBootstrap(state.Symbol, state);
 	FCompilerPrototypeBootstrap(state.Compiler, state);
-	// FMessagePrototypeBootstrap(state.Message, state);
+	FMessagePrototypeBootstrap(state.Message, state);
 	FListNodePrototypeBootstrap(state.ListNode, state);
 	
 	FObjectSetVariable(Evaluator, FEvaluatorBootstrapSymbol("Context", state), state.Context);

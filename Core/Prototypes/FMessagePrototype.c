@@ -9,6 +9,7 @@
 #include "../Prototypes/FListNodePrototype.h"
 #include "FObjectPrototype.h"
 #include "../FObject+Protected.h"
+#include "../FEvaluator+Protected.h"
 #include <stdlib.h>
 
 
@@ -25,20 +26,21 @@ FObject *FMessageAcceptVisitor(FObject *self, FObject *selector, FObject *visito
 }
 
 
+FObject *FMessagePrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state) {
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("receiver", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("receiver:", state), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("selector", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("selector:", state), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("arguments", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("arguments:", state), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
+	
+	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("acceptVisitor:", state), FEvaluatorBootstrapFunction((FImplementation)FMessageAcceptVisitor, state));
+	
+	return prototype;
+}
+
 FObject *FMessagePrototypeGet() {
-	static FObject *FMessagePrototype = NULL;
-	if(!FMessagePrototype) {
-		FMessagePrototype = FObjectCreate(FObjectPrototypeGet());
-		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("receiver"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
-		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("receiver:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
-		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("selector"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
-		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("selector:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
-		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("arguments"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectGetVariable));
-		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("arguments:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FObjectSetVariableAsAccessor));
-		
-		FObjectSetMethod(FMessagePrototype, FSymbolCreateWithString("acceptVisitor:"), FFunctionCreateWithImplementation(NULL, (FImplementation)FMessageAcceptVisitor));
-	}
-	return FMessagePrototype;
+	return FSend(FSend(FEvaluatorGet(), Context), Message);
 }
 
 

@@ -59,7 +59,7 @@ bool FParseKeyword(const char *source, size_t index, size_t *outLength) {
 }
 
 
-bool FParseNullaryMessage(FObject *receiver, const char *source, size_t index, size_t *outLength, FObject **messageNode) {
+bool FParseNullaryMessage(FObject *context, FObject *receiver, const char *source, size_t index, size_t *outLength, FObject **messageNode) {
 	size_t length = 0;
 	bool result = FParseWord(source, index, &length) && !FParseToken(source, index + length, ":");
 	if(result) {
@@ -74,15 +74,15 @@ bool FParseNullaryMessage(FObject *receiver, const char *source, size_t index, s
 }
 
 
-bool FParseArgument(const char *source, size_t index, size_t *outLength, FObject **argumentNode) {
+bool FParseArgument(FObject *context, const char *source, size_t index, size_t *outLength, FObject **argumentNode) {
 	size_t totalLength = 0;
 	FObject *receiver = NULL;
-	bool result = FParseParenthesizedExpression(source, index, &totalLength, &receiver) || FParseNullaryMessage(NULL, source, index, &totalLength, &receiver);
+	bool result = FParseParenthesizedExpression(context, source, index, &totalLength, &receiver) || FParseNullaryMessage(context, NULL, source, index, &totalLength, &receiver);
 	if(result) {
 		size_t whitespaceLength = 0, messageLength = 0;
 		while(
 			(FParseWhitespace(source, index + totalLength, &whitespaceLength) || 1)
-		&&	FParseNullaryMessage(receiver, source, index + totalLength + whitespaceLength, &messageLength, &receiver)
+		&&	FParseNullaryMessage(context, receiver, source, index + totalLength + whitespaceLength, &messageLength, &receiver)
 		) {
 			totalLength += whitespaceLength + messageLength;
 			
@@ -95,18 +95,18 @@ bool FParseArgument(const char *source, size_t index, size_t *outLength, FObject
 	return result;
 }
 
-bool FParseKeywordArgument(FObject *receiver, const char *source, size_t index, size_t *outLength, size_t *outKeywordLength, FObject **argumentNode) {
+bool FParseKeywordArgument(FObject *context, FObject *receiver, const char *source, size_t index, size_t *outLength, size_t *outKeywordLength, FObject **argumentNode) {
 	size_t keywordLength = 0, whitespaceLength = 0, argumentLength = 0;
 	bool result =
 		FParseKeyword(source, index, &keywordLength)
 	&&	(FParseWhitespaceAndNewlines(source, index + keywordLength, &whitespaceLength) || 1)
-	&&	FParseArgument(source, index + keywordLength + whitespaceLength, &argumentLength, argumentNode);
+	&&	FParseArgument(context, source, index + keywordLength + whitespaceLength, &argumentLength, argumentNode);
 	if(outKeywordLength && result) *outKeywordLength = keywordLength;
 	if(outLength && result) *outLength = keywordLength + whitespaceLength + argumentLength;
 	return result;
 }
 
-bool FParseNAryMessage(FObject *receiver, const char *source, size_t index, size_t *outLength, FObject **messageNode) {
+bool FParseNAryMessage(FObject *context, FObject *receiver, const char *source, size_t index, size_t *outLength, FObject **messageNode) {
 	size_t totalLength = 0, selectorLength = 0;
 	char *selector = NULL;
 	FObject
@@ -117,7 +117,7 @@ bool FParseNAryMessage(FObject *receiver, const char *source, size_t index, size
 	unsigned count = 0;
 	while(
 		(FParseWhitespace(source, index + totalLength, &whitespaceLength) || 1)
-	&&	FParseKeywordArgument(receiver, source, index + totalLength + whitespaceLength, &keywordArgumentLength, &keywordLength, &argument)
+	&&	FParseKeywordArgument(context, receiver, source, index + totalLength + whitespaceLength, &keywordArgumentLength, &keywordLength, &argument)
 	) {
 		size_t start = index + totalLength;
 		totalLength += keywordArgumentLength + whitespaceLength;
@@ -146,10 +146,10 @@ bool FParseNAryMessage(FObject *receiver, const char *source, size_t index, size
 	return result;
 }
 
-bool FParseMessage(FObject *receiver, const char *source, size_t index, size_t *outLength, FObject **messageNode) {
+bool FParseMessage(FObject *context, FObject *receiver, const char *source, size_t index, size_t *outLength, FObject **messageNode) {
 	return
-		FParseNAryMessage(receiver, source, index, outLength, messageNode)
-	||	FParseNullaryMessage(receiver, source, index, outLength, messageNode);
+		FParseNAryMessage(context, receiver, source, index, outLength, messageNode)
+	||	FParseNullaryMessage(context, receiver, source, index, outLength, messageNode);
 }
 
 
@@ -162,7 +162,7 @@ bool FParseMessage(FObject *receiver, const char *source, size_t index, size_t *
 	\ -> 3
 	\ 4
 */
-bool FParseParameter(const char *source, size_t index, size_t *outLength, FObject **symbol) {
+bool FParseParameter(FObject *context, const char *source, size_t index, size_t *outLength, FObject **symbol) {
 	size_t length = 0;
 	if(FParseWord(source, index, &length)) {
 		if(outLength) *outLength = length;
@@ -171,7 +171,7 @@ bool FParseParameter(const char *source, size_t index, size_t *outLength, FObjec
 	return length > 0;
 }
 
-bool FParseParameterList(const char *source, size_t index, size_t *outLength, FObject **outParameterNode) {
+bool FParseParameterList(FObject *context, const char *source, size_t index, size_t *outLength, FObject **outParameterNode) {
 	bool result = 1;
 	size_t totalLength = 0;
 	FObject *rootNode = NULL, *currentNode = NULL;
@@ -180,12 +180,12 @@ bool FParseParameterList(const char *source, size_t index, size_t *outLength, FO
 		size_t whitespaceLength = 0, parameterLength = 0;
 		result =
 			(FParseWhitespace(source, index + totalLength, &whitespaceLength) || 1)
-		&&	FParseParameter(source, index + totalLength + whitespaceLength, &parameterLength, &parameter);
+		&&	FParseParameter(context, source, index + totalLength + whitespaceLength, &parameterLength, &parameter);
 		
 		if(result) {
 			totalLength += whitespaceLength + parameterLength;
 			if(outParameterNode) {
-				FObject *node = FSend(FListNodePrototypeGet(), newWithObject:, parameter);
+				FObject *node = FSend(FSend(context, ListNode), newWithObject:, parameter);
 				if(currentNode) {
 					FSend(currentNode, next:, node);
 					currentNode = node;
@@ -203,10 +203,10 @@ bool FParseParameterList(const char *source, size_t index, size_t *outLength, FO
 	return result;
 }
 
-bool FParseParameterListAndFunctionBodySeparator(const char *source, size_t index, size_t *outLength, FObject **outParameterNode) {
+bool FParseParameterListAndFunctionBodySeparator(FObject *context, const char *source, size_t index, size_t *outLength, FObject **outParameterNode) {
 	size_t parameterListLength = 0, whitespaceLength = 0;
 	bool result =
-		FParseParameterList(source, index, &parameterListLength, outParameterNode)
+		FParseParameterList(context, source, index, &parameterListLength, outParameterNode)
 	&&	(FParseWhitespaceAndNewlines(source, index + parameterListLength, &whitespaceLength) || 1)
 	&&	FParseToken(source, index + parameterListLength + whitespaceLength, "->");
 	if(result) {
@@ -216,56 +216,56 @@ bool FParseParameterListAndFunctionBodySeparator(const char *source, size_t inde
 }
 
 
-bool FParseNAryFunction(const char *source, size_t index, size_t *outLength, FObject **outFunction) {
+bool FParseNAryFunction(FObject *context, const char *source, size_t index, size_t *outLength, FObject **outFunction) {
 	size_t openingWhitespaceLength = 0, closingWhitespaceLength = 0, parameterListLength = 0, expressionListLength = 0;
 	FObject *parameterList = NULL, *expressionList = NULL;
 	bool result =
 		FParseToken(source, index, "{")
 	&&	(FParseWhitespaceAndNewlines(source, index + 1, &openingWhitespaceLength) || 1)
-	&&	FParseParameterListAndFunctionBodySeparator(source, index + 1 + openingWhitespaceLength, &parameterListLength, &parameterList)
-	&&	FParseExpressionList(source, index + 1 + openingWhitespaceLength + parameterListLength, &expressionListLength, &expressionList)
+	&&	FParseParameterListAndFunctionBodySeparator(context, source, index + 1 + openingWhitespaceLength, &parameterListLength, &parameterList)
+	&&	FParseExpressionList(context, source, index + 1 + openingWhitespaceLength + parameterListLength, &expressionListLength, &expressionList)
 	&&	(FParseWhitespaceAndNewlines(source, index + 1 + openingWhitespaceLength + parameterListLength + expressionListLength, &closingWhitespaceLength) || 1)
 	&&	FParseToken(source, index + 1 + openingWhitespaceLength + parameterListLength + expressionListLength + closingWhitespaceLength, "}");
 	if(result) {
 		if(outLength) *outLength = index + 1 + openingWhitespaceLength + parameterListLength + expressionListLength + closingWhitespaceLength + 1;
-		if(outFunction) *outFunction = FSend(FFunctionPrototypeGet(), newWithContext:arguments:messages:, NULL, parameterList, expressionList);
+		if(outFunction) *outFunction = FSend(FSend(context, Function), newWithContext:arguments:messages:, NULL, parameterList, expressionList);
 	}
 	return result;
 }
 
 
-bool FParseNullaryFunction(const char *source, size_t index, size_t *outLength, FObject **outFunction) {
+bool FParseNullaryFunction(FObject *context, const char *source, size_t index, size_t *outLength, FObject **outFunction) {
 	size_t openingWhitespaceLength = 0, closingWhitespaceLength = 0, expressionListLength = 0;
 	FObject *expressionList = NULL;
 	bool result =
 		FParseToken(source, index, "{")
 	&&	(FParseWhitespaceAndNewlines(source, index + 1, &openingWhitespaceLength) || 1)
-	&&	FParseExpressionList(source, index + 1 + openingWhitespaceLength, &expressionListLength, &expressionList)
+	&&	FParseExpressionList(context, source, index + 1 + openingWhitespaceLength, &expressionListLength, &expressionList)
 	&&	(FParseWhitespaceAndNewlines(source, index + 1 + openingWhitespaceLength + expressionListLength, &closingWhitespaceLength) || 1)
 	&&	FParseToken(source, index + 1 + openingWhitespaceLength + expressionListLength + closingWhitespaceLength, "}");
 	if(result) {
 		if(outLength) *outLength = index + 1 + openingWhitespaceLength + expressionListLength + closingWhitespaceLength + 1;
-		if(outFunction) *outFunction = FSend(FFunctionPrototypeGet(), newWithContext:arguments:messages:, NULL, NULL, expressionList);
+		if(outFunction) *outFunction = FSend(FSend(context, Function), newWithContext:arguments:messages:, NULL, NULL, expressionList);
 	}
 	return result;
 }
 
-bool FParseFunction(const char *source, size_t index, size_t *outLength, FObject **outFunction) {
+bool FParseFunction(FObject *context, const char *source, size_t index, size_t *outLength, FObject **outFunction) {
 	return
-		FParseNAryFunction(source, index, outLength, outFunction)
-	||	FParseNullaryFunction(source, index, outLength, outFunction);
+		FParseNAryFunction(context, source, index, outLength, outFunction)
+	||	FParseNullaryFunction(context, source, index, outLength, outFunction);
 }
 
 
-bool FParseExpression(const char *source, size_t index, size_t *outLength, FObject **expressionNode) {
+bool FParseExpression(FObject *context, const char *source, size_t index, size_t *outLength, FObject **expressionNode) {
 	size_t totalLength = 0;
 	FObject *receiver = NULL;
-	bool result = FParseParenthesizedExpression(source, index, &totalLength, &receiver) || FParseMessage(NULL, source, index, &totalLength, &receiver);
+	bool result = FParseParenthesizedExpression(context, source, index, &totalLength, &receiver) || FParseMessage(context, NULL, source, index, &totalLength, &receiver);
 	if(result) {
 		size_t whitespaceLength = 0, messageLength = 0;
 		while(
 			(FParseWhitespace(source, index + totalLength, &whitespaceLength) || 1)
-		&&	FParseMessage(receiver, source, index + totalLength + whitespaceLength, &messageLength, &receiver)
+		&&	FParseMessage(context, receiver, source, index + totalLength + whitespaceLength, &messageLength, &receiver)
 		) {
 			totalLength += whitespaceLength + messageLength;
 			whitespaceLength = messageLength = 0;
@@ -278,31 +278,31 @@ bool FParseExpression(const char *source, size_t index, size_t *outLength, FObje
 	return result;
 }
 
-bool FParseParenthesizedExpression(const char *source, size_t index, size_t *outLength, FObject **expressionNode) {
+bool FParseParenthesizedExpression(FObject *context, const char *source, size_t index, size_t *outLength, FObject **expressionNode) {
 	size_t expressionLength = 0, openingWhitespaceLength = 0, closingWhitespaceLength = 0;
 	bool result =
 		FParseToken(source, index, "(")
 	&&	(FParseWhitespaceAndNewlines(source, index + 1, &openingWhitespaceLength) || 1)
-	&&	FParseExpression(source, index + 1 + openingWhitespaceLength, &expressionLength, expressionNode)
+	&&	FParseExpression(context, source, index + 1 + openingWhitespaceLength, &expressionLength, expressionNode)
 	&&	(FParseWhitespaceAndNewlines(source, index + 1 + openingWhitespaceLength + expressionLength, &closingWhitespaceLength) || 1)
 	&&	FParseToken(source, index + 1 + openingWhitespaceLength + expressionLength + closingWhitespaceLength, ")");
 	if(outLength && result) *outLength = 1 + openingWhitespaceLength + expressionLength + closingWhitespaceLength + 1;
 	return result;
 }
 
-bool FParseExpressionList(const char *source, size_t index, size_t *outLength, FObject **listNode) {
+bool FParseExpressionList(FObject *context, const char *source, size_t index, size_t *outLength, FObject **listNode) {
 	bool result = 0;
 	size_t whitespaceLength = 0, expressionLength = 0, totalLength = 0;
 	FObject *rootNode = NULL, *currentNode = NULL, *expression = NULL;
 	while(
 		(FParseWhitespaceAndNewlines(source, index + totalLength, &whitespaceLength) || 1)
-	&&	FParseExpression(source, index + totalLength + whitespaceLength, &expressionLength, &expression)
+	&&	FParseExpression(context, source, index + totalLength + whitespaceLength, &expressionLength, &expression)
 	) {
 		totalLength += whitespaceLength + expressionLength;
 		whitespaceLength = expressionLength = 0;
 		result = 1;
 		if(listNode) {
-			FObject *node = FSend(FListNodePrototypeGet(), newWithObject:, expression);
+			FObject *node = FSend(FSend(context, ListNode), newWithObject:, expression);
 			if(currentNode) {
 				FSend(currentNode, next:, node);
 				currentNode = node;
@@ -319,17 +319,17 @@ bool FParseExpressionList(const char *source, size_t index, size_t *outLength, F
 }
 
 
-bool FParse(const char *source, FObject **outFunction) {
+bool FParse(FObject *context, const char *source, FObject **outFunction) {
 	bool result = 0;
 	FObject *expressionList = NULL;
 	size_t expressionListLength = 0, whitespaceLength = 0, length = strlen(source);
 	if(
-		FParseExpressionList(source, 0, &expressionListLength, &expressionList)
+		FParseExpressionList(context, source, 0, &expressionListLength, &expressionList)
 	&&	(FParseWhitespaceAndNewlines(source, expressionListLength, &whitespaceLength) || 1)
 	&&	(length == expressionListLength + whitespaceLength)
 	) {
 		if(outFunction) {
-			*outFunction = FSend(FFunctionPrototypeGet(), newWithContext:arguments:messages:, NULL, NULL, expressionList);
+			*outFunction = FSend(FSend(context, Function), newWithContext:arguments:messages:, NULL, NULL, expressionList);
 		}
 		result = 1;
 	}
