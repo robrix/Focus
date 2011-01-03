@@ -31,13 +31,6 @@ void FRunTestSuite(const char *name, FTestSuiteSetUpFunction setUp, FTestSuiteTe
 
 #define FFailWithOptionalMessageString(ignored, format, ...) { printf((format), ## __VA_ARGS__); FTestSuiteAssertionsFailed++; }
 
-#define FAssert(_expression, ...) {\
-	__typeof__(_expression) __condition = (_expression);\
-	FTestSuiteAssertionsRun++;\
-	if(!__condition)\
-		FFailWithOptionalMessageString(, ## __VA_ARGS__, "%s:%u: error: %s was unexpectedly false.\n", __FILE__, __LINE__, #_expression);\
-}
-#undef FAssert
 #define FAssert(_expression, ...) FAssertConditionWithMessage((bool)(_expression), ## __VA_ARGS__, "%s:%u: error: %s was unexpectedly false.\n", __FILE__, __LINE__, #_expression)
 
 #define FFail(format, ...) { FTestSuiteAssertionsRun++; FFailWithOptionalMessageString(, format, ## __VA_ARGS__); }
