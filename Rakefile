@@ -36,7 +36,7 @@ tests = Hax::Target.new("tests") do |t|
 	
 	t.build_phase("Run tests") do |target|
 		puts "Running tests.\n\n"
-		puts %x{#{target.product_path}}
+		puts %x{#{target.product_path} #{ENV['SUITE']}}
 		raise "Tests failed." unless $?.success?
 	end
 end
