@@ -35,15 +35,15 @@ FObject *FListNodeGetLastNode(FObject *self, FObject *selector) {
 
 
 FObject *FListNodePrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state) {
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("next", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("next:", state), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("object", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("object:", state), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("next"), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("next:"), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("object"), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("object:"), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
 	
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("newWithObject:", state), FEvaluatorBootstrapFunction((FImplementation)FListNodeNewWithObject, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("newWithObject:nextNode:", state), FEvaluatorBootstrapFunction((FImplementation)FListNodeNewWithObjectAndNextNode, state));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("newWithObject:"), FEvaluatorBootstrapFunction((FImplementation)FListNodeNewWithObject, state));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("newWithObject:nextNode:"), FEvaluatorBootstrapFunction((FImplementation)FListNodeNewWithObjectAndNextNode, state));
 	
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("last", state), FEvaluatorBootstrapFunction((FImplementation)FListNodeGetLastNode, state));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("last"), FEvaluatorBootstrapFunction((FImplementation)FListNodeGetLastNode, state));
 	
 	return prototype;
 }

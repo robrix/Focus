@@ -6,11 +6,15 @@
 #define F_ALLOCATOR
 
 #include <stdlib.h>
+#include "FObject.h"
 
-typedef struct FAllocator {
-	
-} FAllocator;
+struct FAllocator *FAllocatorCreate();
+void FAllocatorDestroy(struct FAllocator *allocator);
 
-void *FAllocatorAllocate(FAllocator *allocator, size_t bytes);
+FObject *FAllocatorAllocateObject(struct FAllocator *allocator);
+void *FAllocatorAllocate(struct FAllocator *allocator, size_t bytes);
+void *FAllocatorResizeAllocation(struct FAllocator *allocator, void *allocation, size_t bytes);
+
+void FAllocatorCollect(struct FAllocator *allocator);
 
 #endif // F_ALLOCATOR

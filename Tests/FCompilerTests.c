@@ -15,6 +15,7 @@
 static FObject *compiler = NULL;
 
 static void setUp() {
+	FSetUpTestEvaluator();
 	compiler = FSend(FSend(FTestEvaluator, Context), Compiler);
 }
 
@@ -43,10 +44,10 @@ static void testClosesOverItsContext() {
 }
 
 void FRunCompilerTests() {
-	FRunTestSuite("FCompiler", setUp, NULL, (FTestSuiteTestCase[]){
+	FRunTestSuite(&(FTestSuite){"FCompiler", setUp, FTearDownTestEvaluator, (FTestCase[]){
 		FTestCase(testResolvesReferencesToArguments),
 		FTestCase(testClosesOverItsContext),
 		
 		{0},
-	});
+	}});
 }

@@ -3,95 +3,115 @@
 // Copyright 2010 Monochrome Industries
 
 #include "FAllocator.h"
+#include "FAssertions.h"
 #include "FSymbol.h"
 #include "FHashTable.h"
 #include <stdlib.h>
 #include <stdio.h>
 
-typedef struct FPair {
-	struct FObject *key;
-	void *value;
-	struct FPair *nextPair;
-} FPair;
-
-
 FHashTable *FHashTableCreate() {
-	FHashTable *instance = FAllocatorAllocate(NULL, sizeof(FHashTable));
-	instance->bucketCount = 19;
-	instance->buckets = FAllocatorAllocate(NULL, instance->bucketCount * sizeof(FPair));
-	// for(unsigned int i = 0; i < instance->bucketCount; i++) {
-	// 	instance->buckets[i] = (FPair){ NULL, NULL, NULL };
-	// }
+	FHashTable *instance = FAllocatorAllocate(NULL, FHashTableGetSizeForSlotCount(0 + 17));
+	*instance = FHashTableMake();
 	return instance;
 }
 
-FPair *FHashTableGetBucketForHash(FHashTable *self, unsigned int hash) {
-	return (self->buckets + (hash % self->bucketCount));
+FHashTable FHashTableMake() {
+	return (FHashTable){
+		.slotCount = 0, .bucketCount = 0
+	};
 }
 
-FPair *FPairGetTail(FPair *pair) {
-	while(pair->nextPair != NULL) {
-		pair = pair->nextPair;
-	}
-	return pair;
+
+
+size_t FHashTableGetSize(FHashTable *self) {
+	FAssertPrecondition(self != NULL);
+	return FHashTableGetSizeForSlotCount(self->slotCount);
 }
 
-FPair *FHashTableGetPairForKeyWithHash(FHashTable *self, FObject *key, size_t hash) {
-	if(!key) {
-		printf("null key!\n");
-		fflush(stdout);
-	}
-	FPair *pair = FHashTableGetBucketForHash(self, hash);
-	while((pair->key != NULL) && (pair != NULL)) {
-		if(FSymbolIsEqual(pair->key, key)) {
+size_t FHashTableGetSizeForSlotCount(uint16_t slotCount) {
+	return
+		sizeof(uint32_t) + sizeof(uint32_t) // slot and bucket counts
+	+	(sizeof(FSlot) * slotCount)
+	;
+}
+
+
+FSlot *FHashTableGetBucketForHash(FHashTable *self, FUInteger hash) {
+	FAssertPrecondition(self != NULL);
+	return (self->bucketCount > 0)? (self->slots + (hash % self->bucketCount)) : NULL;
+}
+
+FSlot *FHashTableGetSlotForKey(FHashTable *self, FSymbol *symbol) {
+	FAssertPrecondition(self != NULL);
+	FAssertPrecondition(symbol != NULL);
+	FAssertPrecondition(symbol->key != NULL);
+	FSlot *slot = FHashTableGetBucketForHash(self, symbol->hash);
+	while((slot != NULL) && (slot->symbol.key != NULL)) {
+		if(FSymbolIsEqual(&(slot->symbol), symbol)) {
 			break;
 		} else {
-			pair = pair->nextPair;
+			slot = slot->next;
 		}
 	}
-	return pair;
+	return slot;
 }
 
-// FPair *FHashTableGetPairForKeyWithHash(FHashTable *self, FObject *key, size_t hash) {
-// 	
-// }
-
-void *FHashTableGetValueForKey(FHashTable *self, FObject *key) {
-	return FHashTableGetValueForKeyWithHash(self, key, FSymbolGetHash(key));
-}
-
-void *FHashTableGetValueForKeyWithHash(FHashTable *self, FObject *key, size_t hash) {
-	if(!key) {
-		printf("null key!\n");
-		fflush(stdout);
-	}
-	FPair *pair = FHashTableGetPairForKeyWithHash(self, key, hash);
-	return (pair != NULL)
-	?	pair->value
+void *FHashTableGetValueForKey(FHashTable *self, FSymbol *symbol) {
+	FAssertPrecondition(self != NULL);
+	FAssertPrecondition(symbol != NULL);
+	FSlot *slot = FHashTableGetSlotForKey(self, symbol);
+	return
+		slot
+	?	slot->value
 	:	NULL;
 }
 
-void FHashTableSetValueForKey(FHashTable *self, FObject *key, void *value) {
-	FHashTableSetValueForKeyWithHash(self, key, FSymbolGetHash(key), value);
+
+FSlot *FSlotGetTail(FSlot *slot) {
+	FAssertPrecondition(slot != NULL);
+	while(slot->next != NULL) {
+		slot = slot->next;
+	}
+	return slot;
 }
 
-void FHashTableDidSetNullValueForKeyWithHash(FHashTable *self, FObject *key, size_t hash) {
-		printf("setting null value for #%s\n", FSymbolGetString(key));
-		fflush(stdout);
+// may cause the table to move in memory, so everything needs to account for that
+FSlot *FHashTableAddSlots(FHashTable *self, uint8_t n) {
+	FAssertPrecondition(self != NULL);
+	FAssertPrecondition(n > 0);
+	size_t originalSize = FHashTableGetSize(self);
+	
+	// resize the object
+	self = FAllocatorResizeAllocation(NULL, self, FHashTableGetSizeForSlotCount(self->slotCount += n));
+	
+	// NULL out the new slot
+	FSlot *slot = (FSlot *)(self + originalSize);
+	for(uint32_t i = 0; i < n; i++, slot++) {
+		*slot = (FSlot){{0}, NULL, NULL};
+	}
+	return slot;
 }
 
-void FHashTableSetValueForKeyWithHash(FHashTable *self, FObject *key, size_t hash, void *value) {
-	if(!key) {
-		printf("null key!\n");
-		fflush(stdout);
-		abort();
+void FHashTableSetValueForKey(FHashTable *self, FSymbol *symbol, void *value) {
+	FAssertPrecondition(self != NULL);
+	FAssertPrecondition(symbol != NULL);
+	FAssertPrecondition(symbol->key != NULL);
+	
+	if(self->bucketCount == 0) {
+		FHashTableAddSlots(self, self->bucketCount = 3);
 	}
-	if(!value) {
-		FHashTableDidSetNullValueForKeyWithHash(self, key, hash);
-		// fixme: this should be a debug log
+	
+	// if the slot exists, use it; otherwise make a new one
+	FSlot *slot = FHashTableGetSlotForKey(self, symbol);
+	if(slot == NULL) {
+		slot = FHashTableGetBucketForHash(self, symbol->hash);
+		if(slot->symbol.key != NULL) {
+			FSlot *last = FSlotGetTail(slot);
+			slot = FHashTableAddSlots(self, 1);
+			last->next = slot;
+		}
 	}
-	FPair *pair = FPairGetTail(FHashTableGetBucketForHash(self, hash));
-	pair->key = key;
-	pair->value = value;
-	pair->nextPair = FAllocatorAllocate(NULL, sizeof(FPair));
+	
+	slot->symbol = *symbol;
+	slot->value = value;
 }

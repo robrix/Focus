@@ -5,20 +5,37 @@
 #ifndef F_SYMBOL
 #define F_SYMBOL
 
-#include "FObject.h"
 #include <stdbool.h>
 #include <string.h>
+#include <stdint.h>
 
-FObject *FSymbolCreateWithPrototypeAndString(FObject *prototype, const char *symbol);
-FObject *FSymbolCreateWithPrototypeAndSubstring(FObject *prototype, const char *symbol, size_t length);
-FObject *FSymbolCreateWithString(const char *symbol);
-FObject *FSymbolCreateWithSubstring(const char *symbol, size_t length);
+#ifdef __LP64__
+	typedef uint64_t FUInteger;
+	typedef int64_t FInteger;
+#else
+	typedef uint32_t FUInteger;
+	typedef int32_t FInteger;
+#endif
 
-bool FSymbolIsEqual(FObject *a, FObject *b);
+typedef FUInteger FHash;
 
-const char *FSymbolGetString(FObject *self);
-unsigned long FSymbolGetHash(FObject *self);
+typedef struct FSymbol {
+	const char *key;
+	FHash hash;
+} FSymbol;
 
-size_t FSymbolGetArity(FObject *self);
+void FSymbolInitialize();
+
+FSymbol *FSymbolCreateWithString(const char *symbol);
+FSymbol *FSymbolCreateWithSubstring(const char *symbol, size_t length);
+
+bool FSymbolIsEqual(FSymbol *a, FSymbol *b);
+
+const char *FSymbolGetString(FSymbol *self);
+unsigned long FSymbolGetHash(FSymbol *self);
+
+size_t FSymbolGetArity(FSymbol *self);
+
+unsigned long FSymbolCalculateHashForString(const char *str);
 
 #endif // F_SYMBOL

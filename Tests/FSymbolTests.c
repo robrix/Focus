@@ -5,7 +5,7 @@
 #include "Core/FSymbol.h"
 #include "FTestSuite.h"
 
-static FObject *symbol = NULL;
+static FSymbol *symbol = NULL;
 
 static void setUp() {
 	symbol = FSymbolCreateWithString("symbol:");
@@ -17,13 +17,13 @@ static void testCreation() {
 }
 
 static void testCanBeCompared() {
-	FObject *same = FSymbolCreateWithString("symbol:"), *different = FSymbolCreateWithString("fishstick");
+	FSymbol *same = FSymbolCreateWithString("symbol:"), *different = FSymbolCreateWithString("fishstick");
 	FAssert(FSymbolIsEqual(symbol, same));
 	FAssert(!FSymbolIsEqual(symbol, different));
 }
 
 static void testHashesItsSymbol() {
-	FObject *same = FSymbolCreateWithString("symbol:"), *different = FSymbolCreateWithString("fishstick");
+	FSymbol *same = FSymbolCreateWithString("symbol:"), *different = FSymbolCreateWithString("fishstick");
 	FAssert(FSymbolGetHash(symbol) != 0);
 	FAssert(FSymbolGetHash(symbol) == FSymbolGetHash(same));
 	FAssert(FSymbolGetHash(symbol) != FSymbolGetHash(different));
@@ -38,12 +38,12 @@ static void testCalculatesItsArity() {
 
 
 void FRunSymbolTests() {
-	FRunTestSuite("FObject", setUp, NULL, (FTestSuiteTestCase[]){
+	FRunTestSuite(&(FTestSuite){"FSymbol", setUp, NULL, (FTestCase[]){
 		FTestCase(testCreation),
 		FTestCase(testCanBeCompared),
 		FTestCase(testHashesItsSymbol),
 		
 		FTestCase(testCalculatesItsArity),
 		{0},
-	});
+	}});
 }

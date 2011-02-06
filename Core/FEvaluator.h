@@ -8,6 +8,7 @@
 #include "FObject.h"
 
 FObject *FEvaluatorCreate();
+void FEvaluatorDestroy(FObject *evaluator);
 
 FObject *FEvaluatorEvaluateStringInContext(FObject *evaluator, const char *string, FObject *context);
 

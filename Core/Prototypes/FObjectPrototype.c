@@ -20,8 +20,8 @@ FObject *FObjectPrototypeClone(FObject *self, FObject *selector) {
 
 
 FObject *FObjectPrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state) {
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("self", state), FEvaluatorBootstrapFunction((FImplementation)FObjectPrototypeGetSelf, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("prototype", state), FEvaluatorBootstrapFunction((FImplementation)FObjectPrototypeGetPrototype, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("new", state), FEvaluatorBootstrapFunction((FImplementation)FObjectPrototypeClone, state));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("self"), FEvaluatorBootstrapFunction((FImplementation)FObjectPrototypeGetSelf, state));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("prototype"), FEvaluatorBootstrapFunction((FImplementation)FObjectPrototypeGetPrototype, state));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("new"), FEvaluatorBootstrapFunction((FImplementation)FObjectPrototypeClone, state));
 	return prototype;
 }

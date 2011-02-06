@@ -18,7 +18,7 @@ static void testCreation() {
 }
 
 static void testStoresObjectsByKeys() {
-	FObject *key = FSymbolCreateWithString("key");
+	FSymbol *key = FSymbolCreateWithString("key");
 	void *value = testCreation;
 	FHashTableSetValueForKey(hashTable, key, value);
 	void *result = FHashTableGetValueForKey(hashTable, key);
@@ -26,9 +26,9 @@ static void testStoresObjectsByKeys() {
 }
 
 void FRunHashTableTests() {
-	FRunTestSuite("FHashTable", setUp, NULL, (FTestSuiteTestCase[]){
+	FRunTestSuite(&(FTestSuite){"FHashTable", setUp, NULL, (FTestCase[]){
 		FTestCase(testCreation),
 		FTestCase(testStoresObjectsByKeys),
 		{0},
-	});
+	}});
 }

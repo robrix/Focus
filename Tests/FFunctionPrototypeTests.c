@@ -22,9 +22,9 @@ static void testCompilesLazily() {
 
 
 void FRunFunctionPrototypeTests() {
-	FRunTestSuite("FFunctionPrototype", NULL, NULL, (FTestSuiteTestCase[]){
+	FRunTestSuite(&(FTestSuite){"FFunctionPrototype", FSetUpTestEvaluator, FTearDownTestEvaluator, (FTestCase[]){
 		FTestCase(testCompilesLazily),
 		
 		{0},
-	});
+	}});
 }

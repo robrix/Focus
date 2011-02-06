@@ -16,10 +16,8 @@ typedef struct FEvaluatorBootstrapState {
 	FObject *ListNode;
 	FObject *Message;
 	FObject *Object;
-	FObject *Symbol;
 } FEvaluatorBootstrapState;
 
-extern FObject *FEvaluatorBootstrapSymbol(const char *string, FEvaluatorBootstrapState state);
 extern FObject *FEvaluatorBootstrapFunction(FImplementation implementation, FEvaluatorBootstrapState state);
 
 #endif // F_EVALUATOR_PROTECTED

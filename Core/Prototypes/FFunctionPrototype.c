@@ -31,16 +31,16 @@ FObject *FFunctionAcceptVisitor(FObject *self, FObject *selector, FObject *visit
 
 
 FObject *FFunctionPrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state) {
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("context", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("context:", state), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("arguments", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("arguments:", state), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("messages", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("messages:", state), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
+	FObjectSetVariable(prototype, FSymbolCreateWithString("context"), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetVariable(prototype, FSymbolCreateWithString("context:"), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
+	FObjectSetVariable(prototype, FSymbolCreateWithString("arguments"), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetVariable(prototype, FSymbolCreateWithString("arguments:"), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
+	FObjectSetVariable(prototype, FSymbolCreateWithString("messages"), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetVariable(prototype, FSymbolCreateWithString("messages:"), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
 	
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("newWithContext:arguments:messages:", state), FEvaluatorBootstrapFunction((FImplementation)FFunctionNewWithContextArgumentsMessages, state));
+	FObjectSetVariable(prototype, FSymbolCreateWithString("newWithContext:arguments:messages:"), FEvaluatorBootstrapFunction((FImplementation)FFunctionNewWithContextArgumentsMessages, state));
 	
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("acceptVisitor:", state), FEvaluatorBootstrapFunction((FImplementation)FFunctionAcceptVisitor, state));
+	FObjectSetVariable(prototype, FSymbolCreateWithString("acceptVisitor:"), FEvaluatorBootstrapFunction((FImplementation)FFunctionAcceptVisitor, state));
 
 	return prototype;
 }

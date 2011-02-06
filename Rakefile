@@ -36,9 +36,14 @@ tests = Hax::Target.new("tests") do |t|
 	
 	t.build_phase("Run tests") do |target|
 		puts "Running tests.\n\n"
-		puts %x{#{target.product_path} #{ENV['SUITE']}}
+		puts %x{#{target.product_path} "#{ENV['SUITE']}"}
 		raise "Tests failed." unless $?.success?
 	end
+end
+
+desc "Debug the tests."
+task :"debug-tests" => :"link-tests" do |t|
+	sh %Q{gdb "#{Hax::Target.targets["tests"].product_path}"}
 end
 
 task :default => :tests
