@@ -25,10 +25,27 @@ static void testStoresObjectsByKeys() {
 	FAssert(result == value);
 }
 
+
+static void FHashTableTestsCountSlots(FHashTable *table, FSlot *slot, void *context) {
+	*(uint16_t *)context = (*(uint16_t *)context) + 1;
+}
+
+static void testVisitsSlotsWithVisitorFunction() {
+	uint16_t count = 0;
+	FHashTableVisitSlots(hashTable, FHashTableTestsCountSlots, &count);
+	FAssert(count == 0);
+	
+	// add stuff and test again
+	FHashTableSetValueForKey(hashTable, FSymbolCreateWithString("key"), NULL);
+	FHashTableVisitSlots(hashTable, FHashTableTestsCountSlots, &count);
+	FAssert(count == 1);
+}
+
 void FRunHashTableTests() {
 	FRunTestSuite(&(FTestSuite){"FHashTable", setUp, NULL, (FTestCase[]){
 		FTestCase(testCreation),
 		FTestCase(testStoresObjectsByKeys),
+		FTestCase(testVisitsSlotsWithVisitorFunction),
 		{0},
 	}});
 }

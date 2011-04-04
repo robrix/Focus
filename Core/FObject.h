@@ -25,4 +25,6 @@ FObject *FObjectGetPrototype(FObject *self);
 FObject *FObjectGetMethod(FObject *self, FSymbol *selector);
 void FObjectSetMethod(FObject *self, FSymbol *selector, FObject *function);
 
+size_t FObjectGetSize(FObject *self);
+
 #endif // F_OBJECT

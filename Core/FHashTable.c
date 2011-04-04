@@ -98,7 +98,7 @@ void FHashTableSetValueForKey(FHashTable *self, FSymbol *symbol, void *value) {
 	FAssertPrecondition(symbol->key != NULL);
 	
 	if(self->bucketCount == 0) {
-		FHashTableAddSlots(self, self->bucketCount = 3);
+		FHashTableAddSlots(self, self->bucketCount = 1);
 	}
 	
 	// if the slot exists, use it; otherwise make a new one
@@ -114,4 +114,14 @@ void FHashTableSetValueForKey(FHashTable *self, FSymbol *symbol, void *value) {
 	
 	slot->symbol = *symbol;
 	slot->value = value;
+}
+
+
+void FHashTableVisitSlots(FHashTable *self, FHashTableSlotVisitor visitor, void *context) {
+	FAssertPrecondition(self != NULL);
+	FAssertPrecondition(visitor != NULL);
+	uint16_t index = 0;
+	for(; index < self->slotCount; index++) {
+		visitor(self, self->slots + index, context);
+	}
 }

@@ -155,6 +155,7 @@ FImplementation FCompilerCompileFunction(FObject *compiler, FObject *function) {
 	
 	// pick a name for the function; "function 0x…" or similar will do for now
 	LLVMValueRef f = LLVMAddFunction(FCompilerGetModule(compiler), "function", FCompilerGetMethodTypeOfArity(compiler, FFunctionGetArity(function))), result = NULL;
+	LLVMSetGC(f, "shadow-stack");
 	LLVMAppendBasicBlock(f, "entry");
 	LLVMPositionBuilderAtEnd(FCompilerGetBuilder(compiler), LLVMGetEntryBasicBlock(f));
 	

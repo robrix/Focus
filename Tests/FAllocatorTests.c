@@ -11,7 +11,8 @@ static void setUp() {
 }
 
 static void tearDown() {
-	
+	FAllocatorDestroy(allocator);
+	allocator = NULL;
 }
 
 
@@ -29,6 +30,38 @@ static void testCollectsObjects() {
 	FAllocatorCollect(allocator);
 }
 
+/*
+	moving an allocation
+*/
+static void testMovingAnAllocationUpdatesHeapReferencesToIt() {
+	// FObject
+	// 	*referenceObject = FAllocatorAllocateObject(allocator),
+	// 	*referencingObject = FAllocatorAllocateObject(allocator);
+	// referencingObject
+	// make a new reference object
+	// make a new object referencing the original object
+	// move the original object
+	// verify that it’s been moved
+	// verify that the new object has been updated to point at its new address
+}
+
+static void testMovingAnAllocationUpdatesStackReferencesToIt() {
+	
+}
+
+static void testResizingTheMostRecentAllocationExtendsItInPlace() {
+	
+}
+
+
+static void testVisitsHeapReferencesWithAFunction() {
+	
+}
+
+static void testVisitsStackReferencesWithAFunction() {
+	
+}
+
 // zeroing weak refs?
 
 void FRunAllocatorTests() {
@@ -37,6 +70,13 @@ void FRunAllocatorTests() {
 		
 		FTestCase(testAllocatesObjects),
 		FTestCase(testCollectsObjects),
+		
+		FTestCase(testMovingAnAllocationUpdatesHeapReferencesToIt),
+		FTestCase(testMovingAnAllocationUpdatesStackReferencesToIt),
+		FTestCase(testResizingTheMostRecentAllocationExtendsItInPlace),
+		
+		FTestCase(testVisitsHeapReferencesWithAFunction),
+		FTestCase(testVisitsStackReferencesWithAFunction),
 		{0},
 	}});
 }

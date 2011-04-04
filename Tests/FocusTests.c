@@ -15,16 +15,18 @@ extern void FRunFunctionPrototypeTests();
 extern void FRunParserTests();
 extern void FRunCompilerTests();
 extern void FRunListNodePrototypeTests();
+extern void FRunPageTests();
 extern void FRunAllocatorTests();
 
 int main(int argc, const char *argv[]) {
 	const char *suite = NULL;
-	if((argc == 2) && (strcmp(argv[1], "All") != 0)) {
+	if((argc == 2) && (strcmp(argv[1], "All") != 0) && (strcmp(argv[1], "") != 0)) {
 		suite = argv[1];
 		printf("Testing %s\n", suite);
 	}
 	#define FRunTestsForSuite(suiteName) if((suite == NULL) || (strcmp(suite, #suiteName) == 0)) FRun ## suiteName ## Tests();
 	FRunTestsForSuite(Allocator);
+	FRunTestsForSuite(Page);
 	FRunTestsForSuite(HashTable);
 	FRunTestsForSuite(Symbol);
 	FRunTestsForSuite(Object);

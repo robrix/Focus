@@ -8,7 +8,6 @@ Parser:
 Runtime:
 	- do performance tests using hash tables for ivars & method tables vs. balanced binary trees or similar.
 Hash table:
-	- use FArray internally.
 Compiler:
 	- mark functions as being reentrant (if they are).
 	- test compilation of messages with receivers.

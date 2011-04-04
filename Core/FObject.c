@@ -22,19 +22,28 @@ FObject *FObjectGetPrototype(FObject *self) {
 }
 
 
-FObject *FObjectGetVariable(FObject *self, FSymbol *selector) {
+FObject *FObjectGetSlot(FObject *self, FSymbol *selector) {
 	FAssertPrecondition(self != NULL);
 	FAssertPrecondition(selector != NULL);
 	return FHashTableGetValueForKey(&(self->slots), selector);
 }
 
-FObject *FObjectSetVariable(FObject *self, FSymbol *selector, FObject *other) {
+FObject *FObjectSetSlot(FObject *self, FSymbol *selector, FObject *other) {
 	FAssertPrecondition(self != NULL);
 	FAssertPrecondition(selector != NULL);
 	
 	#pragma message("fixme: implement a write barrier (for updating the remembered set)")
 	FHashTableSetValueForKey(&(self->slots), selector, other);
 	return other;
+}
+
+
+FObject *FObjectGetVariable(FObject *self, FSymbol *selector) {
+	return FObjectGetSlot(self, selector);
+}
+
+FObject *FObjectSetVariable(FObject *self, FSymbol *selector, FObject *other) {
+	return FObjectSetVariable(self, selector, other);
 }
 
 FObject *FObjectSetVariableAsAccessor(FObject *self, FSymbol *selector, FObject *other) {
@@ -52,4 +61,12 @@ FObject *FObjectGetMethod(FObject *self, FSymbol *selector) {
 
 void FObjectSetMethod(FObject *self, FSymbol *selector, FObject *function) {
 	FObjectSetVariable(self, selector, function);
+}
+
+
+size_t FObjectGetSize(FObject *self) {
+	return
+		sizeof(FObject *) // prototype
+	+	(self? FHashTableGetSize(&(self->slots)) : FHashTableGetSizeForSlotCount(0)) // slots
+	;
 }

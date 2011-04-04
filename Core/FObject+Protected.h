@@ -15,6 +15,9 @@ struct FObject {
 	FHashTable slots;
 };
 
+extern FObject *FObjectGetSlot(FObject *self, FSymbol *selector);
+extern FObject *FObjectSetSlot(FObject *self, FSymbol *selector, FObject *variable);
+
 extern FObject *FObjectGetVariable(FObject *self, FSymbol *selector);
 extern FObject *FObjectSetVariable(FObject *self, FSymbol *selector, FObject *variable);
 
