@@ -79,6 +79,9 @@ FSlot *FSlotGetTail(FSlot *slot) {
 FSlot *FHashTableAddSlots(FHashTable *self, uint8_t n) {
 	FAssertPrecondition(self != NULL);
 	FAssertPrecondition(n > 0);
+	
+	// FAllocatorPushFrame(NULL, __func__);
+	// FAllocatorFrameReference(NULL, &self);
 	size_t originalSize = FHashTableGetSize(self);
 	
 	// resize the object
@@ -89,6 +92,7 @@ FSlot *FHashTableAddSlots(FHashTable *self, uint8_t n) {
 	for(uint32_t i = 0; i < n; i++, slot++) {
 		*slot = (FSlot){{0}, NULL, NULL};
 	}
+	// FAllocatorPopFrame(NULL);
 	return slot;
 }
 

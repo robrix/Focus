@@ -9,12 +9,17 @@
 #include "FObject.h"
 
 struct FAllocator *FAllocatorCreate();
-void FAllocatorDestroy(struct FAllocator *allocator);
+void FAllocatorDestroy(struct FAllocator *self);
 
-FObject *FAllocatorAllocateObject(struct FAllocator *allocator);
-void *FAllocatorAllocate(struct FAllocator *allocator, size_t bytes);
-void *FAllocatorResizeAllocation(struct FAllocator *allocator, void *allocation, size_t bytes);
+FObject *FAllocatorAllocateObject(struct FAllocator *self);
+void *FAllocatorAllocate(struct FAllocator *self, size_t bytes);
+void *FAllocatorResizeAllocation(struct FAllocator *self, void *allocation, size_t bytes);
 
-void FAllocatorCollect(struct FAllocator *allocator);
+void FAllocatorCollect(struct FAllocator *self);
+
+struct FFrame *FAllocatorGetCurrentFrame(struct FAllocator *self);
+struct FFrame *FAllocatorPushFrame(struct FAllocator *self, const char *function);
+struct FObject *FAllocatorMakeStrongReferenceToObjectAtAddress(struct FAllocator *self, struct FObject **address);
+void FAllocatorPopFrame(struct FAllocator *self);
 
 #endif // F_ALLOCATOR

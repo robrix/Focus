@@ -7,8 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void FAssertionFailure(const char *file, unsigned int line, const char *condition, const char *message) {
-	printf("%s:%u: error: %s %s.\n", file, line, condition, message);
+void FAssertionFailure(const char *file, unsigned int line, const char *function, const char *condition, const char *message) {
+	printf("%s:%u: in %s error: %s %s.\n", file, line, function, condition, message);
 	fflush(stdout);
 	abort();
 }

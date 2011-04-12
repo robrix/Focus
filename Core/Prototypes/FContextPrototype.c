@@ -13,7 +13,7 @@
 #include <stdlib.h>
 
 
-extern FObject *FObjectPrototypeGetSelf(FObject *self, FObject *selector);
+extern FObject *FObjectPrototypeGetSelf(FObject *self, FSymbol *selector);
 
 FObject *FContextPrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state) {
 	FObjectSetVariable(prototype, FSymbolCreateWithString("Allocator"), state.Allocator);

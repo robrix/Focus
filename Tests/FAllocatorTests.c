@@ -3,6 +3,7 @@
 // Copyright 2011 Monochrome Industries
 
 #include "Core/FAllocator.h"
+#include "Core/FFrame.h"
 #include "FTestSuite.h"
 
 static struct FAllocator *allocator = NULL;
@@ -30,37 +31,75 @@ static void testCollectsObjects() {
 	FAllocatorCollect(allocator);
 }
 
+
+static void testPushesStackFrames() {
+	struct FFrame *one = FAllocatorPushFrame(allocator, "one");
+	FAssert((one != NULL) && (strcmp(FFrameGetName(one), "one") == 0));
+	FAssert(FAllocatorGetCurrentFrame(allocator) == one);
+	struct FFrame *two = FAllocatorPushFrame(allocator, "two");
+	FAssert(FAllocatorGetCurrentFrame(allocator) == two);
+	FAssert((two != NULL) && (FFrameGetPreviousFrame(two) == one));
+}
+
+static void testPopsStackFrames() {
+	struct FFrame *one = FAllocatorPushFrame(allocator, "one");
+	struct FFrame *two = FAllocatorPushFrame(allocator, "two");
+	FAssert(FAllocatorGetCurrentFrame(allocator) == two);
+	FAllocatorPopFrame(allocator);
+	FAssert(FAllocatorGetCurrentFrame(allocator) == one);
+	FAllocatorPopFrame(allocator);
+	FAssert(FAllocatorGetCurrentFrame(allocator) == NULL);
+}
+
+
+static void testUpdatesStackReferencesOnCollection() {
+	FAllocatorPushFrame(allocator, __func__);
+	
+	struct FObject *object = FAllocatorAllocateObject(allocator);
+	struct FObject *address = object;
+	
+	FAllocatorMakeStrongReferenceToObjectAtAddress(allocator, &object);
+	
+	FAllocatorCollect(allocator);
+	
+	FAssert(address != object);
+	
+	FAllocatorPopFrame(allocator);
+}
+
+
+
 /*
 	moving an allocation
 */
-static void testMovingAnAllocationUpdatesHeapReferencesToIt() {
-	// FObject
-	// 	*referenceObject = FAllocatorAllocateObject(allocator),
-	// 	*referencingObject = FAllocatorAllocateObject(allocator);
-	// referencingObject
-	// make a new reference object
-	// make a new object referencing the original object
-	// move the original object
-	// verify that it’s been moved
-	// verify that the new object has been updated to point at its new address
-}
-
-static void testMovingAnAllocationUpdatesStackReferencesToIt() {
-	
-}
-
-static void testResizingTheMostRecentAllocationExtendsItInPlace() {
-	
-}
-
-
-static void testVisitsHeapReferencesWithAFunction() {
-	
-}
-
-static void testVisitsStackReferencesWithAFunction() {
-	
-}
+// static void testMovingAnAllocationUpdatesHeapReferencesToIt() {
+// 	// FObject
+// 	// 	*referenceObject = FAllocatorAllocateObject(allocator),
+// 	// 	*referencingObject = FAllocatorAllocateObject(allocator);
+// 	// referencingObject
+// 	// make a new reference object
+// 	// make a new object referencing the original object
+// 	// move the original object
+// 	// verify that it’s been moved
+// 	// verify that the new object has been updated to point at its new address
+// }
+// 
+// static void testMovingAnAllocationUpdatesStackReferencesToIt() {
+// 	
+// }
+// 
+// static void testResizingTheMostRecentAllocationExtendsItInPlace() {
+// 	
+// }
+// 
+// 
+// static void testVisitsHeapReferencesWithAFunction() {
+// 	
+// }
+// 
+// static void testVisitsStackReferencesWithAFunction() {
+// 	
+// }
 
 // zeroing weak refs?
 
@@ -71,12 +110,17 @@ void FRunAllocatorTests() {
 		FTestCase(testAllocatesObjects),
 		FTestCase(testCollectsObjects),
 		
-		FTestCase(testMovingAnAllocationUpdatesHeapReferencesToIt),
-		FTestCase(testMovingAnAllocationUpdatesStackReferencesToIt),
-		FTestCase(testResizingTheMostRecentAllocationExtendsItInPlace),
+		FTestCase(testPushesStackFrames),
+		FTestCase(testPopsStackFrames),
 		
-		FTestCase(testVisitsHeapReferencesWithAFunction),
-		FTestCase(testVisitsStackReferencesWithAFunction),
+		FTestCase(testUpdatesStackReferencesOnCollection),
+		
+		// FTestCase(testMovingAnAllocationUpdatesHeapReferencesToIt),
+		// FTestCase(testMovingAnAllocationUpdatesStackReferencesToIt),
+		// FTestCase(testResizingTheMostRecentAllocationExtendsItInPlace),
+		// 
+		// FTestCase(testVisitsHeapReferencesWithAFunction),
+		// FTestCase(testVisitsStackReferencesWithAFunction),
 		{0},
 	}});
 }

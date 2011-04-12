@@ -23,7 +23,7 @@ bool FParseNullaryMessage(FObject *context, FObject *receiver, const char *sourc
 bool FParseNAryMessage(FObject *context, FObject *receiver, const char *source, size_t index, size_t *outLength, FObject **messageNode);
 bool FParseMessage(FObject *context, FObject *receiver, const char *source, size_t index, size_t *outLength, FObject **messageNode);
 
-bool FParseParameter(FObject *context, const char *source, size_t index, size_t *outLength, FObject **symbol);
+bool FParseParameter(FObject *context, const char *source, size_t index, size_t *outLength, FSymbol **symbol);
 bool FParseParameterList(FObject *context, const char *source, size_t index, size_t *outLength, FObject **outParameterNode);
 
 bool FParseNAryFunction(FObject *context, const char *source, size_t index, size_t *outLength, FObject **outFunction);

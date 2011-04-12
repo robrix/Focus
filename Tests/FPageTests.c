@@ -21,7 +21,7 @@ static void testAllocatesMemory() {
 }
 
 
-void countObjects(struct FPage *page, FObject *object, void *context) {
+static void countObjects(struct FPage *page, FObject *object, void *context) {
 	*(uint8_t *)context = *(uint8_t *)context + 1;
 }
 

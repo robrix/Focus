@@ -6,17 +6,18 @@
 #include <string.h>
 #include "FTestSuite.h"
 
+extern void FRunAllocatorTests();
+extern void FRunCompilerTests();
+extern void FRunContextPrototypeTests();
+extern void FRunFrameTests();
+extern void FRunFunctionPrototypeTests();
 extern void FRunHashTableTests();
-extern void FRunSymbolTests();
+extern void FRunListNodePrototypeTests();
 extern void FRunObjectTests();
 extern void FRunObjectPrototypeTests();
-extern void FRunContextPrototypeTests();
-extern void FRunFunctionPrototypeTests();
-extern void FRunParserTests();
-extern void FRunCompilerTests();
-extern void FRunListNodePrototypeTests();
 extern void FRunPageTests();
-extern void FRunAllocatorTests();
+extern void FRunParserTests();
+extern void FRunSymbolTests();
 
 int main(int argc, const char *argv[]) {
 	const char *suite = NULL;
@@ -26,13 +27,14 @@ int main(int argc, const char *argv[]) {
 	}
 	#define FRunTestsForSuite(suiteName) if((suite == NULL) || (strcmp(suite, #suiteName) == 0)) FRun ## suiteName ## Tests();
 	FRunTestsForSuite(Allocator);
-	FRunTestsForSuite(Page);
 	FRunTestsForSuite(HashTable);
 	FRunTestsForSuite(Symbol);
 	FRunTestsForSuite(Object);
 	FRunTestsForSuite(ObjectPrototype);
 	FRunTestsForSuite(ContextPrototype);
+	FRunTestsForSuite(Frame);
 	FRunTestsForSuite(FunctionPrototype);
+	FRunTestsForSuite(Page);
 	FRunTestsForSuite(Parser);
 	FRunTestsForSuite(Compiler);
 	FRunTestsForSuite(ListNodePrototype);

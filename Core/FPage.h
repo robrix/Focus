@@ -5,16 +5,25 @@
 #ifndef F_PAGE
 #define F_PAGE
 
-#include <stdlib.h>
-
 #include "FObject.h"
 
 struct FPage *FPageCreate();
-void FPageDestroy(struct FPage *page);
+void FPageDestroy(struct FPage *self);
 
-FObject *FPageAllocateObject(struct FPage *page);
+struct FPage *FPageGetNextPage(struct FPage *self);
 
-typedef void (*FPageObjectVisitor)(struct FPage *page, FObject *object, void *context);
-void FPageVisitObjects(struct FPage *page, FPageObjectVisitor visitor, void *context);
+struct FObject *FPageAllocateObject(struct FPage *self);
+struct FObject *FPageCopyObject(struct FPage *self, struct FObject *original);
+
+void FPageDrain(struct FPage *self);
+
+typedef void (*FPageObjectVisitor)(struct FPage *self, struct FObject *object, void *context);
+void FPageVisitObjects(struct FPage *self, FPageObjectVisitor visitor, void *context);
+
+struct FPage *FPageListGetLastPage(struct FPage *self);
+struct FPage *FPageListAppendPage(struct FPage *self, struct FPage *other);
+
+typedef void (*FPageListPageVisitor)(struct FPage *page, void *context);
+void FPageListVisitPages(struct FPage *self, FPageListPageVisitor visitor, void *context);
 
 #endif // F_PAGE

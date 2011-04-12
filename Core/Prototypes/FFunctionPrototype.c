@@ -15,7 +15,7 @@
 
 const size_t FFunctionArgumentNotFound = -1;
 
-FObject *FFunctionNewWithContextArgumentsMessages(FObject *self, FObject *selector, FObject *context, FObject *arguments, FObject *messages) {
+FObject *FFunctionNewWithContextArgumentsMessages(FObject *self, FSymbol *selector, FObject *context, FObject *arguments, FObject *messages) {
 	FObject *function = FSend(self, new);
 	if(context)
 		FSend(function, context:, context);
@@ -25,7 +25,7 @@ FObject *FFunctionNewWithContextArgumentsMessages(FObject *self, FObject *select
 	return function;
 }
 
-FObject *FFunctionAcceptVisitor(FObject *self, FObject *selector, FObject *visitor) {
+FObject *FFunctionAcceptVisitor(FObject *self, FSymbol *selector, FObject *visitor) {
 	return FSend(visitor, visitFunction:, self);
 }
 
@@ -53,7 +53,7 @@ FObject *FFunctionCreateWithImplementation(FObject *context, FImplementation imp
 }
 
 
-FObject *FFunctionNoOp(FObject *self, FObject *selector) {
+FObject *FFunctionNoOp(FObject *self, FSymbol *selector) {
 	return NULL;
 }
 

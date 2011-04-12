@@ -6,15 +6,15 @@
 
 #include "../FEvaluator+Protected.h"
 
-FObject *FObjectPrototypeGetSelf(FObject *self, FObject *selector) {
+FObject *FObjectPrototypeGetSelf(FObject *self, FSymbol *selector) {
 	return self;
 }
 
-FObject *FObjectPrototypeGetPrototype(FObject *self, FObject *selector) {
+FObject *FObjectPrototypeGetPrototype(FObject *self, FSymbol *selector) {
 	return FObjectGetPrototype(self);
 }
 
-FObject *FObjectPrototypeClone(FObject *self, FObject *selector) {
+FObject *FObjectPrototypeClone(FObject *self, FSymbol *selector) {
 	return FObjectCreate(self);
 }
 
