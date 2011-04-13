@@ -21,7 +21,7 @@ typedef struct FAllocator {
 
 FAllocator *FAllocatorCreate() {
 	FAllocator *allocator = calloc(1, sizeof(FAllocator));
-	allocator->generations = FPageCreate();
+	allocator->generations = FPageCreate(allocator);
 	return allocator;
 }
 
@@ -35,20 +35,34 @@ void FAllocatorDestroy(FAllocator *self) {
 	free(self);
 }
 
+
 struct FPage *FAllocatorGetNursery(FAllocator *self) {
 	FAssertPrecondition(self != NULL);
 	return self->generations;
 }
 
-FObject *FAllocatorAllocateObject(FAllocator *self) {
+
+struct FObject *FAllocatorAllocateObjectWithSlotCount(struct FAllocator *self, uint16_t slotCount) {
 	FAssertPrecondition(self != NULL);
-	FObject *object = FPageAllocateObject(FAllocatorGetNursery(self));
+	FObject *object = FPageAllocateObjectWithSlotCount(FAllocatorGetNursery(self), slotCount);
 	if(!object) {
 		FAllocatorCollect(self);
 		// perform a collection, promoting live objects to the next generation
 		// then allocate again in the nursery
 	}
 	return object;
+}
+
+FObject *FAllocatorAllocateObject(FAllocator *self) {
+	FAssertPrecondition(self != NULL);
+	return FAllocatorAllocateObjectWithSlotCount(self, 0);
+	// FObject *object = FPageAllocateObject(FAllocatorGetNursery(self));
+	// if(!object) {
+	// 	FAllocatorCollect(self);
+	// 	// perform a collection, promoting live objects to the next generation
+	// 	// then allocate again in the nursery
+	// }
+	// return object;
 }
 
 void *FAllocatorAllocate(FAllocator *self, size_t bytes) {
@@ -60,17 +74,18 @@ void *FAllocatorAllocate(FAllocator *self, size_t bytes) {
 void *FAllocatorResizeAllocation(struct FAllocator *self, void *allocation, size_t bytes) {
 	FAssertPrecondition(self != NULL);
 	FAssertPrecondition(allocation != NULL);
+	
 	return realloc(allocation, bytes);
 }
 
 
-
 struct FAllocatorCopyReferencesState {
 	struct FObject *original, *copy;
+	struct FPage *page;
 	struct FReference *references;
 };
 
-void FAllocatorCopyReference(struct FFrame *frame, struct FReference *reference, void *context) {
+void FAllocatorCopyReferenceInFrame(struct FFrame *frame, struct FReference *reference, void *context) {
 	struct FAllocatorCopyReferencesState *state = context;
 	if(FReferenceGetReferencedObject(reference) == state->original) {
 		struct FReference *copy = FReferenceCreateCopy(reference);
@@ -83,7 +98,25 @@ void FAllocatorCopyReference(struct FFrame *frame, struct FReference *reference,
 }
 
 void FAllocatorCopyReferencesInFrame(struct FFrame *frame, void *context) {
-	FFrameVisitReferences(frame, FAllocatorCopyReference, context);
+	FFrameVisitReferences(frame, FAllocatorCopyReferenceInFrame, context);
+}
+
+void FAllocatorCopyReferenceInPage(struct FPage *page, struct FReference *reference, void *context) {
+	struct FAllocatorCopyReferencesState *state = context;
+	if(page != state->page) { // ignore the page we’re collecting, so we don’t cause retain cycles
+		if(FReferenceGetReferencedObject(reference) == state->original) {
+			struct FReference *copy = FReferenceCreateCopy(reference);
+			if(state->references != NULL) {
+				FReferenceListAppendReference(state->references, copy);
+			} else {
+				state->references = copy;
+			}
+		}
+	}
+}
+
+void FAllocatorCopyReferencesInPage(struct FPage *page, void *context) {
+	FPageVisitReferences(page, FAllocatorCopyReferenceInPage, context);
 }
 
 void FAllocatorUpdateReferenceToObject(struct FReference *reference, void *context) {
@@ -96,13 +129,14 @@ void FAllocatorCollectObjectInPage(struct FPage *page, struct FObject *object, v
 	
 	struct FAllocatorCopyReferencesState state = {
 		.original = object,
+		.page = page,
 	};
 	FFrameListVisitFrames(FAllocatorGetCurrentFrame(self), FAllocatorCopyReferencesInFrame, &state);
-	// FPageListVisitPages(FAllocatorGetNursery(self), FAllocatorCopyReferencesInPage, &state);
+	FPageListVisitPages(FAllocatorGetNursery(self), FAllocatorCopyReferencesInPage, &state);
 	if(state.references != NULL) {
 		struct FPage *next = FPageGetNextPage(page);
 		if(next == NULL) {
-			next = FPageListAppendPage(page, FPageCreate());
+			next = FPageListAppendPage(page, FPageCreate(self));
 		}
 		
 		state.copy = FPageCopyObject(next, object);
@@ -140,10 +174,10 @@ struct FFrame *FAllocatorPushFrame(struct FAllocator *self, const char *function
 	:	FFrameListAppendFrame(self->callStack, frame);
 }
 
-struct FObject *FAllocatorMakeStrongReferenceToObjectAtAddress(struct FAllocator *self, struct FObject **address) {
+struct FObject *FAllocatorMakeStrongReferenceToObjectAtAddress(struct FAllocator *self, void **address, size_t offset) {
 	FAssertPrecondition(self != NULL);
 	FAssertPrecondition(address != NULL);
-	FFrameAppendReference(FAllocatorGetCurrentFrame(self), FReferenceCreate((void **)address, 0));
+	FFrameAppendReference(FAllocatorGetCurrentFrame(self), FReferenceCreate((void **)address, offset));
 	return *address;
 }
 

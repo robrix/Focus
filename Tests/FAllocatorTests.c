@@ -4,6 +4,7 @@
 
 #include "Core/FAllocator.h"
 #include "Core/FFrame.h"
+#include "Core/FObject+Protected.h"
 #include "FTestSuite.h"
 
 static struct FAllocator *allocator = NULL;
@@ -58,7 +59,7 @@ static void testUpdatesStackReferencesOnCollection() {
 	struct FObject *object = FAllocatorAllocateObject(allocator);
 	struct FObject *address = object;
 	
-	FAllocatorMakeStrongReferenceToObjectAtAddress(allocator, &object);
+	FAllocatorMakeStrongReferenceToObjectAtAddress(allocator, (void **)&object, 0);
 	
 	FAllocatorCollect(allocator);
 	
@@ -67,11 +68,26 @@ static void testUpdatesStackReferencesOnCollection() {
 	FAllocatorPopFrame(allocator);
 }
 
+static void testUpdatesHeapReferencesOnCollection() {
+	FAllocatorPushFrame(allocator, __func__);
+	
+	struct FObject *object = FAllocatorAllocateObject(allocator);
+	struct FObject *container = /*FAllocatorMakeStrongReferenceToObject*/(FAllocatorAllocateObjectWithSlotCount(allocator, 3));
+	FObjectSetSlot(container, FSymbolCreateWithString("object"), object);
+	FAllocatorMakeStrongReferenceToObjectAtAddress(allocator, (void **)&container, 0);
+	
+	struct FObject *address = FObjectGetSlot(container, FSymbolCreateWithString("object"));
+	FAssert(address == object);
+	
+	FAllocatorCollect(allocator);
+	
+	address = FObjectGetSlot(container, FSymbolCreateWithString("object"));
+	FAssert(address != object);
+	
+	FAllocatorPopFrame(allocator);
+}
 
 
-/*
-	moving an allocation
-*/
 // static void testMovingAnAllocationUpdatesHeapReferencesToIt() {
 // 	// FObject
 // 	// 	*referenceObject = FAllocatorAllocateObject(allocator),
@@ -84,9 +100,6 @@ static void testUpdatesStackReferencesOnCollection() {
 // 	// verify that the new object has been updated to point at its new address
 // }
 // 
-// static void testMovingAnAllocationUpdatesStackReferencesToIt() {
-// 	
-// }
 // 
 // static void testResizingTheMostRecentAllocationExtendsItInPlace() {
 // 	
@@ -114,6 +127,7 @@ void FRunAllocatorTests() {
 		FTestCase(testPopsStackFrames),
 		
 		FTestCase(testUpdatesStackReferencesOnCollection),
+		FTestCase(testUpdatesHeapReferencesOnCollection),
 		
 		// FTestCase(testMovingAnAllocationUpdatesHeapReferencesToIt),
 		// FTestCase(testMovingAnAllocationUpdatesStackReferencesToIt),

@@ -10,17 +10,15 @@
 #include <stdio.h>
 
 FHashTable *FHashTableCreate() {
-	FHashTable *instance = FAllocatorAllocate(NULL, FHashTableGetSizeForSlotCount(0 + 17));
+	FHashTable *instance = calloc(1, FHashTableGetSizeForSlotCount(0 + 17));
 	*instance = FHashTableMake();
+	instance->slotCount = 17;
 	return instance;
 }
 
 FHashTable FHashTableMake() {
-	return (FHashTable){
-		.slotCount = 0, .bucketCount = 0
-	};
+	return (FHashTable){0};
 }
-
 
 
 size_t FHashTableGetSize(FHashTable *self) {
@@ -80,8 +78,11 @@ FSlot *FHashTableAddSlots(FHashTable *self, uint8_t n) {
 	FAssertPrecondition(self != NULL);
 	FAssertPrecondition(n > 0);
 	
-	// FAllocatorPushFrame(NULL, __func__);
-	// FAllocatorFrameReference(NULL, &self);
+	// struct FAllocator *allocator = NULL;
+	// 
+	// FAllocatorPushFrame(allocator, __func__);
+	// FAllocatorMakeStrongReferenceToObjectAtAddress(allocator, &self, sizeof(FObject *));
+	
 	size_t originalSize = FHashTableGetSize(self);
 	
 	// resize the object
@@ -92,7 +93,8 @@ FSlot *FHashTableAddSlots(FHashTable *self, uint8_t n) {
 	for(uint32_t i = 0; i < n; i++, slot++) {
 		*slot = (FSlot){{0}, NULL, NULL};
 	}
-	// FAllocatorPopFrame(NULL);
+	
+	// FAllocatorPopFrame(allocator);
 	return slot;
 }
 
@@ -101,8 +103,12 @@ void FHashTableSetValueForKey(FHashTable *self, FSymbol *symbol, void *value) {
 	FAssertPrecondition(symbol != NULL);
 	FAssertPrecondition(symbol->key != NULL);
 	
+	if(self->slotCount == 0) {
+		FHashTableAddSlots(self, self->slotCount = 1);
+	}
+	
 	if(self->bucketCount == 0) {
-		FHashTableAddSlots(self, self->bucketCount = 1);
+		self->bucketCount = self->slotCount;
 	}
 	
 	// if the slot exists, use it; otherwise make a new one

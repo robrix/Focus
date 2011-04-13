@@ -23,6 +23,10 @@ void FSymbolInitialize() {
 	}
 }
 
+struct FHashTable *FSymbolGetRegistrationTable() {
+	return FSymbolTable;
+}
+
 
 // registers the symbol if it wasn’t already
 FSymbol *FSymbolGetRegisteredSymbolWithStringAndHash(const char *string, FHash hash) {
@@ -31,7 +35,7 @@ FSymbol *FSymbolGetRegisteredSymbolWithStringAndHash(const char *string, FHash h
 	FSymbol symbol = { .key = string, .hash = hash };
 	FSymbol *registeredSymbol = FHashTableGetValueForKey(FSymbolTable, &symbol);
 	if(!registeredSymbol) {
-		registeredSymbol = FAllocatorAllocate(NULL, sizeof(FSymbol));
+		registeredSymbol = calloc(1, sizeof(FSymbol));
 		*registeredSymbol = symbol;
 		FHashTableSetValueForKey(FSymbolTable, registeredSymbol, registeredSymbol);
 	}
@@ -44,7 +48,7 @@ FSymbol *FSymbolCreateWithString(const char *symbol) {
 }
 
 FSymbol *FSymbolCreateWithSubstring(const char *symbol, size_t length) {
-	return FSymbolCreateWithString(strncpy(FAllocatorAllocate(NULL, length), symbol, length));
+	return FSymbolCreateWithString(strncpy(calloc(1, length), symbol, length));
 }
 
 

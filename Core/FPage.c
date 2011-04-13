@@ -3,7 +3,9 @@
 // Copyright 2011 Monochrome Industries
 
 #include "FAssertions.h"
-#include "FObject.h"
+#include "FAllocator.h"
+#include "FObject+Protected.h"
+#include "FReference.h"
 #include "FPage.h"
 
 #include <stdint.h>
@@ -15,12 +17,14 @@
 typedef struct FPage {
 	uint8_t bytes[F_PAGE_SIZE];
 	size_t index;
+	struct FAllocator *allocator;
 	struct FPage *next;
 } FPage;
 
 
-struct FPage *FPageCreate() {
+struct FPage *FPageCreate(struct FAllocator *allocator) {
 	FPage *page = calloc(1, sizeof(FPage));
+	page->allocator = allocator;
 	return page;
 }
 
@@ -45,9 +49,16 @@ void *FPageAllocate(struct FPage *self, size_t size) {
 	return address;
 }
 
+struct FObject *FPageAllocateObjectWithSlotCount(struct FPage *self, uint16_t slotCount) {
+	FAssertPrecondition(self != NULL);
+	struct FObject *object = FPageAllocate(self, FObjectGetSizeForSlotCount(slotCount));
+	object->slots.slotCount = slotCount;
+	return object;
+}
+
 struct FObject *FPageAllocateObject(struct FPage *self) {
 	FAssertPrecondition(self != NULL);
-	return FPageAllocate(self, FObjectGetSize(NULL));
+	return FPageAllocateObjectWithSlotCount(self, 0);
 }
 
 struct FObject *FPageCopyObject(struct FPage *self, struct FObject *original) {
@@ -65,12 +76,47 @@ void FPageDrain(struct FPage *self) {
 
 
 void FPageVisitObjects(struct FPage *self, FPageObjectVisitor visitor, void *context) {
+	FAssertPrecondition(self != NULL);
+	FAssertPrecondition(visitor != NULL);
 	size_t index = 0;
 	while(index < self->index) {
 		FObject *object = ((void *)(self->bytes)) + index;
 		visitor(self, object, context);
 		index += FObjectGetSize(object);
 	}
+}
+
+
+struct FPageReferenceVisitorState {
+	FPageReferenceVisitor visitor;
+	void *context;
+	struct FPage *page;
+	struct FObject *object;
+};
+
+void FPageVisitReferenceInSlot(FHashTable *table, FSlot *slot, void *context) {
+	struct FPageReferenceVisitorState *state = context;
+	// struct FReference *reference = FReferenceCreate(&slot->value, ((void *)slot) - ((void *)state->object));
+	struct FReference *reference = FReferenceCreate(&(slot->value), 0);
+	state->visitor(state->page, reference, state->context);
+	FReferenceDestroy(reference);
+}
+
+void FPageVisitReferencesInObject(struct FPage *self, FObject *object, void *context) {
+	struct FPageReferenceVisitorState *state = context;
+	state->object = object;
+	FHashTableVisitSlots(&object->slots, FPageVisitReferenceInSlot, context);
+}
+
+void FPageVisitReferences(struct FPage *self, FPageReferenceVisitor visitor, void *context) {
+	FAssertPrecondition(self != NULL);
+	FAssertPrecondition(visitor != NULL);
+	struct FPageReferenceVisitorState state = {
+		.visitor = visitor,
+		.context = context,
+		.page = self
+	};
+	FPageVisitObjects(self, FPageVisitReferencesInObject, &state);
 }
 
 

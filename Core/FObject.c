@@ -43,7 +43,7 @@ FObject *FObjectGetVariable(FObject *self, FSymbol *selector) {
 }
 
 FObject *FObjectSetVariable(FObject *self, FSymbol *selector, FObject *other) {
-	return FObjectSetVariable(self, selector, other);
+	return FObjectSetSlot(self, selector, other);
 }
 
 FObject *FObjectSetVariableAsAccessor(FObject *self, FSymbol *selector, FObject *other) {
@@ -56,17 +56,23 @@ FObject *FObjectSetVariableAsAccessor(FObject *self, FSymbol *selector, FObject 
 
 
 FObject *FObjectGetMethod(FObject *self, FSymbol *selector) {
-	return FObjectGetVariable(self, selector);
+	FAssertPrecondition(self != NULL);
+	FAssertPrecondition(selector != NULL);
+	return FObjectGetSlot(self, selector) ?: (self->prototype? FObjectGetMethod(self->prototype, selector) : NULL);
 }
 
 void FObjectSetMethod(FObject *self, FSymbol *selector, FObject *function) {
-	FObjectSetVariable(self, selector, function);
+	FObjectSetSlot(self, selector, function);
 }
 
 
-size_t FObjectGetSize(FObject *self) {
+size_t FObjectGetSizeForSlotCount(uint16_t slotCount) {
 	return
 		sizeof(FObject *) // prototype
-	+	(self? FHashTableGetSize(&(self->slots)) : FHashTableGetSizeForSlotCount(0)) // slots
+	+	FHashTableGetSizeForSlotCount(slotCount) // slots
 	;
+}
+
+size_t FObjectGetSize(FObject *self) {
+	return FObjectGetSizeForSlotCount(self? self->slots.slotCount : 0);
 }

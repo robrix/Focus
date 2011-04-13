@@ -7,7 +7,7 @@
 
 static struct FPage *page = NULL;
 static void setUp() {
-	page = FPageCreate();
+	page = FPageCreate(NULL);
 }
 
 static void tearDown() {

@@ -7,11 +7,14 @@
 
 #include "FObject.h"
 
-struct FPage *FPageCreate();
+// struct FPage *FPageForAddress(void *address);
+
+struct FPage *FPageCreate(struct FAllocator *allocator);
 void FPageDestroy(struct FPage *self);
 
 struct FPage *FPageGetNextPage(struct FPage *self);
 
+struct FObject *FPageAllocateObjectWithSlotCount(struct FPage *self, uint16_t slotCount);
 struct FObject *FPageAllocateObject(struct FPage *self);
 struct FObject *FPageCopyObject(struct FPage *self, struct FObject *original);
 
@@ -19,6 +22,9 @@ void FPageDrain(struct FPage *self);
 
 typedef void (*FPageObjectVisitor)(struct FPage *self, struct FObject *object, void *context);
 void FPageVisitObjects(struct FPage *self, FPageObjectVisitor visitor, void *context);
+
+typedef void (*FPageReferenceVisitor)(struct FPage *self, struct FReference *reference, void *context);
+void FPageVisitReferences(struct FPage *self, FPageReferenceVisitor visitor, void *context);
 
 struct FPage *FPageListGetLastPage(struct FPage *self);
 struct FPage *FPageListAppendPage(struct FPage *self, struct FPage *other);

@@ -26,6 +26,8 @@ typedef struct FSymbol {
 
 void FSymbolInitialize();
 
+struct FHashTable *FSymbolGetRegistrationTable();
+
 FSymbol *FSymbolCreateWithString(const char *symbol);
 FSymbol *FSymbolCreateWithSubstring(const char *symbol, size_t length);
 
