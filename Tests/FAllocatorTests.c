@@ -7,6 +7,8 @@
 #include "Core/FObject+Protected.h"
 #include "FTestSuite.h"
 
+extern bool FAllocatorObjectIsLive(struct FAllocator *allocator, struct FObject *object);
+
 static struct FAllocator *allocator = NULL;
 static void setUp() {
 	allocator = FAllocatorCreate();
@@ -88,6 +90,43 @@ static void testUpdatesHeapReferencesOnCollection() {
 }
 
 
+// static void testObjectsAreConsideredLiveWhenAddedToTheRootSet() {}
+
+static void testObjectsAreConsideredLiveWhenReferencedDirectlyFromTheStack() {
+	FAllocatorPushFrame(allocator, __func__);
+	
+	struct FObject *object = FAllocatorAllocateObject(allocator);
+	FAllocatorMakeStrongReferenceToObjectAtAddress(allocator, (void **)&object, 0);
+	
+	FAssert(FAllocatorObjectIsLive(allocator, object));
+	
+	FAllocatorPopFrame(allocator);
+}
+
+// static void testObjectsAreConsideredLiveWhenReferencedIndirectlyFromTheStack() {}
+
+static void testObjectsAreConsideredLiveWhenReferencedDirectlyFromAnOlderGeneration() {
+	FAllocatorPushFrame(allocator, __func__);
+	
+	struct FObject *container = FAllocatorAllocateObjectWithSlotCount(allocator, 3);
+	FAllocatorMakeStrongReferenceToObjectAtAddress(allocator, (void **)&container, 0);
+	
+	FAssert(FAllocatorObjectIsLive(allocator, container));
+	
+	FAllocatorCollect(allocator);
+	
+	struct FObject *object = FAllocatorAllocateObject(allocator);
+	
+	FAssert(!FAllocatorObjectIsLive(allocator, object));
+	
+	FObjectSetSlot(container, FSymbolCreateWithString("object"), object);
+	FAssert(FAllocatorObjectIsLive(allocator, object));
+	
+	FAllocatorPopFrame(allocator);
+}
+
+// static void testObjectsAreConsideredLiveWhenReferencedIndirectlyFromAnOlderGeneration() {}
+
 // static void testMovingAnAllocationUpdatesHeapReferencesToIt() {
 // 	// FObject
 // 	// 	*referenceObject = FAllocatorAllocateObject(allocator),
@@ -99,18 +138,9 @@ static void testUpdatesHeapReferencesOnCollection() {
 // 	// verify that it’s been moved
 // 	// verify that the new object has been updated to point at its new address
 // }
-// 
-// 
+
+
 // static void testResizingTheMostRecentAllocationExtendsItInPlace() {
-// 	
-// }
-// 
-// 
-// static void testVisitsHeapReferencesWithAFunction() {
-// 	
-// }
-// 
-// static void testVisitsStackReferencesWithAFunction() {
 // 	
 // }
 
@@ -128,6 +158,12 @@ void FRunAllocatorTests() {
 		
 		FTestCase(testUpdatesStackReferencesOnCollection),
 		FTestCase(testUpdatesHeapReferencesOnCollection),
+		
+		// FTestCase(testObjectsAreConsideredLiveWhenAddedToTheRootSet),
+		FTestCase(testObjectsAreConsideredLiveWhenReferencedDirectlyFromTheStack),
+		// FTestCase(testObjectsAreConsideredLiveWhenReferencedIndirectlyFromTheStack),
+		FTestCase(testObjectsAreConsideredLiveWhenReferencedDirectlyFromAnOlderGeneration),
+		// FTestCase(testObjectsAreConsideredLiveWhenReferencedIndirectlyFromAnOlderGeneration),
 		
 		// FTestCase(testMovingAnAllocationUpdatesHeapReferencesToIt),
 		// FTestCase(testMovingAnAllocationUpdatesStackReferencesToIt),

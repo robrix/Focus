@@ -11,9 +11,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-// measured in bytes
-#define F_PAGE_SIZE 4096
-
 typedef struct FPage {
 	uint8_t bytes[F_PAGE_SIZE];
 	size_t index;

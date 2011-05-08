@@ -79,6 +79,15 @@ void *FAllocatorResizeAllocation(struct FAllocator *self, void *allocation, size
 }
 
 
+struct FPage *FAllocatorGetPageForObject(struct FAllocator *self, struct FObject *object) {
+	struct FPage *page = self->generations;
+	while(page != NULL && (((void *)page < (void *)object) && ((void *)object < ((void *)page + F_PAGE_SIZE)))) {
+		page = FPageGetNextPage(page);
+	}
+	return page;
+}
+
+
 struct FAllocatorCopyReferencesState {
 	struct FObject *original, *copy;
 	struct FPage *page;
@@ -122,6 +131,25 @@ void FAllocatorCopyReferencesInPage(struct FPage *page, void *context) {
 void FAllocatorUpdateReferenceToObject(struct FReference *reference, void *context) {
 	struct FAllocatorCopyReferencesState *state = context;
 	FReferenceSetReferencedObject(reference, state->copy);
+}
+
+
+void FAllocatorCopyHeapReferencesToObject(struct FAllocator *self, struct FObject *object, struct FAllocatorCopyReferencesState *state) {
+	FPageListVisitPages(FAllocatorGetNursery(self), FAllocatorCopyReferencesInPage, state);
+}
+
+void FAllocatorCopyFrameReferencesToObject(struct FAllocator *self, struct FObject *object, struct FAllocatorCopyReferencesState *state) {
+	FFrameListVisitFrames(FAllocatorGetCurrentFrame(self), FAllocatorCopyReferencesInFrame, state);
+}
+
+bool FAllocatorObjectIsLive(struct FAllocator *self, struct FObject *object) {
+	struct FAllocatorCopyReferencesState state = {
+		.original = object,
+		.page = FAllocatorGetPageForObject(self, object)
+	};
+	FAllocatorCopyHeapReferencesToObject(self, object, &state);
+	FAllocatorCopyFrameReferencesToObject(self, object, &state);
+	return state.references != NULL;
 }
 
 void FAllocatorCollectObjectInPage(struct FPage *page, struct FObject *object, void *context) {

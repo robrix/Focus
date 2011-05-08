@@ -7,6 +7,9 @@
 
 #include "FObject.h"
 
+// measured in bytes
+#define F_PAGE_SIZE 4096
+
 // struct FPage *FPageForAddress(void *address);
 
 struct FPage *FPageCreate(struct FAllocator *allocator);
