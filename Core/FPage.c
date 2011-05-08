@@ -35,6 +35,11 @@ struct FPage *FPageGetNextPage(struct FPage *self) {
 	return self->next;
 }
 
+struct FAllocator *FPageGetAllocator(struct FPage *self) {
+	FAssertPrecondition(self != NULL);
+	return self->allocator;
+}
+
 
 void *FPageAllocate(struct FPage *self, size_t size) {
 	FAssertPrecondition(self != NULL);
@@ -95,7 +100,7 @@ void FPageVisitReferenceInSlot(FHashTable *table, FSlot *slot, void *context) {
 	struct FPageReferenceVisitorState *state = context;
 	// struct FReference *reference = FReferenceCreate(&slot->value, ((void *)slot) - ((void *)state->object));
 	struct FReference *reference = FReferenceCreate(&(slot->value), 0);
-	state->visitor(state->page, reference, state->context);
+	state->visitor(state->page, state->object, reference, state->context);
 	FReferenceDestroy(reference);
 }
 

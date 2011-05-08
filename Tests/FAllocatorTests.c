@@ -105,7 +105,7 @@ static void testObjectsAreConsideredLiveWhenReferencedDirectlyFromTheStack() {
 
 // static void testObjectsAreConsideredLiveWhenReferencedIndirectlyFromTheStack() {}
 
-static void testObjectsAreConsideredLiveWhenReferencedDirectlyFromAnOlderGeneration() {
+static void testObjectsAreConsideredLiveWhenReferencedDirectlyFromAnotherPage() {
 	FAllocatorPushFrame(allocator, __func__);
 	
 	struct FObject *container = FAllocatorAllocateObjectWithSlotCount(allocator, 3);
@@ -125,7 +125,30 @@ static void testObjectsAreConsideredLiveWhenReferencedDirectlyFromAnOlderGenerat
 	FAllocatorPopFrame(allocator);
 }
 
-// static void testObjectsAreConsideredLiveWhenReferencedIndirectlyFromAnOlderGeneration() {}
+static void testObjectsAreConsideredLiveWhenReferencedIndirectlyFromAnotherPage() {
+	FAllocatorPushFrame(allocator, __func__);
+	
+	struct FObject *root = FAllocatorAllocateObjectWithSlotCount(allocator, 3);
+	FAllocatorMakeStrongReferenceToObjectAtAddress(allocator, (void **)&root, 0);
+	
+	FAllocatorCollect(allocator);
+	
+	struct FObject *container = FAllocatorAllocateObjectWithSlotCount(allocator, 3);
+	struct FObject *object = FAllocatorAllocateObject(allocator);
+	
+	FAssert(!FAllocatorObjectIsLive(allocator, container));
+	FAssert(!FAllocatorObjectIsLive(allocator, object));
+	
+	// direct reference from other generation
+	FObjectSetSlot(root, FSymbolCreateWithString("container"), container);
+	FAssert(FAllocatorObjectIsLive(allocator, container));
+	
+	// indirect reference from other generation via current generation
+	FObjectSetSlot(container, FSymbolCreateWithString("object"), object);
+	FAssert(FAllocatorObjectIsLive(allocator, object));
+	
+	FAllocatorPopFrame(allocator);
+}
 
 // static void testMovingAnAllocationUpdatesHeapReferencesToIt() {
 // 	// FObject
@@ -162,8 +185,8 @@ void FRunAllocatorTests() {
 		// FTestCase(testObjectsAreConsideredLiveWhenAddedToTheRootSet),
 		FTestCase(testObjectsAreConsideredLiveWhenReferencedDirectlyFromTheStack),
 		// FTestCase(testObjectsAreConsideredLiveWhenReferencedIndirectlyFromTheStack),
-		FTestCase(testObjectsAreConsideredLiveWhenReferencedDirectlyFromAnOlderGeneration),
-		// FTestCase(testObjectsAreConsideredLiveWhenReferencedIndirectlyFromAnOlderGeneration),
+		FTestCase(testObjectsAreConsideredLiveWhenReferencedDirectlyFromAnotherPage),
+		FTestCase(testObjectsAreConsideredLiveWhenReferencedIndirectlyFromAnotherPage),
 		
 		// FTestCase(testMovingAnAllocationUpdatesHeapReferencesToIt),
 		// FTestCase(testMovingAnAllocationUpdatesStackReferencesToIt),

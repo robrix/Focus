@@ -110,22 +110,30 @@ void FAllocatorCopyReferencesInFrame(struct FFrame *frame, void *context) {
 	FFrameVisitReferences(frame, FAllocatorCopyReferenceInFrame, context);
 }
 
-void FAllocatorCopyReferenceInPage(struct FPage *page, struct FReference *reference, void *context) {
+void FAllocatorCopyReferenceInPage(struct FPage *page, struct FObject *object, struct FReference *reference, void *context) {
 	struct FAllocatorCopyReferencesState *state = context;
-	if(page != state->page) { // ignore the page we’re collecting, so we don’t cause retain cycles
-		if(FReferenceGetReferencedObject(reference) == state->original) {
-			struct FReference *copy = FReferenceCreateCopy(reference);
-			if(state->references != NULL) {
-				FReferenceListAppendReference(state->references, copy);
-			} else {
-				state->references = copy;
-			}
+	if(FReferenceGetReferencedObject(reference) == state->original) {
+		struct FReference *copy = FReferenceCreateCopy(reference);
+		if(state->references != NULL) {
+			FReferenceListAppendReference(state->references, copy);
+		} else {
+			state->references = copy;
 		}
 	}
 }
 
+void FAllocatorCopyLiveReferenceInPage(struct FPage *page, struct FObject *object, struct FReference *reference, void *context) {
+	struct FAllocatorCopyReferencesState *state = context;
+	if((object != state->original) && FAllocatorObjectIsLive(FPageGetAllocator(page), object)) {
+		FAllocatorCopyReferenceInPage(page, object, reference, context);
+	}
+}
+
 void FAllocatorCopyReferencesInPage(struct FPage *page, void *context) {
-	FPageVisitReferences(page, FAllocatorCopyReferenceInPage, context);
+	struct FAllocatorCopyReferencesState *state = context;
+	if(page != state->page) { // ignore the page we’re collecting, so we don’t cause retain cycles
+		FPageVisitReferences(page, FAllocatorCopyReferenceInPage, context);
+	}
 }
 
 void FAllocatorUpdateReferenceToObject(struct FReference *reference, void *context) {
@@ -134,8 +142,12 @@ void FAllocatorUpdateReferenceToObject(struct FReference *reference, void *conte
 }
 
 
-void FAllocatorCopyHeapReferencesToObject(struct FAllocator *self, struct FObject *object, struct FAllocatorCopyReferencesState *state) {
+void FAllocatorCopyExternalHeapReferencesToObject(struct FAllocator *self, struct FObject *object, struct FAllocatorCopyReferencesState *state) {
 	FPageListVisitPages(FAllocatorGetNursery(self), FAllocatorCopyReferencesInPage, state);
+}
+
+void FAllocatorCopyInternalLiveHeapReferencesToObject(struct FAllocator *self, struct FObject *object, struct FAllocatorCopyReferencesState *state) {
+	FPageVisitReferences(state->page, FAllocatorCopyLiveReferenceInPage, state);
 }
 
 void FAllocatorCopyFrameReferencesToObject(struct FAllocator *self, struct FObject *object, struct FAllocatorCopyReferencesState *state) {
@@ -147,7 +159,8 @@ bool FAllocatorObjectIsLive(struct FAllocator *self, struct FObject *object) {
 		.original = object,
 		.page = FAllocatorGetPageForObject(self, object)
 	};
-	FAllocatorCopyHeapReferencesToObject(self, object, &state);
+	FAllocatorCopyExternalHeapReferencesToObject(self, object, &state);
+	FAllocatorCopyInternalLiveHeapReferencesToObject(self, object, &state);
 	FAllocatorCopyFrameReferencesToObject(self, object, &state);
 	return state.references != NULL;
 }

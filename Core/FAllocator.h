@@ -16,6 +16,7 @@ struct FObject *FAllocatorAllocateObject(struct FAllocator *self);
 void *FAllocatorAllocate(struct FAllocator *self, size_t bytes);
 void *FAllocatorResizeAllocation(struct FAllocator *self, void *allocation, size_t bytes);
 
+bool FAllocatorObjectIsLive(struct FAllocator *self, struct FObject *object);
 void FAllocatorCollect(struct FAllocator *self);
 
 struct FFrame *FAllocatorGetCurrentFrame(struct FAllocator *self);
