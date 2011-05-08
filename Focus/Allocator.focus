@@ -1,0 +1,13 @@
+#!/usr/bin/env focus
+
+Focus Allocator = Object implementing: [
+	Interface composedOf: [#pages, #nurseryPage],
+	Interface composedOf: [#frames],
+	Interface composedOf: [#allocateObject]
+] as: {
+	#allocateObject = {
+		self nurseryPage allocateObject else: {
+			// perform a collection and reallocate
+		}
+	}
+}

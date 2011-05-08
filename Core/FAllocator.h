@@ -20,6 +20,7 @@ void FAllocatorCollect(struct FAllocator *self);
 
 struct FFrame *FAllocatorGetCurrentFrame(struct FAllocator *self);
 struct FFrame *FAllocatorPushFrame(struct FAllocator *self, const char *function);
+// struct FObject *FAllocatorMakeStrongReferenceToObject(struct FObject *object);
 struct FObject *FAllocatorMakeStrongReferenceToObjectAtAddress(struct FAllocator *self, void **address, size_t offset);
 void FAllocatorPopFrame(struct FAllocator *self);
 
