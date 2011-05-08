@@ -22,6 +22,8 @@ struct FObject *FPageAllocateObjectWithSlotCount(struct FPage *self, uint16_t sl
 struct FObject *FPageAllocateObject(struct FPage *self);
 struct FObject *FPageCopyObject(struct FPage *self, struct FObject *original);
 
+bool FPageContainsAddress(struct FPage *self, void *address);
+
 void FPageDrain(struct FPage *self);
 
 typedef void (*FPageObjectVisitor)(struct FPage *self, struct FObject *object, void *context);

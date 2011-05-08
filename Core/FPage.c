@@ -70,6 +70,12 @@ struct FObject *FPageCopyObject(struct FPage *self, struct FObject *original) {
 	return memcpy(FPageAllocate(self, size), original, size);
 }
 
+bool FPageContainsAddress(struct FPage *self, void *address) {
+	FAssertPrecondition(self != NULL);
+	return
+		((void *)self <= address)
+	&&	(address < (void *)self + F_PAGE_SIZE);
+}
 
 void FPageDrain(struct FPage *self) {
 	FAssertPrecondition(self != NULL);

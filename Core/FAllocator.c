@@ -81,7 +81,7 @@ void *FAllocatorResizeAllocation(struct FAllocator *self, void *allocation, size
 
 struct FPage *FAllocatorGetPageForObject(struct FAllocator *self, struct FObject *object) {
 	struct FPage *page = self->generations;
-	while(page != NULL && (((void *)page < (void *)object) && ((void *)object < ((void *)page + F_PAGE_SIZE)))) {
+	while((page != NULL) && !FPageContainsAddress(page, object)) {
 		page = FPageGetNextPage(page);
 	}
 	return page;
@@ -155,6 +155,8 @@ void FAllocatorCopyFrameReferencesToObject(struct FAllocator *self, struct FObje
 }
 
 bool FAllocatorObjectIsLive(struct FAllocator *self, struct FObject *object) {
+	FAssertPrecondition(self != NULL);
+	FAssertPrecondition(object != NULL);
 	struct FAllocatorCopyReferencesState state = {
 		.original = object,
 		.page = FAllocatorGetPageForObject(self, object)
