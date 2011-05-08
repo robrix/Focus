@@ -92,7 +92,7 @@ static void testUpdatesHeapReferencesOnCollection() {
 
 // static void testObjectsAreConsideredLiveWhenAddedToTheRootSet() {}
 
-static void testObjectsAreConsideredLiveWhenReferencedDirectlyFromTheStack() {
+static void testObjectsAreConsideredLiveWhenReferencedDirectlyOnTheStack() {
 	FAllocatorPushFrame(allocator, __func__);
 	
 	struct FObject *object = FAllocatorAllocateObject(allocator);
@@ -103,7 +103,23 @@ static void testObjectsAreConsideredLiveWhenReferencedDirectlyFromTheStack() {
 	FAllocatorPopFrame(allocator);
 }
 
-// static void testObjectsAreConsideredLiveWhenReferencedIndirectlyFromTheStack() {}
+static void testObjectsAreConsideredLiveWhenReferencedIndirectlyViaTheStack() {
+	FAllocatorPushFrame(allocator, __func__);
+	
+	struct FObject *container = FAllocatorAllocateObjectWithSlotCount(allocator, 3);
+	FAllocatorMakeStrongReferenceToObjectAtAddress(allocator, (void **)&container, 0);
+	
+	FAssert(FAllocatorObjectIsLive(allocator, container));
+	
+	struct FObject *object = FAllocatorAllocateObject(allocator);
+	
+	FAssert(!FAllocatorObjectIsLive(allocator, object));
+	
+	FObjectSetSlot(container, FSymbolCreateWithString("object"), object);
+	FAssert(FAllocatorObjectIsLive(allocator, object));
+	
+	FAllocatorPopFrame(allocator);
+}
 
 static void testObjectsAreConsideredLiveWhenReferencedDirectlyFromAnotherPage() {
 	FAllocatorPushFrame(allocator, __func__);
@@ -183,8 +199,8 @@ void FRunAllocatorTests() {
 		FTestCase(testUpdatesHeapReferencesOnCollection),
 		
 		// FTestCase(testObjectsAreConsideredLiveWhenAddedToTheRootSet),
-		FTestCase(testObjectsAreConsideredLiveWhenReferencedDirectlyFromTheStack),
-		// FTestCase(testObjectsAreConsideredLiveWhenReferencedIndirectlyFromTheStack),
+		FTestCase(testObjectsAreConsideredLiveWhenReferencedDirectlyOnTheStack),
+		FTestCase(testObjectsAreConsideredLiveWhenReferencedIndirectlyViaTheStack),
 		FTestCase(testObjectsAreConsideredLiveWhenReferencedDirectlyFromAnotherPage),
 		FTestCase(testObjectsAreConsideredLiveWhenReferencedIndirectlyFromAnotherPage),
 		
