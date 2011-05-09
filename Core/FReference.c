@@ -79,3 +79,13 @@ void FReferenceListVisitReferences(struct FReference *self, FReferenceListRefere
 		self = FReferenceGetNextReference(self);
 	}
 }
+
+
+void FReferenceListDestroyReference(struct FReference *reference, void *context) {
+	FReferenceDestroy(reference);
+}
+
+void FReferenceListDestroy(struct FReference *self) {
+	FAssertPrecondition(self != NULL);
+	FReferenceListVisitReferences(self, FReferenceListDestroyReference, NULL);
+}

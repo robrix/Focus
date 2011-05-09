@@ -24,4 +24,6 @@ struct FReference *FReferenceListAppendReference(struct FReference *self, struct
 typedef void (*FReferenceListReferenceVisitor)(struct FReference *reference, void *context);
 void FReferenceListVisitReferences(struct FReference *self, FReferenceListReferenceVisitor visitor, void *context);
 
+void FReferenceListDestroy(struct FReference *self);
+
 #endif // F_REFERENCE
