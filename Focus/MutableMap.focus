@@ -1,0 +1,5 @@
+MutableMap = Interface composedOf: [
+	require: "Map",
+	#set:at:,
+	#remove:at:
+]
