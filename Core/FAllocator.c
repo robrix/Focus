@@ -137,8 +137,7 @@ void FAllocatorCopyReferencesInPage(struct FPage *page, void *context) {
 }
 
 void FAllocatorUpdateReferenceToObject(struct FReference *reference, void *context) {
-	struct FAllocatorCopyReferencesState *state = context;
-	FReferenceSetReferencedObject(reference, state->copy);
+	FReferenceSetReferencedObject(reference, (struct FObject *)context);
 }
 
 
@@ -167,23 +166,29 @@ bool FAllocatorObjectIsLive(struct FAllocator *self, struct FObject *object) {
 	return state.references != NULL;
 }
 
-void FAllocatorCollectObjectInPage(struct FPage *page, struct FObject *object, void *context) {
-	FAllocator *self = (FAllocator *)context;
-	
+struct FReference *FAllocatorCopyReferencesToObject(struct FAllocator *self, struct FPage *page, struct FObject *object) {
+	FAssertPrecondition(self != NULL);
+	FAssertPrecondition(page != NULL);
+	FAssertPrecondition(object != NULL);
 	struct FAllocatorCopyReferencesState state = {
 		.original = object,
-		.page = page,
+		.page = page
 	};
-	FFrameListVisitFrames(FAllocatorGetCurrentFrame(self), FAllocatorCopyReferencesInFrame, &state);
-	FPageListVisitPages(FAllocatorGetNursery(self), FAllocatorCopyReferencesInPage, &state);
-	if(state.references != NULL) {
-		struct FPage *next = FPageGetNextPage(page);
-		if(next == NULL) {
-			next = FPageListAppendPage(page, FPageCreate(self));
-		}
+	FAllocatorCopyExternalHeapReferencesToObject(self, object, &state);
+	FAllocatorCopyInternalLiveHeapReferencesToObject(self, object, &state);
+	FAllocatorCopyFrameReferencesToObject(self, object, &state);
+	return state.references;
+}
+
+void FAllocatorCollectObjectInPage(struct FPage *page, struct FObject *object, void *context) {
+	FAllocator *self = context;
+	
+	struct FReference *references = FAllocatorCopyReferencesToObject(self, page, object);
+	if(references != NULL) {
+		struct FPage *next = FPageGetNextPage(page) ?: FPageListAppendPage(page, FPageCreate(self));
 		
-		state.copy = FPageCopyObject(next, object);
-		FReferenceListVisitReferences(state.references, FAllocatorUpdateReferenceToObject, &state);
+		struct FObject *copy = FPageCopyObject(next, object);
+		FReferenceListVisitReferences(references, FAllocatorUpdateReferenceToObject, copy);
 	}
 }
 
