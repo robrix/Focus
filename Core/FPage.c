@@ -104,15 +104,21 @@ struct FPageReferenceVisitorState {
 
 void FPageVisitReferenceInSlot(FHashTable *table, FSlot *slot, void *context) {
 	struct FPageReferenceVisitorState *state = context;
-	// struct FReference *reference = FReferenceCreate(&slot->value, ((void *)slot) - ((void *)state->object));
-	struct FReference *reference = FReferenceCreate(&(slot->value), 0);
-	state->visitor(state->page, state->object, reference, state->context);
-	FReferenceDestroy(reference);
+	if(slot->value != NULL) {
+		struct FReference *reference = FReferenceCreate(&(slot->value), 0);
+		state->visitor(state->page, state->object, reference, state->context);
+		FReferenceDestroy(reference);
+	}
 }
 
 void FPageVisitReferencesInObject(struct FPage *self, FObject *object, void *context) {
 	struct FPageReferenceVisitorState *state = context;
 	state->object = object;
+	if(object->prototype != NULL) {
+		struct FReference *reference = FReferenceCreate((void **)&(object->prototype), 0);
+		state->visitor(state->page, object, reference, state->context);
+		FReferenceDestroy(reference);
+	}
 	FHashTableVisitSlots(&object->slots, FPageVisitReferenceInSlot, context);
 }
 
