@@ -34,6 +34,15 @@ size_t FHashTableGetSizeForSlotCount(uint16_t slotCount) {
 }
 
 
+uint16_t FHashTableGetSlotCount(FHashTable *self) {
+	return self->slotCount;
+}
+
+uint16_t FHashTableGetBucketCount(FHashTable *self) {
+	return self->bucketCount;
+}
+
+
 FSlot *FHashTableGetBucketForHash(FHashTable *self, FUInteger hash) {
 	FAssertPrecondition(self != NULL);
 	return (self->bucketCount > 0)? (self->slots + (hash % self->bucketCount)) : NULL;

@@ -24,6 +24,9 @@ FHashTable FHashTableMake();
 size_t FHashTableGetSize(FHashTable *self);
 size_t FHashTableGetSizeForSlotCount(uint16_t slotCount);
 
+uint16_t FHashTableGetSlotCount(FHashTable *self);
+uint16_t FHashTableGetBucketCount(FHashTable *self);
+
 void *FHashTableGetValueForKey(FHashTable *self, FSymbol *symbol);
 void FHashTableSetValueForKey(FHashTable *self, FSymbol *symbol, void *value); // fixme: assumes you aren’t inserting a duplicate entry for the given key
 

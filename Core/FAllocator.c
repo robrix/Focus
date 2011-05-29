@@ -56,13 +56,6 @@ struct FObject *FAllocatorAllocateObjectWithSlotCount(struct FAllocator *self, u
 FObject *FAllocatorAllocateObject(FAllocator *self) {
 	FAssertPrecondition(self != NULL);
 	return FAllocatorAllocateObjectWithSlotCount(self, 0);
-	// FObject *object = FPageAllocateObject(FAllocatorGetNursery(self));
-	// if(!object) {
-	// 	FAllocatorCollect(self);
-	// 	// perform a collection, promoting live objects to the next generation
-	// 	// then allocate again in the nursery
-	// }
-	// return object;
 }
 
 void *FAllocatorAllocate(FAllocator *self, size_t bytes) {
