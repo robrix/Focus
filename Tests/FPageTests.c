@@ -2,6 +2,8 @@
 // Created by Rob Rix on 2011-04-03
 // Copyright 2011 Monochrome Industries
 
+#include "Core/FAllocator.h"
+#include "Core/FReference.h"
 #include "Core/FPage.h"
 #include "FTestSuite.h"
 
@@ -39,11 +41,26 @@ static void testVisitsAllocatedObjects() {
 }
 
 
+static void testTheMostRecentlyAllocatedObjectCanBeResizedInPlace() {
+	struct FObject *object = FPageAllocateObject(page);
+	FAssert(FPageCanResizeObjectInPlace(page, object));
+}
+
+static void testLessRecentlyAllocatedObjectsCannotBeResizedInPlace() {
+	struct FObject *object = FPageAllocateObject(page);
+	FPageAllocateObject(page);
+	FAssert(!FPageCanResizeObjectInPlace(page, object));
+}
+
+
 void FRunPageTests() {
 	FRunTestSuite(&(FTestSuite){"FPage", setUp, tearDown, (FTestCase[]){
 		FTestCase(testAllocatesMemory),
 		
 		FTestCase(testVisitsAllocatedObjects),
+		
+		FTestCase(testTheMostRecentlyAllocatedObjectCanBeResizedInPlace),
+		FTestCase(testLessRecentlyAllocatedObjectsCannotBeResizedInPlace),
 		{0},
 	}});
 }

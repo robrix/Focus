@@ -24,6 +24,11 @@ struct FObject *FPageCopyObject(struct FPage *self, struct FObject *original);
 
 bool FPageContainsAddress(struct FPage *self, void *address);
 
+// the most recently allocated object can be resized in place
+// todo: objects with sufficient free space following them, e.g. nulled-out allocations, can be resized in place
+// todo: that calculation should also take into account the amount of room remaining in the page
+bool FPageCanResizeObjectInPlace(struct FPage *self, struct FObject *object);
+
 void FPageDrain(struct FPage *self);
 
 typedef void (*FPageObjectVisitor)(struct FPage *self, struct FObject *object, void *context);
