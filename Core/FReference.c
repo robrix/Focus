@@ -81,6 +81,11 @@ void FReferenceListVisitReferences(struct FReference *self, FReferenceListRefere
 }
 
 
+void FReferenceListSetReferencedObject(struct FReference *self, struct FObject *object) {
+	FReferenceListVisitReferences(self, (FReferenceListReferenceVisitor)FReferenceSetReferencedObject, object);
+}
+
+
 void FReferenceListDestroyReference(struct FReference *reference, void *context) {
 	FReferenceDestroy(reference);
 }

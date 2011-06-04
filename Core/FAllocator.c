@@ -129,10 +129,6 @@ void FAllocatorCopyReferencesInPage(struct FPage *page, void *context) {
 	}
 }
 
-void FAllocatorUpdateReferenceToObject(struct FReference *reference, void *context) {
-	FReferenceSetReferencedObject(reference, (struct FObject *)context);
-}
-
 
 void FAllocatorCopyExternalHeapReferencesToObject(struct FAllocator *self, struct FObject *object, struct FAllocatorCopyReferencesState *state) {
 	FPageListVisitPages(FAllocatorGetNursery(self), FAllocatorCopyReferencesInPage, state);
@@ -181,7 +177,7 @@ void FAllocatorCollectObjectInPage(struct FPage *page, struct FObject *object, v
 		struct FPage *next = FPageGetNextPage(page) ?: FPageListAppendPage(page, FPageCreate(self));
 		
 		struct FObject *copy = FPageCopyObject(next, object);
-		FReferenceListVisitReferences(references, FAllocatorUpdateReferenceToObject, copy);
+		FReferenceListSetReferencedObject(references, copy);
 	}
 }
 
