@@ -43,13 +43,18 @@ static void testVisitsAllocatedObjects() {
 
 static void testTheMostRecentlyAllocatedObjectCanBeResizedInPlace() {
 	struct FObject *object = FPageAllocateObject(page);
-	FAssert(FPageCanResizeObjectInPlace(page, object));
+	FAssert(FPageCanResizeObjectInPlace(page, object, FObjectGetSizeForSlotCount(1)));
+}
+
+static void testObjectsCannotBeResizedPastTheEndOfThePage() {
+	struct FObject *object = FPageAllocateObject(page);
+	FAssert(!FPageCanResizeObjectInPlace(page, object, F_PAGE_SIZE + 1));
 }
 
 static void testLessRecentlyAllocatedObjectsCannotBeResizedInPlace() {
 	struct FObject *object = FPageAllocateObject(page);
 	FPageAllocateObject(page);
-	FAssert(!FPageCanResizeObjectInPlace(page, object));
+	FAssert(!FPageCanResizeObjectInPlace(page, object, FObjectGetSizeForSlotCount(1)));
 }
 
 
@@ -60,6 +65,7 @@ void FRunPageTests() {
 		FTestCase(testVisitsAllocatedObjects),
 		
 		FTestCase(testTheMostRecentlyAllocatedObjectCanBeResizedInPlace),
+		FTestCase(testObjectsCannotBeResizedPastTheEndOfThePage),
 		FTestCase(testLessRecentlyAllocatedObjectsCannotBeResizedInPlace),
 		{0},
 	}});

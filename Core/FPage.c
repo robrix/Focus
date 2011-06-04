@@ -79,9 +79,17 @@ bool FPageContainsAddress(struct FPage *self, void *address) {
 }
 
 
-bool FPageCanResizeObjectInPlace(struct FPage *self, struct FObject *object) {
+size_t FPageIndexOfObject(struct FPage *self, struct FObject *object) {
+	return (size_t)object - (size_t)self;
+}
+
+bool FPageCanResizeObjectInPlace(struct FPage *self, struct FObject *object, size_t newSize) {
 	FAssertPrecondition(self != NULL);
-	return (((void *)self) + self->index) == ((void *)object) + FObjectGetSize(object);
+	FAssertPrecondition(object != NULL);
+	size_t objectIndex = FPageIndexOfObject(self, object);
+	return
+		((objectIndex + FObjectGetSize(object)) == self->index)
+	&&	((objectIndex + newSize) < F_PAGE_SIZE);
 }
 
 

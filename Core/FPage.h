@@ -26,8 +26,7 @@ bool FPageContainsAddress(struct FPage *self, void *address);
 
 // the most recently allocated object can be resized in place
 // todo: objects with sufficient free space following them, e.g. nulled-out allocations, can be resized in place
-// todo: that calculation should also take into account the amount of room remaining in the page
-bool FPageCanResizeObjectInPlace(struct FPage *self, struct FObject *object);
+bool FPageCanResizeObjectInPlace(struct FPage *self, struct FObject *object, size_t newSize);
 
 void FPageDrain(struct FPage *self);
 
