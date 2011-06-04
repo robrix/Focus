@@ -16,7 +16,7 @@ Enumeration:
 	#each:
 	#reversed
 
-Implementations of the Map interface include vectors and hash tables. Sets don’t implement Map, but vectors, hash tables, and sets all implement Enumeration.
+Implementations of the Map interface include vectors and hash tables. Sets don’t implement Map, but vectors, hash tables, and sets all implement Enumeration (via ranges?).
 
 
 Map = Interface composedOf: [

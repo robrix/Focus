@@ -8,15 +8,8 @@
 #include "FSymbol.h"
 
 
-FObject *FEvaluatorBootstrapSymbol(const char *string, FEvaluatorBootstrapState state) {
-	return FSymbolCreateWithPrototypeAndString(state.Symbol, string);
-}
-
 FObject *FEvaluatorBootstrapFunction(FImplementation implementation, FEvaluatorBootstrapState state) {
 	return FFunctionCreateWithImplementation(state.Context, implementation);
-	// FObject *function = FObjectCreate(state.Function);
-	// FObjectSetVariable(function, FEvaluatorBootstrapSymbol(" implementation", state), (FObject *)implementation);
-	// return function;
 }
 
 
@@ -27,9 +20,10 @@ extern FObject *FContextPrototypeBootstrap(FObject *prototype, FEvaluatorBootstr
 extern FObject *FFunctionPrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state);
 extern FObject *FListNodePrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state);
 extern FObject *FMessagePrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state);
-extern FObject *FSymbolPrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state);
 
 FObject *FEvaluatorInitialize(FObject *Evaluator) {
+	FSymbolInitialize();
+	
 	FObject *Object = FObjectCreate(NULL);
 	FEvaluatorBootstrapState state = {
 		.Object = Object,
@@ -39,7 +33,6 @@ FObject *FEvaluatorInitialize(FObject *Evaluator) {
 		.Function = FObjectCreate(Object),
 		.ListNode = FObjectCreate(Object),
 		.Message = FObjectCreate(Object),
-		.Symbol = FObjectCreate(Object),
 		.Evaluator = Evaluator
 	};
 	Evaluator->prototype = Object;
@@ -48,19 +41,22 @@ FObject *FEvaluatorInitialize(FObject *Evaluator) {
 	FContextPrototypeBootstrap(state.Context, state);
 	FFunctionPrototypeBootstrap(state.Function, state);
 	// FAllocatorPrototypeBootstrap(state.Allocator, state);
-	// FSymbolPrototypeBootstrap(state.Symbol, state);
 	FCompilerPrototypeBootstrap(state.Compiler, state);
 	FMessagePrototypeBootstrap(state.Message, state);
 	FListNodePrototypeBootstrap(state.ListNode, state);
 	
-	FObjectSetVariable(Evaluator, FEvaluatorBootstrapSymbol("Context", state), state.Context);
-	FObjectSetMethod(Evaluator, FEvaluatorBootstrapSymbol("Context", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetVariable(Evaluator, FSymbolCreateWithString("Context"), state.Context);
+	FObjectSetMethod(Evaluator, FSymbolCreateWithString("Context"), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
 	
 	return Evaluator;
 }
 
 FObject *FEvaluatorCreate() {
 	return FEvaluatorInitialize(FObjectCreate(NULL));
+}
+
+void FEvaluatorDestroy(FObject *evaluator) {
+	
 }
 
 

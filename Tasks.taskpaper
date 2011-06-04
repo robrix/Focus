@@ -8,7 +8,6 @@ Parser:
 Runtime:
 	- do performance tests using hash tables for ivars & method tables vs. balanced binary trees or similar.
 Hash table:
-	- use FArray internally.
 Compiler:
 	- mark functions as being reentrant (if they are).
 	- test compilation of messages with receivers.
@@ -24,7 +23,10 @@ AST:
 Evaluator:
 	An evaluator is sort of a meta-context. It contains the core prototypes which are accessible from Context (and its clones).
 	- each source file gets its own context.
-
+Object:
+	- should objects have static ivar layout?
+		The layout of ivars would be decided when an object is created, and never be altered.
+		It would inherit this layout from its parents.
 Symbol:
 	- make a symbol prototype, and make symbols a proper object type.
 	- symbols should consist of a string and a hash.

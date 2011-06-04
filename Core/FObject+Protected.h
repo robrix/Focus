@@ -5,17 +5,22 @@
 #ifndef F_OBJECT_PROTECTED
 #define F_OBJECT_PROTECTED
 
+#include <stdint.h>
+#include <stdlib.h>
+#include "FHashTable.h"
+#include "FObject.h"
+
 struct FObject {
 	struct FObject *prototype;
-	struct FHashTable *variables;
-	struct FHashTable *methods;
+	FHashTable slots;
 };
 
-extern struct FObject *FObjectGetVariable(struct FObject *self, struct FObject *selector);
-extern struct FObject *FObjectGetVariableWithHash(struct FObject *self, struct FObject *selector, size_t hash); // for bootstrapping symbols
-extern struct FObject *FObjectSetVariable(struct FObject *self, struct FObject *selector, struct FObject *variable);
-extern struct FObject *FObjectSetVariableWithHash(struct FObject *self, struct FObject *selector, size_t hash, struct FObject *variable); // for bootstrapping symbols, which are themselves objects and thus have methods stored as objects indexed by… symbols!
+extern FObject *FObjectGetSlot(FObject *self, FSymbol *selector);
+extern FObject *FObjectSetSlot(FObject *self, FSymbol *selector, FObject *variable);
 
-extern struct FObject *FObjectSetVariableAsAccessor(struct FObject *self, struct FObject *selector, struct FObject *other);
+extern FObject *FObjectGetVariable(FObject *self, FSymbol *selector);
+extern FObject *FObjectSetVariable(FObject *self, FSymbol *selector, FObject *variable);
+
+extern FObject *FObjectSetVariableAsAccessor(FObject *self, FSymbol *selector, FObject *other);
 
 #endif // F_OBJECT_PROTECTED

@@ -18,26 +18,26 @@
 #include <stdio.h>
 
 LLVMContextRef FCompilerGetContext(FObject *self) {
-	return (LLVMContextRef)FSend(self, $context);
+	return (LLVMContextRef)FSendMessage(self, FSymbolCreateWithString(" context"));
 }
 
 LLVMModuleRef FCompilerGetModule(FObject *self) {
-	return (LLVMModuleRef)FSend(self, $module);
+	return (LLVMModuleRef)FSend(self, FSymbolCreateWithString(" module"));
 	
 }
 
 LLVMBuilderRef FCompilerGetBuilder(FObject *self) {
-	return (LLVMBuilderRef)FSend(self, $builder);
+	return (LLVMBuilderRef)FSend(self, FSymbolCreateWithString(" builder"));
 	
 }
 
 LLVMExecutionEngineRef FCompilerGetExecutor(FObject *self) {
-	return (LLVMExecutionEngineRef)FSend(self, $executor);
+	return (LLVMExecutionEngineRef)FSend(self, FSymbolCreateWithString(" executor"));
 }
 
 
-LLVMValueRef FCompilerVisitMessageWithVisitedReceiverAndArguments(FObject *self, FObject *selector, FObject *message, LLVMValueRef receiver, LLVMValueRef arguments[]);
-LLVMValueRef FCompilerVisitFunction(FObject *self, FObject *selector, FObject *function);
+LLVMValueRef FCompilerVisitMessageWithVisitedReceiverAndArguments(FObject *self, FSymbol *selector, FObject *message, LLVMValueRef receiver, LLVMValueRef arguments[]);
+LLVMValueRef FCompilerVisitFunction(FObject *self, FSymbol *selector, FObject *function);
 
 FObject *FCompilerPrototypeBootstrap(FObject *compiler, FEvaluatorBootstrapState state) {
 	static bool initedJIT = 0;
@@ -47,21 +47,21 @@ FObject *FCompilerPrototypeBootstrap(FObject *compiler, FEvaluatorBootstrapState
 		initedJIT = 1;
 	}
 	
-	FObjectSetMethod(compiler, FEvaluatorBootstrapSymbol("visitMessage:withVisitedReceiver:visitedArguments:", state), FEvaluatorBootstrapFunction((FImplementation)FCompilerVisitMessageWithVisitedReceiverAndArguments, state));
-	FObjectSetMethod(compiler, FEvaluatorBootstrapSymbol("visitFunction:", state), FEvaluatorBootstrapFunction((FImplementation)FCompilerVisitFunction, state));
+	FObjectSetMethod(compiler, FSymbolCreateWithString("visitMessage:withVisitedReceiver:visitedArguments:"), FEvaluatorBootstrapFunction((FImplementation)FCompilerVisitMessageWithVisitedReceiverAndArguments, state));
+	FObjectSetMethod(compiler, FSymbolCreateWithString("visitFunction:"), FEvaluatorBootstrapFunction((FImplementation)FCompilerVisitFunction, state));
 	
 	LLVMContextRef context = LLVMContextCreate();
 	LLVMModuleRef module = LLVMModuleCreateWithNameInContext("Focus", context);
 	LLVMExecutionEngineRef executor = NULL;
 	LLVMCreateJITCompilerForModule(&executor, module, 3, NULL);
-	FObjectSetMethod(compiler, FEvaluatorBootstrapSymbol("$context", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
-	FObjectSetMethod(compiler, FEvaluatorBootstrapSymbol("$module", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
-	FObjectSetMethod(compiler, FEvaluatorBootstrapSymbol("$builder", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
-	FObjectSetMethod(compiler, FEvaluatorBootstrapSymbol("$executor", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
-	FObjectSetVariable(compiler, FEvaluatorBootstrapSymbol("$context", state), (FObject *)context);
-	FObjectSetVariable(compiler, FEvaluatorBootstrapSymbol("$module", state), (FObject *)module);
-	FObjectSetVariable(compiler, FEvaluatorBootstrapSymbol("$builder", state), (FObject *)LLVMCreateBuilderInContext(context));
-	FObjectSetVariable(compiler, FEvaluatorBootstrapSymbol("$executor", state), (FObject *)executor);
+	FObjectSetMethod(compiler, FSymbolCreateWithString(" context"), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetMethod(compiler, FSymbolCreateWithString(" module"), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetMethod(compiler, FSymbolCreateWithString(" builder"), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetMethod(compiler, FSymbolCreateWithString(" executor"), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetVariable(compiler, FSymbolCreateWithString(" context"), (FObject *)context);
+	FObjectSetVariable(compiler, FSymbolCreateWithString(" module"), (FObject *)module);
+	FObjectSetVariable(compiler, FSymbolCreateWithString(" builder"), (FObject *)LLVMCreateBuilderInContext(context));
+	FObjectSetVariable(compiler, FSymbolCreateWithString(" executor"), (FObject *)executor);
 	
 	return compiler;
 }
@@ -72,6 +72,15 @@ LLVMTypeRef FCompilerGetObjectType(FObject *compiler) {
 	if(!type) {
 		type = LLVMPointerType(LLVMInt8TypeInContext(FCompilerGetContext(compiler)), 0);
 		LLVMAddTypeName(FCompilerGetModule(compiler), "FObject", type);
+	}
+	return type;
+}
+
+LLVMTypeRef FCompilerGetSymbolType(FObject *compiler) {
+	LLVMTypeRef type = LLVMGetTypeByName(FCompilerGetModule(compiler), "FSymbol");
+	if(!type) {
+		type = LLVMPointerType(LLVMInt8TypeInContext(FCompilerGetContext(compiler)), 0);
+		LLVMAddTypeName(FCompilerGetModule(compiler), "FSymbol", type);
 	}
 	return type;
 }
@@ -92,7 +101,9 @@ LLVMValueRef FCompilerGetReferenceToExternalFunction(FObject *compiler, const ch
 LLVMTypeRef FCompilerGetMethodTypeOfArity(FObject *compiler, size_t arity) {
 	// there are two implicit parameters, self and selector.
 	LLVMTypeRef types[arity + 2];
-	for(size_t i = 0; i < arity + 2; i++) {
+	types[0] = FCompilerGetObjectType(compiler);
+	types[1] = FCompilerGetSymbolType(compiler);
+	for(size_t i = 2; i < arity + 2; i++) {
 		types[i] = FCompilerGetObjectType(compiler);
 	}
 	return LLVMFunctionType(FCompilerGetObjectType(compiler), types, arity + 2, 0);
@@ -109,7 +120,7 @@ LLVMValueRef FCompilerGetImplementationFunction(FObject *compiler) {
 }
 
 
-LLVMValueRef FCompilerVisitMessageWithVisitedReceiverAndArguments(FObject *self, FObject *selector, FObject *message, LLVMValueRef receiver, LLVMValueRef arguments[]) {
+LLVMValueRef FCompilerVisitMessageWithVisitedReceiverAndArguments(FObject *self, FSymbol *selector, FObject *message, LLVMValueRef receiver, LLVMValueRef arguments[]) {
 	LLVMValueRef result = NULL;
 	size_t count = FListNodeGetCount(FSend(message, arguments)), paramIndex = 0;
 	FObject *compiler = FObjectGetPrototype(self);
@@ -133,13 +144,13 @@ LLVMValueRef FCompilerVisitMessageWithVisitedReceiverAndArguments(FObject *self,
 		
 		LLVMValueRef method = LLVMBuildCall(builder, FCompilerGetMethodFunction(compiler), parameters, 2, "get function");
 		LLVMValueRef implementation = LLVMBuildCall(builder, FCompilerGetImplementationFunction(compiler), (LLVMValueRef[]){ method }, 1, "get implementation");
-		LLVMValueRef cast = LLVMBuildPointerCast(builder, implementation, LLVMPointerType(FCompilerGetMethodTypeOfArity(compiler, FSymbolGetArity(FSend(message, selector))), 0), "cast implementation to specific type");
-		result = LLVMBuildCall(builder, cast, parameters, count + 2, FSymbolGetString(FSend(message, selector)));
+		LLVMValueRef cast = LLVMBuildPointerCast(builder, implementation, LLVMPointerType(FCompilerGetMethodTypeOfArity(compiler, FSymbolGetArity((FSymbol *)FSend(message, selector))), 0), "cast implementation to specific type");
+		result = LLVMBuildCall(builder, cast, parameters, count + 2, FSymbolGetString((FSymbol *)FSend(message, selector)));
 	}
 	return result;
 }
 
-LLVMValueRef FCompilerVisitFunction(FObject *self, FObject *selector, FObject *function) {
+LLVMValueRef FCompilerVisitFunction(FObject *self, FSymbol *selector, FObject *function) {
 	#pragma message("fixme: this should create a clone of this function.")
 	return NULL;
 }
@@ -155,6 +166,7 @@ FImplementation FCompilerCompileFunction(FObject *compiler, FObject *function) {
 	
 	// pick a name for the function; "function 0x…" or similar will do for now
 	LLVMValueRef f = LLVMAddFunction(FCompilerGetModule(compiler), "function", FCompilerGetMethodTypeOfArity(compiler, FFunctionGetArity(function))), result = NULL;
+	// LLVMSetGC(f, "shadow-stack");
 	LLVMAppendBasicBlock(f, "entry");
 	LLVMPositionBuilderAtEnd(FCompilerGetBuilder(compiler), LLVMGetEntryBasicBlock(f));
 	

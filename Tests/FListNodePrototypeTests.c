@@ -10,6 +10,7 @@
 static FObject *ListNode = NULL;
 static FObject *Object = NULL;
 static void setUp() {
+	FSetUpTestEvaluator();
 	ListNode = FSend(FSend(FTestEvaluator, Context), ListNode);
 	Object = FSend(FSend(FTestEvaluator, Context), Object);
 }
@@ -54,7 +55,7 @@ static void testCanFetchTheLastNode() {
 
 
 void FRunListNodePrototypeTests() {
-	FRunTestSuite("FListNodePrototype", setUp, NULL, (FTestSuiteTestCase[]){
+	FRunTestSuite(&(FTestSuite){"FListNodePrototype", setUp, FTearDownTestEvaluator, (FTestCase[]){
 		FTestCase(testInheritsFromObject),
 		
 		FTestCase(testNewInstancesInheritFromThePrototype),
@@ -65,5 +66,5 @@ void FRunListNodePrototypeTests() {
 		FTestCase(testCanFetchTheLastNode),
 		
 		{0},
-	});
+	}});
 }

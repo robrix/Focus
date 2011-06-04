@@ -15,35 +15,39 @@ extern FObject *FTestEvaluator;
 
 typedef void (*FTestSuiteSetUpFunction)();
 typedef void (*FTestSuiteTearDownFunction)();
-typedef void (*FTestSuiteTestFunction)();
+typedef void (*FTestCaseFunction)();
 
-typedef struct FTestSuiteTestCase {
-	FTestSuiteTestFunction test;
+typedef struct FTestCase {
+	FTestCaseFunction test;
 	const char *name;
-} FTestSuiteTestCase;
+} FTestCase;
+
+typedef struct FTestSuite {
+	const char *name;
+	FTestSuiteSetUpFunction setUp;
+	FTestSuiteTearDownFunction tearDown;
+	FTestCase *tests;
+} FTestSuite;
 
 extern unsigned int FTestSuiteAssertionsRun;
 extern unsigned int FTestSuiteAssertionsFailed;
 extern unsigned int FTestSuiteTestCasesRun;
 extern unsigned int FTestSuiteTestSuitesRun;
 
-void FRunTestSuite(const char *name, FTestSuiteSetUpFunction setUp, FTestSuiteTearDownFunction tearDown, FTestSuiteTestCase *tests);
+void FRunTestCase(FTestSuite *suite, FTestCase *testCase);
+void FRunTestSuite(FTestSuite *suite);
+
+void FSetUpTestEvaluator();
+void FTearDownTestEvaluator();
 
 #define FFailWithOptionalMessageString(ignored, format, ...) { printf((format), ## __VA_ARGS__); FTestSuiteAssertionsFailed++; }
 
-#define FAssert(_expression, ...) {\
-	__typeof__(_expression) __condition = (_expression);\
-	FTestSuiteAssertionsRun++;\
-	if(!__condition)\
-		FFailWithOptionalMessageString(, ## __VA_ARGS__, "%s:%u: error: %s was unexpectedly false.\n", __FILE__, __LINE__, #_expression);\
-}
-#undef FAssert
 #define FAssert(_expression, ...) FAssertConditionWithMessage((bool)(_expression), ## __VA_ARGS__, "%s:%u: error: %s was unexpectedly false.\n", __FILE__, __LINE__, #_expression)
 
 #define FFail(format, ...) { FTestSuiteAssertionsRun++; FFailWithOptionalMessageString(, format, ## __VA_ARGS__); }
 
 
-#define FTestCase(testCase) (FTestSuiteTestCase){testCase, #testCase}
+#define FTestCase(testCase) (FTestCase){testCase, #testCase}
 
 
 bool FAssertConditionWithMessage(bool condition, const char *format, ...);

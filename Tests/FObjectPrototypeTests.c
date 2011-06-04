@@ -8,8 +8,10 @@
 
 static FObject *Object = NULL;
 static void setUp() {
+	FSetUpTestEvaluator();
 	Object = FSend(FSend(FTestEvaluator, Context), Object);
 }
+
 
 static void testCreatesASingletonPrototype() {
 	FAssert(Object != NULL);
@@ -31,11 +33,11 @@ static void testReturnsItsPrototype() {
 }
 
 void FRunObjectPrototypeTests() {
-	FRunTestSuite("FObjectPrototype", setUp, NULL, (FTestSuiteTestCase[]){
+	FRunTestSuite(&(FTestSuite){"FObjectPrototype", setUp, FTearDownTestEvaluator, (FTestCase[]){
 		FTestCase(testCreatesASingletonPrototype),
 		FTestCase(testImplementsTheIdentityMethod),
 		FTestCase(testCanBeCloned),
 		FTestCase(testReturnsItsPrototype),
 		{0},
-	});
+	}});
 }

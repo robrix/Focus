@@ -1,0 +1,4 @@
+Map = Interface composedOf: [
+	require: "Enumerable",
+	#at:
+]

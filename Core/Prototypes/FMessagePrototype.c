@@ -13,7 +13,7 @@
 #include <stdlib.h>
 
 
-FObject *FMessageNewWithReceiverSelectorArguments(FObject *self, FObject *_cmd, FObject *receiver, FObject *selector, FObject *arguments) {
+FObject *FMessageNewWithReceiverSelectorArguments(FObject *self, FObject *_cmd, FObject *receiver, FSymbol *selector, FObject *arguments) {
 	FObject *instance = FSend(self, new);
 	if(receiver) FSend(instance, receiver:, receiver);
 	if(selector) FSend(instance, selector:, selector);
@@ -22,7 +22,7 @@ FObject *FMessageNewWithReceiverSelectorArguments(FObject *self, FObject *_cmd, 
 }
 
 
-FObject *FMessageAcceptVisitor(FObject *self, FObject *selector, FObject *visitor) {
+FObject *FMessageAcceptVisitor(FObject *self, FSymbol *selector, FObject *visitor) {
 	FObject *receiver = FSend(self, receiver) ? FSend(FSend(self, receiver), acceptVisitor:, visitor) : NULL;
 	FObject *node = FSend(self, arguments);
 	size_t count = FListNodeGetCount(node), index = 0;
@@ -36,16 +36,16 @@ FObject *FMessageAcceptVisitor(FObject *self, FObject *selector, FObject *visito
 
 
 FObject *FMessagePrototypeBootstrap(FObject *prototype, FEvaluatorBootstrapState state) {
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("receiver", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("receiver:", state), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("selector", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("selector:", state), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("arguments", state), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("arguments:", state), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("receiver"), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("receiver:"), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("selector"), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("selector:"), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("arguments"), FEvaluatorBootstrapFunction((FImplementation)FObjectGetVariable, state));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("arguments:"), FEvaluatorBootstrapFunction((FImplementation)FObjectSetVariableAsAccessor, state));
 	
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("newWithReceiver:selector:arguments:", state), FEvaluatorBootstrapFunction((FImplementation)FMessageNewWithReceiverSelectorArguments, state));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("newWithReceiver:selector:arguments:"), FEvaluatorBootstrapFunction((FImplementation)FMessageNewWithReceiverSelectorArguments, state));
 	
-	FObjectSetMethod(prototype, FEvaluatorBootstrapSymbol("acceptVisitor:", state), FEvaluatorBootstrapFunction((FImplementation)FMessageAcceptVisitor, state));
+	FObjectSetMethod(prototype, FSymbolCreateWithString("acceptVisitor:"), FEvaluatorBootstrapFunction((FImplementation)FMessageAcceptVisitor, state));
 	
 	return prototype;
 }

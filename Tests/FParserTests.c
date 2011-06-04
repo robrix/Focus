@@ -14,8 +14,10 @@ typedef struct FMessageFixture { const char *source; size_t length; } FMessageFi
 
 static FObject *Context = NULL;
 static void setUp() {
+	FSetUpTestEvaluator();
 	Context = FSend(FTestEvaluator, Context);
 }
+
 
 static void testParsesWords() {
 	size_t length = 0;
@@ -392,7 +394,7 @@ static void testParsesCompleteSources() {
 
 
 void FRunParserTests() {
-	FRunTestSuite("FParser", setUp, NULL, (FTestSuiteTestCase[]){
+	FRunTestSuite(&(FTestSuite){"FParser", setUp, FTearDownTestEvaluator, (FTestCase[]){
 		FTestCase(testParsesCharacterSets),
 		FTestCase(testParsesTokens),
 		
@@ -424,5 +426,5 @@ void FRunParserTests() {
 		FTestCase(testParsesCompleteSources),
 		
 		{0},
-	});
+	}});
 }

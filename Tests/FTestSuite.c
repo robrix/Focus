@@ -14,7 +14,7 @@ unsigned int FTestSuiteTestSuitesRun = 0;
 
 FObject *FTestEvaluator = NULL;
 
-void FAssertionFailed() {
+void FTestSuiteAssertionFailed() {
 	FTestSuiteAssertionsFailed++;
 }
 
@@ -24,39 +24,50 @@ bool FAssertConditionWithMessage(bool condition, const char *format, ...) {
 		va_list arguments;
 		va_start(arguments, format);
 		vprintf(format, arguments);
-		FAssertionFailed();
+		FTestSuiteAssertionFailed();
 	}
 	fflush(stdout);
 	return condition;
 }
 
 
-void FRunTestSuite(const char *name, FTestSuiteSetUpFunction setUp, FTestSuiteTearDownFunction tearDown, FTestSuiteTestCase *tests) {
-	printf("Running suite %s\n", name);
-	FTestSuiteTestCase *testCase = tests;
+void FRunTestCase(FTestSuite *suite, FTestCase *testCase) {
+	printf("%s\n", testCase->name);
+	fflush(stdout);
+	
+	if(suite->setUp) {
+		suite->setUp();
+		fflush(stdout);
+	}
+	
+	(testCase->test)();
+	fflush(stdout);
+	
+	if(suite->tearDown) {
+		suite->tearDown();
+		fflush(stdout);
+	}
+}
+
+void FRunTestSuite(FTestSuite *suite) {
+	printf("Running suite %s\n", suite->name);
+	FTestCase *testCase = suite->tests;
 	do {
 		if(testCase->test) {
-			printf("%s\n", testCase->name);
-			fflush(stdout);
-			
-			FTestEvaluator = FEvaluatorCreate();
-			
-			if(setUp) {
-				setUp();
-				fflush(stdout);
-			}
-			
-			(testCase->test)();
-			fflush(stdout);
-			
-			if(tearDown) {
-				tearDown();
-				fflush(stdout);
-			}
+			FRunTestCase(suite, testCase);
 		}
 		testCase++;
 		FTestSuiteTestCasesRun++;
 	} while(testCase->test);
 	printf("\n");
 	FTestSuiteTestSuitesRun++;
+}
+
+void FSetUpTestEvaluator() {
+	FTestEvaluator = FEvaluatorCreate();
+}
+
+void FTearDownTestEvaluator() {
+	FEvaluatorDestroy(FTestEvaluator);
+	FTestEvaluator = NULL;
 }

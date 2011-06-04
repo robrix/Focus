@@ -7,16 +7,30 @@
 
 #include "FObject.h"
 
+typedef struct FSlot {
+	FSymbol symbol;
+	void *value;
+	struct FSlot *next;
+} FSlot;
+
 typedef struct FHashTable {
-	unsigned int bucketCount;
-	struct FPair *buckets;
+	uint16_t slotCount; uint16_t bucketCount;
+	FSlot slots[]; // variable-length structure
 } FHashTable;
 
 FHashTable *FHashTableCreate();
+FHashTable FHashTableMake();
 
-void *FHashTableGetValueForKey(FHashTable *self, FObject *key);
-void *FHashTableGetValueForKeyWithHash(FHashTable *self, FObject *key, size_t hash); // for bootstrapping symbols
-void FHashTableSetValueForKey(FHashTable *self, FObject *key, void *value); // fixme: assumes you aren’t inserting a duplicate entry for the given key
-void FHashTableSetValueForKeyWithHash(FHashTable *self, FObject *key, size_t hash, void *value); // for bootstrapping symbols (themselves a kind of object) as keys
+size_t FHashTableGetSize(FHashTable *self);
+size_t FHashTableGetSizeForSlotCount(uint16_t slotCount);
+
+uint16_t FHashTableGetSlotCount(FHashTable *self);
+uint16_t FHashTableGetBucketCount(FHashTable *self);
+
+void *FHashTableGetValueForKey(FHashTable *self, FSymbol *symbol);
+void FHashTableSetValueForKey(FHashTable *self, FSymbol *symbol, void *value); // fixme: assumes you aren’t inserting a duplicate entry for the given key
+
+typedef void (*FHashTableSlotVisitor)(FHashTable *table, FSlot *slot, void *context);
+void FHashTableVisitSlots(FHashTable *self, FHashTableSlotVisitor visitor, void *context);
 
 #endif // F_HASH_TABLE

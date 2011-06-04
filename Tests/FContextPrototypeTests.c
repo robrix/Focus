@@ -10,6 +10,7 @@
 static FObject *Context = NULL;
 
 static void setUp() {
+	FSetUpTestEvaluator();
 	Context = FSend(FTestEvaluator, Context);
 }
 
@@ -30,11 +31,11 @@ static void testExposesContextPrototype() {
 }
 
 void FRunContextPrototypeTests() {
-	FRunTestSuite("FContextPrototype", setUp, NULL, (FTestSuiteTestCase[]){
+	FRunTestSuite(&(FTestSuite){"FContextPrototype", setUp, FTearDownTestEvaluator, (FTestCase[]){
 		FTestCase(testCreatesASingletonPrototype),
 		FTestCase(testInheritsFromObject),
 		FTestCase(testExposesObjectPrototype),
 		FTestCase(testExposesContextPrototype),
 		{0},
-	});
+	}});
 }

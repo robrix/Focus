@@ -1,0 +1,19 @@
+Focus Allocator = Object implementing: [
+	Interface composedOf: [#pages, #nurseryPage],
+	Interface composedOf: [#frames],
+	Interface composedOf: [#allocateObject]
+] as: {
+	Frame = require: "Frame"
+	Page = require: "Page"
+	Reference = require: "Reference"
+	
+	#nurseryPage -> Page = {
+		self.pages
+	}
+	
+	#allocateObject -> Object = {
+		self nurseryPage canAllocateObject? then: #allocateObject else: {
+			// perform a collection and reallocate
+		}
+	}
+}

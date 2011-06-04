@@ -2,7 +2,7 @@
 // Created by Rob Rix on 2010-10-02
 // Copyright 2010 Monochrome Industries
 
-#include "Core/FObject.h"
+#include "Core/FObject+Protected.h"
 #include "Core/FSymbol.h"
 #include "Core/Prototypes/FFunctionPrototype.h"
 #include "FTestSuite.h"
@@ -10,6 +10,7 @@
 static FObject *object = NULL;
 
 static void setUp() {
+	FSetUpTestEvaluator();
 	object = FObjectCreate(NULL);
 }
 
@@ -19,7 +20,7 @@ static void testCreation() {
 }
 
 
-static FObject *method(FObject *receiver, FObject *selector) {
+static FObject *method(FObject *receiver, FSymbol *selector) {
 	return NULL;
 }
 
@@ -33,9 +34,9 @@ static void testInheritsMethodsFromItsPrototype() {
 
 
 void FRunObjectTests() {
-	FRunTestSuite("FObject", setUp, NULL, (FTestSuiteTestCase[]){
+	FRunTestSuite(&(FTestSuite){"FObject", setUp, FTearDownTestEvaluator, (FTestCase[]){
 		FTestCase(testCreation),
 		FTestCase(testInheritsMethodsFromItsPrototype),
 		{0},
-	});
+	}});
 }

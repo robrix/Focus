@@ -1,0 +1,5 @@
+Page = Object implementing: [
+	Interface composedOf: [require: "LinkedList", #allocator, #containsObject:, #drain, #visitObjects:, #visitReferences:, #allocateObject, #allocateObjectWithSlotCount:]
+] as: {
+	
+}

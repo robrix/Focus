@@ -1,0 +1,11 @@
+LinkedList = Interface composedOf: [
+	#next,
+	#last,
+	require: "Enumerable"
+]
+
+DoubleLinkedList = Interface composedOf: [
+	LinkedList,
+	#previous,
+	#first
+]

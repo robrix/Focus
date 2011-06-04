@@ -1,0 +1,4 @@
+Enumerable = Interface composedOf: [
+	#map:,
+	#fold:
+]

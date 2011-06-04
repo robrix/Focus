@@ -1,0 +1,14 @@
+Index -> Interface composedOf: [
+	require: "Copy"
+]
+
+Function -> Interface composedOf: [
+	#call -> Object,
+	#call: Collection -> Object
+]
+
+#at: Index -> Object
+#set: Object at: Index -> Object
+
+#map: Function -> Map
+#fold: Function -> Object
