@@ -2,12 +2,12 @@
 // Created by Rob Rix on 2010-09-28
 // Copyright 2010 Monochrome Industries
 
-#include "FAllocator.h"
 #include "FAssertions.h"
 #include "FFrame.h"
 #include "FPage.h"
 #include "FReference.h"
 #include "FObject+Protected.h"
+#include "FAllocator.h"
 #include <stdint.h>
 
 // should there be one allocator per thread? (at the very least, a shared allocator isn’t thread safe)
@@ -42,15 +42,23 @@ struct FPage *FAllocatorGetNursery(FAllocator *self) {
 }
 
 
-struct FObject *FAllocatorAllocateObjectWithSlotCount(struct FAllocator *self, uint16_t slotCount) {
+struct FObject *FAllocatorAllocateObjectInPageWithSlotCount(struct FAllocator *self, struct FPage *page, uint16_t slotCount) {
 	FAssertPrecondition(self != NULL);
-	FObject *object = FPageAllocateObjectWithSlotCount(FAllocatorGetNursery(self), slotCount);
-	if(!object) {
+	FAssertPrecondition(page != NULL);
+	
+	if(FObjectGetSizeForSlotCount(slotCount) > F_PAGE_SIZE)
+		return NULL;
+	
+	FObject *object = FPageAllocateObjectWithSlotCount(page, slotCount);
+	if(!object) { // the page is full; collect it and try again
 		FAllocatorCollect(self);
-		// perform a collection, promoting live objects to the next generation
-		// then allocate again in the nursery
+		object = FPageAllocateObjectWithSlotCount(page, slotCount);
 	}
 	return object;
+}
+
+struct FObject *FAllocatorAllocateObjectWithSlotCount(struct FAllocator *self, uint16_t slotCount) {
+	return FAllocatorAllocateObjectInPageWithSlotCount(self, FAllocatorGetNursery(self), slotCount);
 }
 
 FObject *FAllocatorAllocateObject(FAllocator *self) {
@@ -60,7 +68,7 @@ FObject *FAllocatorAllocateObject(FAllocator *self) {
 
 void *FAllocatorAllocate(FAllocator *self, size_t bytes) {
 	FAssertPrecondition(self != NULL);
-	#pragma message("fixme: handle bytes > F_ALLOCATOR_GENERATION_SIZE specially")
+	#pragma message("fixme: handle bytes > F_PAGE_SIZE specially")
 	return calloc(1, bytes);
 }
 
@@ -169,15 +177,19 @@ struct FReference *FAllocatorCopyReferencesToObject(struct FAllocator *self, str
 	return state.references;
 }
 
+void FAllocatorUpdateReferencesToObject(struct FAllocator *self, struct FPage *page, struct FObject *original, struct FObject *copy, struct FReference *references) {
+	FReferenceListSetReferencedObject(references ?: FAllocatorCopyReferencesToObject(self, page, original), copy);
+}
+
 void FAllocatorCollectObjectInPage(struct FPage *page, struct FObject *object, void *context) {
 	FAllocator *self = context;
 	
 	struct FReference *references = FAllocatorCopyReferencesToObject(self, page, object);
 	if(references != NULL) {
-		struct FPage *next = FPageGetNextPage(page) ?: FPageListAppendPage(page, FPageCreate(self));
-		
+		struct FPage *next = FPageGetOrCreateNextPage(page);
+
 		struct FObject *copy = FPageCopyObject(next, object);
-		FReferenceListSetReferencedObject(references, copy);
+		FAllocatorUpdateReferencesToObject(self, page, object, copy, references);
 	}
 }
 

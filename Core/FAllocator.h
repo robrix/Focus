@@ -11,12 +11,14 @@
 struct FAllocator *FAllocatorCreate();
 void FAllocatorDestroy(struct FAllocator *self);
 
+struct FObject *FAllocatorAllocateObjectInPageWithSlotCount(struct FAllocator *self, struct FPage *page, uint16_t slotCount);
 struct FObject *FAllocatorAllocateObjectWithSlotCount(struct FAllocator *self, uint16_t slotCount);
 struct FObject *FAllocatorAllocateObject(struct FAllocator *self);
 void *FAllocatorAllocate(struct FAllocator *self, size_t bytes);
 void *FAllocatorResizeAllocation(struct FAllocator *self, void *allocation, size_t bytes);
 
 bool FAllocatorObjectIsLive(struct FAllocator *self, struct FObject *object);
+void FAllocatorUpdateReferencesToObject(struct FAllocator *self, struct FPage *page, struct FObject *original, struct FObject *copy, struct FReference *references);
 void FAllocatorCollect(struct FAllocator *self);
 
 struct FFrame *FAllocatorGetCurrentFrame(struct FAllocator *self);

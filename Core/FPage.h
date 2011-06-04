@@ -18,6 +18,7 @@ void FPageDestroy(struct FPage *self);
 size_t FPageGetIndex(struct FPage *self);
 
 struct FPage *FPageGetNextPage(struct FPage *self);
+struct FPage *FPageGetOrCreateNextPage(struct FPage *self); // appends a page if there isn’t already a next page
 struct FAllocator *FPageGetAllocator(struct FPage *self);
 
 struct FObject *FPageAllocateObjectWithSlotCount(struct FPage *self, uint16_t slotCount);
@@ -28,9 +29,9 @@ bool FPageContainsAddress(struct FPage *self, void *address);
 
 // the most recently allocated object can be resized in place
 // todo: objects with sufficient free space following them, e.g. nulled-out allocations, can be resized in place (if we can correctly mark the remaining space as being blank)
-bool FPageCanResizeObjectInPlace(struct FPage *self, struct FObject *object, size_t newSize);
+bool FPageCanResizeObjectInPlace(struct FPage *self, struct FObject *object, size_t slotCount);
 // resizes the object, in place if possible, and returns its new address. does not change the contents of the object at all, so FObjectGetSize() will not report the new size!
-struct FObject *FPageResizeObject(struct FPage *self, struct FObject *object, size_t newSize);
+struct FObject *FPageResizeObject(struct FPage *self, struct FObject *object, size_t slotCount);
 
 void FPageDrain(struct FPage *self);
 

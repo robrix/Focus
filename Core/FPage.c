@@ -41,6 +41,10 @@ struct FPage *FPageGetNextPage(struct FPage *self) {
 	return self->next;
 }
 
+struct FPage *FPageGetOrCreateNextPage(struct FPage *self) {
+	return FPageGetNextPage(self) ?: FPageListAppendPage(self, FPageCreate(FPageGetAllocator(self)));
+}
+
 struct FAllocator *FPageGetAllocator(struct FPage *self) {
 	FAssertPrecondition(self != NULL);
 	return self->allocator;
@@ -89,22 +93,27 @@ size_t FPageIndexOfObject(struct FPage *self, struct FObject *object) {
 	return (size_t)object - (size_t)self;
 }
 
-bool FPageCanResizeObjectInPlace(struct FPage *self, struct FObject *object, size_t newSize) {
+bool FPageCanResizeObjectInPlace(struct FPage *self, struct FObject *object, size_t slotCount) {
 	FAssertPrecondition(self != NULL);
 	FAssertPrecondition(object != NULL);
 	size_t objectIndex = FPageIndexOfObject(self, object);
 	return
 		((objectIndex + FObjectGetSize(object)) == self->index)
-	&&	((objectIndex + newSize) < F_PAGE_SIZE);
+	&&	((objectIndex + FObjectGetSizeForSlotCount(slotCount)) < F_PAGE_SIZE);
 }
 
-struct FObject *FPageResizeObject(struct FPage *self, struct FObject *object, size_t newSize) {
+struct FObject *FPageResizeObject(struct FPage *self, struct FObject *object, size_t slotCount) {
 	FAssertPrecondition(self != NULL);
 	FAssertPrecondition(object != NULL);
-	if(FPageCanResizeObjectInPlace(self, object, newSize)) {
-		self->index = FPageIndexOfObject(self, object) + newSize;
+	if(FPageCanResizeObjectInPlace(self, object, slotCount)) {
+		self->index = FPageIndexOfObject(self, object) + FObjectGetSizeForSlotCount(slotCount);
 	} else {
+		struct FObject *original = object;
+		object = FAllocatorAllocateObjectInPageWithSlotCount(FPageGetAllocator(self), self, slotCount);
 		
+		memcpy(object, original, FObjectGetSize(original));
+		
+		FAllocatorUpdateReferencesToObject(FPageGetAllocator(self), self, original, object, NULL);
 	}
 	return object;
 }

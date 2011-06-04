@@ -7,14 +7,18 @@
 #include "Core/FPage.h"
 #include "FTestSuite.h"
 
+static struct FAllocator *allocator = NULL;
 static struct FPage *page = NULL;
 static void setUp() {
-	page = FPageCreate(NULL);
+	allocator = FAllocatorCreate();
+	page = FPageCreate(allocator);
 }
 
 static void tearDown() {
 	FPageDestroy(page);
 	page = NULL;
+	FAllocatorDestroy(allocator);
+	allocator = NULL;
 }
 
 
@@ -43,25 +47,25 @@ static void testVisitsAllocatedObjects() {
 
 static void testTheMostRecentlyAllocatedObjectCanBeResizedInPlace() {
 	struct FObject *object = FPageAllocateObject(page);
-	FAssert(FPageCanResizeObjectInPlace(page, object, FObjectGetSizeForSlotCount(1)));
+	FAssert(FPageCanResizeObjectInPlace(page, object, 1));
 }
 
 static void testObjectsCannotBeResizedPastTheEndOfThePage() {
 	struct FObject *object = FPageAllocateObject(page);
-	FAssert(!FPageCanResizeObjectInPlace(page, object, F_PAGE_SIZE + 1));
+	FAssert(!FPageCanResizeObjectInPlace(page, object, F_PAGE_SIZE));
 }
 
 static void testLessRecentlyAllocatedObjectsCannotBeResizedInPlace() {
 	struct FObject *object = FPageAllocateObject(page);
 	FPageAllocateObject(page);
-	FAssert(!FPageCanResizeObjectInPlace(page, object, FObjectGetSizeForSlotCount(1)));
+	FAssert(!FPageCanResizeObjectInPlace(page, object, 1));
 }
 
 
 static void testResizesTheMostRecentlyAllocatedObjectInPlace() {
 	struct FObject *object = FPageAllocateObject(page);
 	FAssert(FPageGetIndex(page) == FObjectGetSizeForSlotCount(0));
-	FAssert(FPageResizeObject(page, object, FObjectGetSizeForSlotCount(1)) == object);
+	FAssert(FPageResizeObject(page, object, 1) == object);
 	FAssert(FPageGetIndex(page) == FObjectGetSizeForSlotCount(1));
 }
 
