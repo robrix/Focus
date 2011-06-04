@@ -102,6 +102,10 @@ bool FPageCanResizeObjectInPlace(struct FPage *self, struct FObject *object, siz
 	&&	((objectIndex + FObjectGetSizeForSlotCount(slotCount)) < F_PAGE_SIZE);
 }
 
+void FPageNullOutSlot(FHashTable *table, FSlot *slot, void *context) {
+	*slot = (struct FSlot){0};
+}
+
 struct FObject *FPageResizeObject(struct FPage *self, struct FObject *object, size_t slotCount) {
 	FAssertPrecondition(self != NULL);
 	FAssertPrecondition(object != NULL);
@@ -114,6 +118,8 @@ struct FObject *FPageResizeObject(struct FPage *self, struct FObject *object, si
 		memcpy(object, original, FObjectGetSize(original));
 		
 		FAllocatorUpdateReferencesToObject(FPageGetAllocator(self), self, original, object, NULL);
+		
+		FHashTableVisitSlots(&original->slots, FPageNullOutSlot, NULL);
 	}
 	return object;
 }
