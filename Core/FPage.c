@@ -30,6 +30,12 @@ void FPageDestroy(struct FPage *self) {
 }
 
 
+size_t FPageGetIndex(struct FPage *self) {
+	FAssertPrecondition(self != NULL);
+	return self->index;
+}
+
+
 struct FPage *FPageGetNextPage(struct FPage *self) {
 	FAssertPrecondition(self != NULL);
 	return self->next;
@@ -90,6 +96,17 @@ bool FPageCanResizeObjectInPlace(struct FPage *self, struct FObject *object, siz
 	return
 		((objectIndex + FObjectGetSize(object)) == self->index)
 	&&	((objectIndex + newSize) < F_PAGE_SIZE);
+}
+
+struct FObject *FPageResizeObject(struct FPage *self, struct FObject *object, size_t newSize) {
+	FAssertPrecondition(self != NULL);
+	FAssertPrecondition(object != NULL);
+	if(FPageCanResizeObjectInPlace(self, object, newSize)) {
+		self->index = FPageIndexOfObject(self, object) + newSize;
+	} else {
+		
+	}
+	return object;
 }
 
 
